@@ -46,45 +46,45 @@ function AuthProvider({ children }: AuthProviderProps) {
     navigate('/login') // Điều hướng về trang đăng nhập
   }
 
-  useEffect(() => {
-    const fetchApi = async () => {
-      try {
-        const accessToken = Cookies.get('accessToken')
-        const refreshToken = Cookies.get('refreshToken')
-        if (accessToken) {
-          const dataAccount = await authApi.getMe()
-          setAccount(dataAccount.data.account)
-          setIsAuthenticated(true)
-          return
-        }
-        if (refreshToken) {
-          const { jwt }: { jwt: IJwt } = await axiosPrivate.post(`Auth/RefreshToken`, { refreshToken })
-          const expireRefreshToken = Cookies.get('expireRefreshToken')
-          if (expireRefreshToken) {
-            Cookies.set('accessToken', jwt.accessToken, { expires: new Date(jwt.expireAccessToken) })
-            Cookies.set('expireAccessToken', jwt.expireAccessToken)
-            Cookies.set('refreshToken', jwt.refreshToken, { expires: new Date(expireRefreshToken) })
-            const dataAccount = await authApi.getMe()
-            setAccount(dataAccount.data.account)
-            setIsAuthenticated(true)
-            return
-          }
-        }
-        navigate('/login') // Only navigate if no valid tokens
-      } catch (error) {
-        console.error('Error fetching user data:', error)
-        navigate('/login')
-      } finally {
-        setLoading(false)
-      }
-    }
+  // useEffect(() => {
+  //   const fetchApi = async () => {
+  //     try {
+  //       const accessToken = Cookies.get('accessToken')
+  //       const refreshToken = Cookies.get('refreshToken')
+  //       if (accessToken) {
+  //         const dataAccount = await authApi.getMe()
+  //         setAccount(dataAccount.data.account)
+  //         setIsAuthenticated(true)
+  //         return
+  //       }
+  //       if (refreshToken) {
+  //         const { jwt }: { jwt: IJwt } = await axiosPrivate.post(`Auth/RefreshToken`, { refreshToken })
+  //         const expireRefreshToken = Cookies.get('expireRefreshToken')
+  //         if (expireRefreshToken) {
+  //           Cookies.set('accessToken', jwt.accessToken, { expires: new Date(jwt.expireAccessToken) })
+  //           Cookies.set('expireAccessToken', jwt.expireAccessToken)
+  //           Cookies.set('refreshToken', jwt.refreshToken, { expires: new Date(expireRefreshToken) })
+  //           const dataAccount = await authApi.getMe()
+  //           setAccount(dataAccount.data.account)
+  //           setIsAuthenticated(true)
+  //           return
+  //         }
+  //       }
+  //       navigate('/login') // Only navigate if no valid tokens
+  //     } catch (error) {
+  //       console.error('Error fetching user data:', error)
+  //       navigate('/login')
+  //     } finally {
+  //       setLoading(false)
+  //     }
+  //   }
 
-    if (!account) fetchApi()
-  }, [account, navigate])
+  //   if (!account) fetchApi()
+  // }, [account, navigate])
 
-  if (loading) {
-    return <Loader /> // Hiển thị loading trong khi đang kiểm tra token
-  }
+  // if (loading) {
+  //   return <Loader /> // Hiển thị loading trong khi đang kiểm tra token
+  // }
 
   return <AuthContext.Provider value={{ account, login, logout, isAuthenticated }}>{children}</AuthContext.Provider>
 }

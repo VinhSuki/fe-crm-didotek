@@ -6,6 +6,8 @@ import { ComponentType, lazy, ReactNode, Suspense } from "react";
 import { useRoutes } from "react-router-dom";
 import PublicRoute from "@/components/common/PublicRoute";
 import PrivateRoute from "@/components/common/PrivateRoute";
+import Home from "@/pages/Home";
+import { MainContent } from "@/components/layout/Partials/MainContent";
 
 const Loadable = <P extends object>(
   Component: ComponentType<P>
@@ -17,16 +19,17 @@ const Loadable = <P extends object>(
   );
 };
 
-// const InfoPersonal = Loadable(lazy(() => import('@/pages/InfoPersonal')))
+const Product = Loadable(lazy(() => import("@/pages/ProductManagement/Product")));
+const ProductType = Loadable(lazy(() => import("@/pages/ProductManagement/ProductType")));
 
 function AppRouter() {
   const routes = [
     {
       path: "/",
       element: (
-        <PrivateRoute>
-          <DefaultLayout />
-        </PrivateRoute>
+        // <PrivateRoute>
+        <DefaultLayout />
+        // </PrivateRoute>
         // <DefaultLayout />
       ),
       children: [
@@ -35,8 +38,32 @@ function AppRouter() {
           index: true,
           element: (
             <>
-              <PageTitle title="Dashboard" />
-              {/* <Dashboard /> */}
+              <PageTitle title="Home" />
+              <MainContent title="trang chủ">
+                <Home />
+              </MainContent>
+            </>
+          ),
+        },
+        {
+          path: "/san-pham",
+          element: (
+            <>
+              <PageTitle title="sản phẩm" />
+              <MainContent title="sản phẩm">
+                <Product />
+              </MainContent>
+            </>
+          ),
+        },
+        {
+          path: "/loai-san-pham",
+          element: (
+            <>
+              <PageTitle title="loại sản phẩm" />
+              <MainContent title="loại sản phẩm">
+                <ProductType />
+              </MainContent>
             </>
           ),
         },

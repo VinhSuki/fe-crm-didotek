@@ -13,6 +13,7 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
+        "background-input": "#f3f6f9",
         emphasis: "#1b2950",
         hover: "#FFF7F0",
         "background-overlay": "#5b6670",
@@ -31,7 +32,7 @@ export default {
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
-          DEFAULT: "#ff9f43",
+          DEFAULT: "#ff8510",
           foreground: "hsl(var(--secondary-foreground))",
         },
         muted: {

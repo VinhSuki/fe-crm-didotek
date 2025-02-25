@@ -1,14 +1,16 @@
-import AuthProvider from './context/Auth/AuthProvider'
-import AppRouter from './routes/routes'
-import './App.css'
+import AuthProvider from "./context/Auth/AuthProvider";
+import AppRouter from "./routes/routes";
+import "./App.css";
+import NavbarProvider from "@/context/NavbarContext";
 
 function App() {
   return (
     <AuthProvider>
-      <AppRouter />
+      <NavbarProvider>
+        <AppRouter />
+      </NavbarProvider>
     </AuthProvider>
-      // <AppRouter />
-  )
+  );
 }
 
-export default App
+export default App;
