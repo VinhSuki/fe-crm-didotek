@@ -98,8 +98,7 @@ export function Sidebar() {
       {/* Menu */}
       <nav className="flex-1  overflow-hidden p-5">
         {sidebarItems.map((items) => (
-          <>
-            <ul className="border-b pb-2 overflow-hidden">
+            <ul className="border-b pb-2 overflow-hidden" key={items.title}>
               {!isCollapsed && (
                 <h3 className="text-emphasis text-sm mb-[14px] font-bold">
                   {items.title}
@@ -162,7 +161,6 @@ export function Sidebar() {
                 </li>
               ))}
             </ul>
-          </>
         ))}
       </nav>
     </aside>

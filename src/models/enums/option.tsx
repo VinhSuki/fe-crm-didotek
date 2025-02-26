@@ -6,27 +6,13 @@ export enum EToastOption {
 
 export enum EFieldByValue {
     ID = "Id",
-    NAME = "Name",
-    FULLNAME = "FullName",
-    EMAIL = "Email",
-    PHONE_NUMBER = "PhoneNumber",
-    ADDRESS = "Address",
-    PAY_METHOD = "PayMethod",
-    TOTAL_MONEY = "TotalMoney",
-    SHIP_DATE = "ShipDate",
-    RECEIVE_DATE = "ReceiveDate",
-    STATUS = "Status",
-    STAR = "Star",
-    VALUE = "Value",
-    BASE_PRICE = "BasePrice",
-    ATTRIBUTE_TYPE_ID = "AttributeTypeId",
-    REFERENCE_CATEGORY_ID = "ReferenceCategoryId",
-    DISCOUNT_VALUE = "DiscountValue",
-    PRICE = "Price",
-    IN_STOCK = "InStock",
-    OUT_STOCK = "OutStock",
+    TEN = "Ten",
+    HINH_ANH = "Hinh Anh",
+    UPDATED_AT = "Updated At",
+    DELETED_AT = "Deleted At",
     CREATED_AT = "CreatedAt",
-    UPDATED_AT = "UpdatedAt",
+    NONE = "",
+
   }
   
   export enum ESortOrderValue {
