@@ -1,15 +1,13 @@
 import productTypeApi from "@/apis/modules/productType";
+import Loader from "@/components/common/Loader";
 import PaginationCustom from "@/components/common/PaginationCustom";
 import ProductTypeTable from "@/components/common/Table/ProductTypeTable";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { productTypesData } from "@/models/data";
-import { EFieldByValue, ESortOrderValue } from "@/models/enums/option";
+import { ESortOrderValue } from "@/models/enums/option";
 import { FilterSearch, IApiResponse, IProductType, ISortOrder } from "@/models/interfaces";
 import { IPagination } from "@/models/interfaces/pagination";
 import Add from "@/pages/ProductManagement/ProductType/Add";
-import Loader from "@/components/common/Loader";
 import { useEffect, useState } from "react";
-import { EOrderStatus } from "@/models/enums/status";
 
 
 const limit = 2;
@@ -46,7 +44,7 @@ export default function Index() {
         sort,
         order,
       };
-
+      console.log(data);
       const res: IApiResponse<IProductType[]> = await productTypeApi.list(data);
       if (res.data) {
         console.log(res.data);
@@ -71,6 +69,7 @@ export default function Index() {
     fetchData(1, limit, filters, sortOrder.sort, sortOrder.order);
   }, [filters, sortOrder]);
 
+
   return (
     <div className="space-y-6 relative">
       {/* Product Table */}
@@ -83,7 +82,7 @@ export default function Index() {
             productTypes={productTypes} // Hiển thị dữ liệu đã lọc
             filters={filters}
             onFilterChange={handleFilterChange}
-            onSortOrder={()=>}
+            onSortOrder={(sortOrder: ISortOrder<IProductType>)=>setSortOrder(sortOrder)}
           />
         </CardContent>
       </Card>

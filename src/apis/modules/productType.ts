@@ -1,18 +1,18 @@
 
 // import { IProductDetailResponse } from "@/models/interfaces/product";
 import axiosPublic from "@/apis/client/public.client";
-import { EFieldByValue, ESortOrderValue } from "@/models/enums/option";
+import { ESortOrderValue } from "@/models/enums/option";
 import { FilterSearch, IApiResponse, IProductType } from "@/models/interfaces";
 
 const productTypeApi = {
-  async list(data: {
+  async list(params: {
     page?: number
     limit?: number
     filters?:FilterSearch[]
-    sort?: EFieldByValue
+    sort?: keyof IProductType | ""
     order?: ESortOrderValue
   }): Promise<IApiResponse<IProductType[]>> {
-    return axiosPublic.post('v1/loai-san-pham', data)
+    return axiosPublic.get('loai-san-pham', {params})
   },
   async add(data: FormData): Promise<IApiResponse<IProductType>> {
     // eslint-disable-next-line no-useless-catch

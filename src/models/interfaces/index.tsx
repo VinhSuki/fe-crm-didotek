@@ -19,69 +19,69 @@ export interface IProduct {
   ID: number;
   ten: string;
   upc: string;
-  loai_san_pham_id: number;
+  loai_san_pham_ID: number;
   hinh_anh: string;
-  don_vi_tinh_id: number;
+  don_vi_tinh_ID: number;
   vat: number;
   mo_ta: string;
   trang_thai: string;
-  loai_giam_gia_id: number;
-  thoi_gian_bao_hanh_id: number;
-  updated_at: string;
-  deleted_at: string;
-  created_at: string;
+  loai_giam_gia_ID: number;
+  thoi_gian_bao_hanh_ID: number;
+  UpdatedAt: string;
+  DeletedAt: string;
+  CreatedAt: string;
 }
 export interface IProductDetail {
-  id: number;
+  ID: number;
   hinh_anh: string;
-  san_pham_id: string;
+  san_pham_ID: string;
   ten_phan_loai: string;
   gia_nhap: number;
   gia_ban: number;
   so_luong: number;
   trang_thai: string;
   khong_phan_loai: number;
-  updated_at: string;
-  deleted_at: string;
-  created_at: string;
+  UpdatedAt: string;
+  DeletedAt: string;
+  CreatedAt: string;
 }
 
 export interface IProductType {
   ID: number;
   ten: string;
   hinh_anh: string;
-  updated_at: string;
-  deleted_at: string;
-  created_at: string;
+  UpdatedAt: string;
+  DeletedAt: string;
+  CreatedAt: string;
 }
 
 export interface ICalculateUnit {
-  id: number;
+  ID: number;
   ten: string;
-  updated_at: string;
-  deleted_at: string;
-  created_at: string;
+  UpdatedAt: string;
+  DeletedAt: string;
+  CreatedAt: string;
 }
 
 export interface ISaleType {
-  id: number;
+  ID: number;
   ten: string;
   gia_tri: number;
-  updated_at: string;
-  deleted_at: string;
-  created_at: string;
+  UpdatedAt: string;
+  DeletedAt: string;
+  CreatedAt: string;
 }
 
 export interface IWarrantyTime {
-  id: number;
+  ID: number;
   ten: string;
-  updated_at: string;
-  deleted_at: string;
-  created_at: string;
+  UpdatedAt: string;
+  DeletedAt: string;
+  CreatedAt: string;
 }
 
 export interface FilterOption {
-  id: string;
+  ID: string;
   label: string;
   icon: JSX.Element;
 }
@@ -89,7 +89,7 @@ export interface FilterOption {
 export interface FilterSearch {
   field: string;
   condition: string;
-  value: string;
+  value: string | undefined;
 }
 
 

@@ -25,7 +25,7 @@ export function Navbar() {
   const [lang, setLang] = useState("EN");
   const [isOpen, setIsOpen] = useState(false);
   const navbar = useNavbarContext();
-  console.log(navbar);
+
   return (
     <nav
       className={clsx(
