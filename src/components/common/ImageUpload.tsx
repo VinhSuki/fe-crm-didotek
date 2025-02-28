@@ -12,6 +12,7 @@ interface ImageUploadProps {
   setInitialImageUrl?: React.Dispatch<React.SetStateAction<string>>;
   isDisabled?: boolean;
   delay?: number;
+  title?:string
 }
 
 const ImageUpload = React.forwardRef<HTMLInputElement, ImageUploadProps>(
@@ -26,6 +27,7 @@ const ImageUpload = React.forwardRef<HTMLInputElement, ImageUploadProps>(
       setInitialImageUrl,
       isDisabled = false,
       delay = 500,
+      title
     }: ImageUploadProps,
     ref: ForwardedRef<HTMLInputElement>
   ) => {
@@ -94,6 +96,7 @@ const ImageUpload = React.forwardRef<HTMLInputElement, ImageUploadProps>(
             <>
               {" "}
               <input
+                accept="image/*"
                 disabled={isDisabled}
                 ref={ref}
                 type="file"
@@ -108,7 +111,7 @@ const ImageUpload = React.forwardRef<HTMLInputElement, ImageUploadProps>(
                 {preview ? (
                   <img
                     src={preview}
-                    alt="Preview"
+                    alt={title || "Image"}
                     className="max-h-48 w-auto rounded-md border"
                   />
                 ) : (

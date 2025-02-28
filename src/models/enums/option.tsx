@@ -8,11 +8,10 @@ export enum EFieldByValue {
     ID = "ID",
     TEN = "ten",
     HINH_ANH = "hinh_anh",
-    UPDATED_AT = "UpdatedAt",
-    DELETED_AT = "DeletedAt",
-    CREATED_AT = "CreatedAt",
+    UPDATED_AT = "updated_at",
+    DELETED_AT = "deleted_at",
+    CREATED_AT = "created_at",
     NONE = "",
-
   }
   
   export enum ESortOrderValue {

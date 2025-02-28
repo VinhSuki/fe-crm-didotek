@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import productTypeApi from "@/apis/modules/productType";
 import ConditionDropdown from "@/components/common/ConditionDropdown";
 import ConfirmDeleteButton from "@/components/common/ConfirmDeleteButton";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,7 @@ import useDebounce from "@/hooks/useDebounce";
 import { EFieldByValue, ESortOrderValue } from "@/models/enums/option";
 import { FilterSearch, IProductType, ISortOrder } from "@/models/interfaces";
 import Edit from "@/pages/ProductManagement/ProductType/Edit";
+import { convertRFC1123 } from "@/utils/convertRFC1123";
 import {
   Popover,
   PopoverContent,
@@ -27,6 +29,8 @@ interface ProductTableProps {
   filters: FilterSearch[];
   onFilterChange: (newFilters: FilterSearch[]) => void;
   onSortOrder: (sortOrder: ISortOrder<IProductType>) => void;
+  onDeleted: () => void;
+  onEdited: () => void;
 }
 
 interface IBetweenCondition {
@@ -39,23 +43,27 @@ export default function ProductTypeTable({
   filters,
   onFilterChange,
   onSortOrder,
+  onDeleted,
+  onEdited,
 }: ProductTableProps) {
   const [sortOrder, setSortOrder] = useState<ISortOrder<IProductType>>({
     sort: "",
     order: ESortOrderValue.ASC,
   });
   const [fieldBetween, setFieldBetween] = useState<string[]>([]);
-  const onConfirmDelete = async () => {
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        console.log("Xóa dữ liệu thành công");
-        resolve();
-      }, 1000);
-    });
+  const onConfirmDelete = async (id: string | number) => {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const res = await productTypeApi.delete(id);
+      if (res.error === 0) {
+        onDeleted();
+      }
+    } catch (error) {
+      throw error;
+    }
   };
   const [searchValues, setSearchValues] = useState({
     ten: { minValue: "", maxValue: "", value: "" },
-    hinh_anh: { minValue: "", maxValue: "", value: "" },
   });
 
   const updateFilter = async (
@@ -81,21 +89,26 @@ export default function ProductTypeTable({
   };
 
   const debouncedSearchValues = {
-    ten: useDebounce(searchValues.ten, 800),
-    hinh_anh: useDebounce(searchValues.hinh_anh, 800),
+    ten: useDebounce(searchValues.ten, 500),
   };
 
   useEffect(() => {
     const isAllEmpty = Object.keys(debouncedSearchValues).every(
-      (key) => !debouncedSearchValues[key as keyof typeof debouncedSearchValues]?.value
+      (key) =>
+        !debouncedSearchValues[key as keyof typeof debouncedSearchValues]?.value
     );
-    if(isAllEmpty && productTypes.length === 0 && filters.length === 0) return;
+    if (isAllEmpty) {
+      if (filters.length > 0) {
+        onFilterChange([]);
+      }
+      return;
+    }
     Object.keys(debouncedSearchValues).forEach((key) => {
       const currentFilter = filters.find((f) => f.field === key);
       const iscurrentFilterBetween = fieldBetween.some(
         (fieldBetween) => fieldBetween === key
       );
-      if (iscurrentFilterBetween) { 
+      if (iscurrentFilterBetween) {
         const newValue =
           debouncedSearchValues[key as keyof typeof debouncedSearchValues];
         if (newValue.minValue && newValue.maxValue) {
@@ -116,10 +129,14 @@ export default function ProductTypeTable({
         debouncedSearchValues[key as keyof typeof debouncedSearchValues];
       // Chỉ cập nhật filter nếu giá trị mới khác giá trị cũ
       if (!currentFilter || currentFilter.value !== newValue.value) {
-        updateFilter(key, currentFilter?.condition || "", newValue.value);
+        updateFilter(
+          key,
+          currentFilter?.condition || "contains",
+          newValue.value
+        );
       }
     });
-  }, [debouncedSearchValues,filters,fieldBetween]);
+  }, [debouncedSearchValues, filters, fieldBetween]);
 
   const handleSearchChange = (
     field: string,
@@ -174,13 +191,23 @@ export default function ProductTypeTable({
       <TableHeader>
         <TableRow>
           <TableHead onClick={() => handleSortOrder(EFieldByValue.ID)}>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 cursor-pointer">
               <span>ID</span> {renderSortIcon(EFieldByValue.ID)}
             </div>
           </TableHead>
           <TableHead>Hình ảnh </TableHead>
-          <TableHead>Tên sản phẩm</TableHead>
-          <TableHead>Ngày tạo</TableHead>
+          <TableHead onClick={() => handleSortOrder(EFieldByValue.TEN)}>
+            <div className="flex items-center space-x-2 cursor-pointer">
+              <span>Tên sản phẩm</span> {renderSortIcon(EFieldByValue.TEN)}
+            </div>
+          </TableHead>
+          <TableHead>
+            <TableHead onClick={() => handleSortOrder(EFieldByValue.CREATED_AT)}>
+              <div className="flex items-center space-x-2 cursor-pointer">
+                <span>Ngày tạo</span> {renderSortIcon(EFieldByValue.CREATED_AT)}
+              </div>
+            </TableHead>
+          </TableHead>
           <TableHead>Thao tác</TableHead>
         </TableRow>
       </TableHeader>
@@ -194,7 +221,7 @@ export default function ProductTypeTable({
               className="absolute left-5 top-1/2 transform -translate-y-1/2"
               onConditionChange={handleConditionChange}
               name={EFieldByValue.TEN}
-              type="number"
+              type="text"
             />
             {fieldBetween.some(
               (fieldBetween) => fieldBetween === EFieldByValue.TEN
@@ -262,16 +289,21 @@ export default function ProductTypeTable({
             <TableCell>{productType.ID}</TableCell>
             <TableCell>
               <img
-                src={`http://192.168.0.121:8000/public/images/${productType.hinh_anh}`}
+                src={`${import.meta.env.BASE_URL}/${productType.hinh_anh}`}
                 alt={productType.ten}
                 className="w-10 h-10"
               />
             </TableCell>
             <TableCell>{productType.ten}</TableCell>
-            <TableCell>{productType.CreatedAt}</TableCell>
+            <TableCell>{convertRFC1123(productType.CreatedAt)}</TableCell>
             <TableCell className="flex space-x-2">
-              <Edit productType={productType} />
+              <Edit
+                onEdited={onEdited}
+                productType={productType}
+                productTypes={productTypes}
+              />
               <ConfirmDeleteButton
+                id={productType.ID}
                 onConfirm={onConfirmDelete}
                 title={`Bạn có chắc chắn muốn xóa sản phẩm ${productType.ten}?`}
               />

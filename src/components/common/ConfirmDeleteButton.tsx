@@ -1,14 +1,16 @@
-import Swal from "sweetalert2";
 import { Button } from "@/components/ui/button";
+import { showErrorAlert, showLoadingAlert, showSuccessAlert } from "@/utils/alert";
+import clsx from "clsx";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
-import { showErrorAlert, showLoadingAlert, showSuccessAlert } from "@/utils/alert";
+import Swal from "sweetalert2";
 
 interface ConfirmDeleteButtonProps {
   title?: string;
   description?: string;
-  onConfirm: () => Promise<void>; // Hàm này phải là async
+  onConfirm: (id:string | number) => Promise<void>; // Hàm này phải là async
   className?: string;
+  id: string | number;
 }
 
 export default function ConfirmDeleteButton({
@@ -16,6 +18,7 @@ export default function ConfirmDeleteButton({
   description = "Hành động này không thể hoàn tác!",
   onConfirm,
   className,
+  id
 }: ConfirmDeleteButtonProps) {
   const [loading, setLoading] = useState(false);
 
@@ -36,9 +39,10 @@ export default function ConfirmDeleteButton({
       showLoadingAlert();
 
       try {
-        await onConfirm(); // Gọi API
+        await onConfirm(id); // Gọi API
         showSuccessAlert("Xóa dữ liệu thành công!");
       } catch (error) {
+        console.log(error);
         showErrorAlert("Đã có lỗi xảy ra. Vui lòng thử lại sau!");
       } finally {
         setLoading(false);
@@ -48,7 +52,7 @@ export default function ConfirmDeleteButton({
 
   return (
     <Button
-      className="bg-red-700 hover:bg-red-800"
+      className={clsx("bg-red-700 hover:bg-red-800", className)}
       onClick={handleDelete}
       disabled={loading}
     >

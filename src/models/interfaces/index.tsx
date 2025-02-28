@@ -53,6 +53,7 @@ export interface IProductType {
   UpdatedAt: string;
   DeletedAt: string;
   CreatedAt: string;
+  created_at: string;
 }
 
 export interface ICalculateUnit {
