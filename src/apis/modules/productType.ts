@@ -11,10 +11,9 @@ const productTypeApi = {
     sort?: keyof IProductType | "";
     order?: ESortOrderValue;
   }): Promise<IApiResponse<IProductType[]>> {
-    // console.log(`loai-san-pham/${params}`);
-    console.log(params);
-    // const filteredParams = Object.fromEntries(Object.entries(params).filter(([_, value]) => value !== null))
-    return axiosPublic.get("api/loai-san-pham", { params });
+    return axiosPublic.get("api/v1/loai-san-pham", {
+      params: { ...params, filters: JSON.stringify(params.filters) },
+    });
   },
   async add(data: FormData): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
@@ -28,7 +27,7 @@ const productTypeApi = {
       throw error;
     }
   },
-  async delete(id:number | string): Promise<IApiResponse> {
+  async delete(id: number | string): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
       return await axiosPublic.delete(`api/loai-san-pham?id=${id}`);

@@ -21,6 +21,8 @@ const Loadable = <P extends object>(
 
 const Product = Loadable(lazy(() => import("@/pages/ProductManagement/Product")));
 const ProductType = Loadable(lazy(() => import("@/pages/ProductManagement/ProductType")));
+const Unit = Loadable(lazy(() => import("@/pages/ProductManagement/Unit")));
+
 
 function AppRouter() {
   const routes = [
@@ -63,6 +65,17 @@ function AppRouter() {
               <PageTitle title="loại sản phẩm" />
               <MainContent title="loại sản phẩm">
                 <ProductType />
+              </MainContent>
+            </>
+          ),
+        },
+        {
+          path: "/don-vi-tinh",
+          element: (
+            <>
+              <PageTitle title="Đơn vị tính" />
+              <MainContent title="Đơn vị tính">
+                <Unit />
               </MainContent>
             </>
           ),

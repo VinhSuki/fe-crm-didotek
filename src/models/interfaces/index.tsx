@@ -9,10 +9,10 @@ export interface IApiResponse<T = undefined> {
   success: boolean;
   error: number;
   message: string;
-  data?:{
+  data?: {
     data: T;
     total_page: number;
-  }
+  };
 }
 
 export interface IProduct {
@@ -56,12 +56,13 @@ export interface IProductType {
   created_at: string;
 }
 
-export interface ICalculateUnit {
+export interface IUnit {
   ID: number;
   ten: string;
   UpdatedAt: string;
   DeletedAt: string;
   CreatedAt: string;
+  created_at: string;
 }
 
 export interface ISaleType {
@@ -93,8 +94,15 @@ export interface FilterSearch {
   value: string | undefined;
 }
 
-
 export interface ISortOrder<T = undefined> {
   sort: keyof T | "";
   order: ESortOrderValue;
+}
+
+export interface Column<T> {
+  key: keyof T;
+  label: string;
+  sortName?: keyof T;
+  searchCondition?: "number" | "text" | undefined;
+  render?: (row: T) => React.ReactNode;
 }

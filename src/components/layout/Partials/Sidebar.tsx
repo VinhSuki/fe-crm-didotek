@@ -34,7 +34,7 @@ const sidebarItems: ISidebarItem[] = [
         url: "/san-pham",
       },
       { title: "Loại sản phẩm", icon: List, url: "/loai-san-pham" },
-      { title: "Đơn vị tính", icon: Hash, url: "/" },
+      { title: "Đơn vị tính", icon: Hash, url: "/don-vi-tinh" },
       { title: "Loại giảm giá", icon: Percent, url: "/" },
       { title: "Thời gian bảo hành", icon: Clock, url: "/" },
     ],

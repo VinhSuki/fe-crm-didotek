@@ -46,15 +46,15 @@ export default function Index() {
   ) => {
     setIsLoading(true);
     try {
-      const data = {
+      const params = {
         page,
         limit,
         filters,
         sort,
         order,
       };
-      // console.log(data);
-      const res: IApiResponse<IProductType[]> = await productTypeApi.list(data);
+      // console.log(params);
+      const res: IApiResponse<IProductType[]> = await productTypeApi.list(params);
       if (res.data) {
         setProductTypes(res.data.data);
         setPagination({
@@ -68,7 +68,6 @@ export default function Index() {
       setIsLoading(false);
     }
   };
-
   const fetchListData = async () => {
     try {
       const res: IApiResponse<IProductType[]> = await productTypeApi.list({});

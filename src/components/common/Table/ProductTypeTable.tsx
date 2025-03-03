@@ -88,9 +88,7 @@ export default function ProductTypeTable({
     onFilterChange(updatedFilters);
   };
 
-  const debouncedSearchValues = {
-    ten: useDebounce(searchValues.ten, 500),
-  };
+  const debouncedSearchValues = useDebounce(searchValues, 500);
 
   useEffect(() => {
     const isAllEmpty = Object.keys(debouncedSearchValues).every(
@@ -101,7 +99,7 @@ export default function ProductTypeTable({
       if (filters.length > 0) {
         onFilterChange([]);
       }
-      return;
+      return; 
     }
     Object.keys(debouncedSearchValues).forEach((key) => {
       const currentFilter = filters.find((f) => f.field === key);
@@ -202,7 +200,9 @@ export default function ProductTypeTable({
             </div>
           </TableHead>
           <TableHead>
-            <TableHead onClick={() => handleSortOrder(EFieldByValue.CREATED_AT)}>
+            <TableHead
+              onClick={() => handleSortOrder(EFieldByValue.CREATED_AT)}
+            >
               <div className="flex items-center space-x-2 cursor-pointer">
                 <span>Ngày tạo</span> {renderSortIcon(EFieldByValue.CREATED_AT)}
               </div>
