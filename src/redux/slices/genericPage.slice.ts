@@ -14,7 +14,9 @@ interface DynamicState<T> {
   pagination: IPagination;
   isLoading: boolean;
   isReset: boolean;
+  isInitialized: boolean; // 🆕 Thêm trạng thái khởi tạo
 }
+
 
 // Hàm khởi tạo state động
 const createDynamicInitialState = <T>(): DynamicState<T> => ({
@@ -24,7 +26,9 @@ const createDynamicInitialState = <T>(): DynamicState<T> => ({
   pagination: { currentPage: PAGINATION.DEFAULT_PAGE, totalPage: 0 },
   isLoading: false,
   isReset: false,
+  isInitialized: false, // 🆕 Ban đầu chưa khởi tạo
 });
+
 
 // Async thunk để fetch dữ liệu động
 export const fetchDynamicData = createAsyncThunk(
@@ -51,6 +55,9 @@ const genericPage = createSlice({
   initialState: {} as Record<string, DynamicState<any>>,
   reducers: {
     setFilters: (state, action: PayloadAction<{ key: string; filters: FilterSearch[] }>) => {
+      if (!state[action.payload.key]) {
+        state[action.payload.key] = createDynamicInitialState();
+      }
       state[action.payload.key].filters = action.payload.filters;
     },
     setSortOrder: (state, action: PayloadAction<{ key: string; sortOrder: ISortOrder<any> }>) => {
@@ -66,7 +73,9 @@ const genericPage = createSlice({
       if (!state[action.payload]) {
         state[action.payload] = createDynamicInitialState();
       }
+      state[action.payload].isInitialized = true; // 🆕 Đánh dấu là đã khởi tạo
     },
+    
   },
   extraReducers: (builder) => {
     builder.addCase(fetchDynamicData.pending, (state, action) => {

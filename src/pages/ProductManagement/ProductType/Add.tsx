@@ -1,4 +1,5 @@
-import productTypeApi from "@/apis/modules/productType";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import productTypeApi from "@/apis/modules/productType.api";
 import ImageUpload from "@/components/common/ImageUpload";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,54 +8,46 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { IProductType } from "@/models/interfaces";
-import {
-  showErrorAlert,
-  showLoadingAlert,
-  showSuccessAlert,
-} from "@/utils/alert";
+import { showSuccessAlert } from "@/utils/alert";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
 
-const productTypeSchema = (existingProductTypes: IProductType[]) =>
-  z.object({
-    ten: z
-      .string()
-      .min(1, "Vui lòng nhập tên loại sản phẩm")
-      .refine((name) => !existingProductTypes.some((p) => p.ten === name), {
-        message: "Tên loại sản phẩm đã tồn tại",
-      }),
-    hinh_anh: z
-      .instanceof(File)
-      .refine((file) => file.type.startsWith("image/"), {
-        message: "File must be an image",
-      })
-      .refine((file) => file.size <= 5 * 1024 * 1024, {
-        message: "Image size must be less than 5MB",
-      }),
-  });
+const productTypeSchema = z.object({
+  ten: z.string().min(1, "Vui lòng nhập tên loại sản phẩm"),
+  hinh_anh: z
+    .instanceof(File)
+    .refine((file) => file.type.startsWith("image/"), {
+      message: "File phải là ảnh",
+    })
+    .refine((file) => file.size <= 5 * 1024 * 1024, {
+      message: "Kích thước ảnh tối đa 5MB",
+    }),
+});
 
-type ProductTypeFormValues = z.infer<ReturnType<typeof productTypeSchema>>;
+type ProductTypeFormValues = z.infer<typeof productTypeSchema>;
 
-
-export default function Add({productTypes,onAdded}: {productTypes: IProductType[],onAdded:()=>void}) {
-  const [loading, setLoading] = useState(false);
+export default function Add({ onAdded }: { onAdded: () => void }) {
   const [open, setOpen] = useState(false);
+  const handleResetForm = () => {
+    reset();
+    setOpen(false);
+  };
   const {
     register,
     control,
+    setError,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm<ProductTypeFormValues>({
-    resolver: zodResolver(productTypeSchema(productTypes)), // Truyền productTypes vào schema
+    resolver: zodResolver(productTypeSchema), // Truyền productTypes vào schema
   });
 
   const onSubmit = async (data: ProductTypeFormValues) => {
@@ -71,22 +64,13 @@ export default function Add({productTypes,onAdded}: {productTypes: IProductType[
         formData.append(key, value as string | Blob);
       }
     });
-    reset();
-    setOpen(false);
-    setLoading(true);
-    showLoadingAlert();
-
     try {
-      const res = await productTypeApi.add(formData);
-      if (res.error === 0) {
-        onAdded();
-      }
+      await productTypeApi.add(formData);
+      handleResetForm();
+      onAdded();
       showSuccessAlert("Thêm dữ liệu thành công!");
-    } catch (error) {
-      console.log(error);
-      showErrorAlert("Đã có lỗi xảy ra. Vui lòng thử lại sau!");
-    } finally {
-      setLoading(false);
+    } catch (error: any) {
+      setError("ten", { type: "manual", message: error.message });
     }
   };
 
@@ -143,11 +127,17 @@ export default function Add({productTypes,onAdded}: {productTypes: IProductType[
               </div>
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="space-x-2">
+              <Button
+                type="button"
+                className="bg-black/80 hover:bg-black"
+                onClick={handleResetForm}
+              >
+                Đóng
+              </Button>
               <Button type="submit">Lưu</Button>
             </DialogFooter>
           </form>
-          {loading && <Loader type="inside" />}
         </>
       </DialogContent>
     </Dialog>

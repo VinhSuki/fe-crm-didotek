@@ -1,11 +1,9 @@
-// import { IProductDetailResponse } from "@/models/interfaces/product";
 import axiosPublic from "@/apis/client/public.client";
 import { ESortOrderValue } from "@/models/enums/option";
 import {
   FilterSearch,
   IApiResponse,
-  IProductType,
-  IUnit,
+  IUnit
 } from "@/models/interfaces";
 
 const unitApi = {
@@ -13,17 +11,17 @@ const unitApi = {
     page?: number;
     limit?: number;
     filters?: FilterSearch[];
-    sort?: keyof IProductType | "";
+    sort?: keyof IUnit | "";
     order?: ESortOrderValue;
   }): Promise<IApiResponse<IUnit[]>> {
-    return axiosPublic.get("api/don-vi-tinh", {
+    return axiosPublic.get("api/v1/don-vi-tinh", {
       params: { ...params, filters: JSON.stringify(params.filters) },
     });
   },
   async add(data: { ten: string }): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.post(`api/don-vi-tinh`, data);
+      return await axiosPublic.post(`api/v1/don-vi-tinh`, data);
     } catch (error) {
       throw error;
     }
@@ -31,7 +29,7 @@ const unitApi = {
   async delete(id: number | string): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.delete(`api/don-vi-tinh/${id}`);
+      return await axiosPublic.delete(`api/v1/don-vi-tinh/${id}`);
     } catch (error) {
       throw error;
     }
@@ -42,7 +40,7 @@ const unitApi = {
   }): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.put(`api/don-vi-tinh`, data);
+      return await axiosPublic.put(`api/v1/don-vi-tinh`, data);
     } catch (error) {
       throw error;
     }

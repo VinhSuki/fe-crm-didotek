@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import unitApi from "@/apis/modules/unit.api";
+import warrantyTimeApi from "@/apis/modules/warrantyTime.api";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { IUnit } from "@/models/interfaces";
+import { IWarrantyTime } from "@/models/interfaces";
 import { showSuccessAlert } from "@/utils/alert";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
@@ -19,29 +19,29 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-const unitSchema = z.object({
+const warrantyTimeSchema = z.object({
   ten: z.string().min(1, "Vui lòng nhập tên đơn vị tính"),
   id: z.number(),
 });
 
-type unitFormValues = z.infer<typeof unitSchema>;
+type warrantyTimeFormValues = z.infer<typeof warrantyTimeSchema>;
 
 interface EditProps {
-  unit: IUnit;
+  warrantyTime: IWarrantyTime;
   onEdited: () => void;
 }
 
-export default function Edit({ unit, onEdited }: EditProps) {
+export default function Edit({ warrantyTime, onEdited }: EditProps) {
   const {
     register,
     handleSubmit,
     reset,
     setError,
     formState: { errors },
-  } = useForm<unitFormValues>({
-    resolver: zodResolver(unitSchema),
+  } = useForm<warrantyTimeFormValues>({
+    resolver: zodResolver(warrantyTimeSchema),
   });
-  const resetForm = (data?: unitFormValues) => {
+  const resetForm = (data?: warrantyTimeFormValues) => {
     if (data) {
       reset({
         ten: data.ten,
@@ -49,15 +49,15 @@ export default function Edit({ unit, onEdited }: EditProps) {
       });
     } else {
       reset({
-        ten: unit.ten,
-        id: unit.ID,
+        ten: warrantyTime.ten,
+        id: warrantyTime.ID,
       });
     }
   };
 
   useEffect(() => {
     resetForm();
-  }, [unit]);
+  }, [warrantyTime]);
   const [open, setOpen] = useState(false);
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
@@ -65,14 +65,14 @@ export default function Edit({ unit, onEdited }: EditProps) {
       resetForm();
     }
   };
-  const handleResetForm = (data?: unitFormValues) => {
+  const handleResetForm = (data?: warrantyTimeFormValues) => {
     setOpen(false); // ✅ Đóng form sau khi API gọi thành công
     if (data) resetForm(data);
     else resetForm();
   };
-  const onSubmit = async (data: unitFormValues) => {
+  const onSubmit = async (data: warrantyTimeFormValues) => {
     try {
-      await unitApi.edit(data);
+      await warrantyTimeApi.edit(data);
       handleResetForm(data);
       showSuccessAlert("Chỉnh sửa dữ liệu thành công!");
       onEdited(); // ✅ Gọi callback để cập nhật dữ liệu
@@ -92,7 +92,7 @@ export default function Edit({ unit, onEdited }: EditProps) {
       <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle className="border-b pb-4">
-            Chỉnh sửa đơn vị tính
+            Chỉnh sửa thời gian bảo hành
           </DialogTitle>
         </DialogHeader>
         <>
@@ -100,7 +100,7 @@ export default function Edit({ unit, onEdited }: EditProps) {
             {/* Input Ảnh */}
             <div className="grid grid-cols-4 gap-4">
               <Label htmlFor="ten" className="text-zinc-500">
-                Tên đơn vị tính
+                Thời gian bảo hành
               </Label>
               <div className="col-span-3">
                 <Input

@@ -1,5 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import ConditionDropdown from "@/components/common/ConditionDropdown";
+import TableCellContent from "@/components/common/TableCellContent";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -12,12 +14,12 @@ import {
 import useDebounce from "@/hooks/useDebounce";
 import { ESortOrderValue } from "@/models/enums/option";
 import { Column, FilterSearch, ISortOrder } from "@/models/interfaces";
-import { convertRFC1123 } from "@/utils/convertRFC1123";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@radix-ui/react-popover";
+import clsx from "clsx";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
@@ -60,34 +62,44 @@ export default function GenericTable<T>({
     }, {} as Record<string, { minValue: string; maxValue: string; value: string }>);
   });
 
-  const updateFilter = useCallback(
+  const updateFilters = useCallback(
     async (
-      field: string,
-      condition: string,
-      value: string,
-      betweenValue: IBetweenCondition = { minValue: "", maxValue: "" }
+      newFilters: Array<{
+        field: string;
+        condition: string;
+        value: string;
+        betweenValue?: IBetweenCondition;
+      }>
     ) => {
       let updatedFilters = filters;
 
-      updatedFilters = filters.filter((f) => f.field !== field);
-      if (condition !== "between") {
-        updatedFilters = [...updatedFilters, { field, condition, value }];
-      } else {
-        updatedFilters = [
-          ...updatedFilters,
-          {
-            field,
-            condition: ">=",
-            value: String(betweenValue.minValue ?? ""),
-          },
-          {
-            field,
-            condition: "<=",
-            value: String(betweenValue.maxValue ?? ""),
-          },
-        ];
-      }
+      // Xóa các filters cũ có cùng field với filters mới
+      updatedFilters = filters.filter(
+        (f) => !newFilters.some((nf) => nf.field === f.field)
+      );
 
+      // Thêm các filters mới
+      newFilters.forEach(({ field, condition, value, betweenValue }) => {
+        if (condition !== "between") {
+          updatedFilters = [...updatedFilters, { field, condition, value }];
+        } else if (betweenValue) {
+          updatedFilters = [
+            ...updatedFilters,
+            {
+              field,
+              condition: ">=",
+              value: String(betweenValue.minValue ?? ""),
+            },
+            {
+              field,
+              condition: "<=",
+              value: String(betweenValue.maxValue ?? ""),
+            },
+          ];
+        }
+      });
+
+      // Gọi onFilterChange chỉ một lần
       onFilterChange(updatedFilters);
     },
     [filters, onFilterChange]
@@ -96,56 +108,61 @@ export default function GenericTable<T>({
   const debouncedSearchValues = useDebounce(searchValues, 500);
 
   useEffect(() => {
-    const isAllEmpty = Object.keys(debouncedSearchValues).every(
-      (key) =>
-        !debouncedSearchValues[key as keyof typeof debouncedSearchValues]?.value
-    );
+    const isAllEmpty =
+      Object.values(debouncedSearchValues).every(
+        ({ minValue, maxValue, value }) => !minValue && !maxValue && !value
+      ) && fieldBetween.length === 0;
     if (isAllEmpty) {
       if (filters.length > 0) {
-        onFilterChange([]);
+        const updatedEmptyFilters = filters.map((f) => ({
+          ...f,
+          value: "",
+        }));
+        onFilterChange(updatedEmptyFilters);
       }
       return;
     }
+
+    const newFilters: {
+      field: string;
+      condition: string;
+      value: string;
+      betweenValue?: IBetweenCondition;
+    }[] = [];
+
     Object.keys(debouncedSearchValues).forEach((key) => {
       const currentFilter = filters.find((f) => f.field === key);
-      const iscurrentFilterBetween = fieldBetween.some(
-        (fieldBetween) => fieldBetween === key
-      );
-      if (iscurrentFilterBetween) {
-        const newValue =
-          debouncedSearchValues[key as keyof typeof debouncedSearchValues];
-        if (newValue.minValue && newValue.maxValue) {
-          if (
-            !currentFilter ||
-            currentFilter.value !== newValue.minValue ||
-            currentFilter.value !== newValue.maxValue
-          ) {
-            updateFilter(key, "between", "", {
-              minValue: newValue.minValue,
-              maxValue: newValue.maxValue,
-            });
-          }
-        }
-        return;
-      }
+      const isCurrentFilterBetween = fieldBetween.includes(key);
       const newValue =
         debouncedSearchValues[key as keyof typeof debouncedSearchValues];
-      // Chỉ cập nhật filter nếu giá trị mới khác giá trị cũ
-      if (!currentFilter || currentFilter.value !== newValue.value) {
-        updateFilter(
-          key,
-          currentFilter?.condition || "contains",
-          newValue.value
-        );
+
+      if (isCurrentFilterBetween) {
+        if (newValue.minValue && newValue.maxValue) {
+          newFilters.push({
+            field: key,
+            condition: "between",
+            value: "",
+            betweenValue: {
+              minValue: newValue.minValue,
+              maxValue: newValue.maxValue,
+            },
+          });
+        }
+      } else {
+        if (!currentFilter || currentFilter.value !== newValue.value) {
+          newFilters.push({
+            field: key,
+            condition: currentFilter?.condition || "contains",
+            value: newValue.value,
+          });
+        }
       }
     });
-  }, [
-    debouncedSearchValues,
-    filters,
-    onFilterChange,
-    fieldBetween,
-    updateFilter,
-  ]);
+
+    if (newFilters.length > 0) {
+      updateFilters(newFilters);
+    }
+  }, [debouncedSearchValues]);
 
   const handleSearchChange = (
     field: string,
@@ -156,7 +173,10 @@ export default function GenericTable<T>({
 
   const handleConditionChange = async (condition: string, field: string) => {
     if (condition !== "between") {
-      updateFilter(field, condition, "");
+      const fieldValue = fieldBetween.some((f) => f === field)
+        ? ""
+        : filters.find((f) => f.field === field)?.value;
+      updateFilters([{ field, condition, value: fieldValue ?? "" }]); // Cập nhật một lần
       setFieldBetween((prev) => prev.filter((f) => f !== field));
     } else {
       setFieldBetween((prev) => [...prev, field]);
@@ -164,7 +184,15 @@ export default function GenericTable<T>({
         ...prev,
         [field]: { minValue: "", maxValue: "", value: "" },
       }));
-      updateFilter(field, "between", "");
+
+      updateFilters([
+        {
+          field,
+          condition: "between",
+          value: "",
+          betweenValue: { minValue: "", maxValue: "" },
+        },
+      ]);
     }
   };
 
@@ -193,21 +221,22 @@ export default function GenericTable<T>({
   };
 
   return (
-    <Table>
+    <Table className="overflow-x-auto w-full">
       <TableHeader>
         <TableRow>
-          {columns.map(({ key, label, sortName }) =>
+          {columns.map(({ key, label, sortName,minW }) =>
             sortName ? (
               <TableHead
                 key={String(key)}
                 onClick={() => handleSortOrder(sortName)}
+                className={clsx("whitespace-nowrap",minW)}
               >
                 <div className={`flex items-center space-x-2 cursor-pointer`}>
                   <span>{label}</span> {renderSortIcon(sortName)}
                 </div>
               </TableHead>
             ) : (
-              <TableHead key={String(key)}>
+              <TableHead key={String(key)} className={clsx("whitespace-nowrap",minW)}>
                 <div className={`flex items-center space-x-2`}>
                   <span>{label}</span>
                 </div>
@@ -225,7 +254,7 @@ export default function GenericTable<T>({
               {searchCondition && (
                 <>
                   <ConditionDropdown
-                    className="absolute left-5 top-1/2 transform -translate-y-1/2"
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2"
                     onConditionChange={handleConditionChange}
                     name={String(key)}
                     type={searchCondition ?? "text"}
@@ -238,7 +267,7 @@ export default function GenericTable<T>({
                         <Input
                           readOnly={true}
                           placeholder="Nhấp để chọn khoảng giá"
-                          className="w-full rounded-md border border-stroke bg-transparent py-3 pl-10 pr-4 text-black outline-none cursor-pointer"
+                          className="w-full rounded-md border border-stroke bg-transparent py-3 pl-8 pr-4 text-black outline-none cursor-pointer"
                         />
                       </PopoverTrigger>
                       <PopoverContent>
@@ -259,7 +288,7 @@ export default function GenericTable<T>({
                           />
                           <Input
                             type="number"
-                            value={searchValues[String(key)]?.value || ""}
+                            value={searchValues[String(key)]?.maxValue || ""}
                             placeholder="Đến"
                             className="w-full rounded-md border border-stroke bg-white py-3 pl-4 text-black outline-none"
                             onChange={(e) =>
@@ -277,7 +306,6 @@ export default function GenericTable<T>({
                   ) : (
                     <Input
                       type="search"
-                      placeholder="Tìm tên sản phẩm"
                       value={searchValues[String(key)].value ?? ""}
                       onChange={(e) =>
                         handleSearchChange(String(key), {
@@ -286,7 +314,7 @@ export default function GenericTable<T>({
                           value: e.target.value,
                         })
                       }
-                      className="w-full rounded-md border border-stroke bg-transparent py-3 pl-10 pr-4 text-black outline-none"
+                      className="w-full rounded-md border border-stroke bg-transparent py-3 pl-8 pr-4 text-black outline-none"
                     />
                   )}
                 </>
@@ -299,11 +327,14 @@ export default function GenericTable<T>({
           <TableRow key={index}>
             {columns.map(({ key, render }) => (
               <TableCell key={String(key)}>
-                {render
-                  ? render(row)
-                  : key === "CreatedAt"
-                  ? convertRFC1123((row as any)[key])
-                  : (row as any)[key]}
+                {render ? (
+                  render(row)
+                ) : (
+                  <TableCellContent
+                    keyName={String(key)}
+                    value={(row as any)[key]}
+                  />
+                )}
               </TableCell>
             ))}
             {actions && (

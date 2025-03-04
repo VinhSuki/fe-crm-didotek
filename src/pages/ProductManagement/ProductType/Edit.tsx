@@ -1,4 +1,5 @@
-import productTypeApi from "@/apis/modules/productType";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import productTypeApi from "@/apis/modules/productType.api";
 import ImageUpload from "@/components/common/ImageUpload";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,83 +13,81 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { IProductType } from "@/models/interfaces";
-import {
-  showErrorAlert,
-  showLoadingAlert,
-  showSuccessAlert,
-} from "@/utils/alert";
+import { showSuccessAlert } from "@/utils/alert";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader, SquarePen } from "lucide-react";
-import { useState } from "react";
+import { SquarePen } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
 
-const productTypeSchema = (
-  existingProductTypes: IProductType[],
-  id: string | number
-) =>
-  z.object({
-    ten: z
-      .string()
-      .min(1, "Vui lòng nhập tên loại sản phẩm")
-      .refine(
-        (name) =>
-          !existingProductTypes.some((p) => p.ten === name && p.ID !== id),
-        {
-          message: "Tên loại sản phẩm đã tồn tại",
-        }
-      ),
-    hinh_anh: z.union([
-      z
-        .instanceof(File) // Kiểm tra xem trường này có phải là một instance của File hay không
-        .refine((file) => file.type.startsWith("image/"), {
-          message: "File must be an image",
-        }) // Kiểm tra định dạng file ảnh
-        .refine((file) => file.size <= 5 * 1024 * 1024, {
-          message: "Image size must be less than 5MB",
-        }), // Kiểm tra kích thước file
-      z.null().optional(),
-    ]),
-    id: z.number(),
-  });
+const productTypeSchema = z.object({
+  ten: z.string().min(1, "Vui lòng nhập tên loại sản phẩm"),
+  hinh_anh: z.union([
+    z
+      .instanceof(File) // Kiểm tra xem trường này có phải là một instance của File hay không
+      .refine((file) => file.type.startsWith("image/"), {
+        message: "File phải là ảnh",
+      }) // Kiểm tra định dạng file ảnh
+      .refine((file) => file.size <= 5 * 1024 * 1024, {
+        message: "Kích thước ảnh tối đa 5MB",
+      }), // Kiểm tra kích thước file
+    z.null().optional(),
+  ]),
+  id: z.number(),
+});
 
-type ProductTypeFormValues = z.infer<ReturnType<typeof productTypeSchema>>;
+type ProductTypeFormValues = z.infer<typeof productTypeSchema>;
 
 interface EditProps {
   productType: IProductType;
-  productTypes: IProductType[];
   onEdited: () => void;
 }
 
-export default function Edit({
-  productType,
-  productTypes,
-  onEdited,
-}: EditProps) {
+export default function Edit({ productType, onEdited }: EditProps) {
   const {
     register,
     control,
+    setError,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm<ProductTypeFormValues>({
-    resolver: zodResolver(productTypeSchema(productTypes, productType.ID)),
+    resolver: zodResolver(productTypeSchema),
     defaultValues: {
       ten: productType.ten,
       id: productType.ID,
     }, // Truyền productTypes vào schema
   });
 
-  const [loading, setLoading] = useState(false);
+  const resetForm = (data?: ProductTypeFormValues) => {
+    if (data) {
+      reset({
+        ten: data.ten,
+        id: data.id,
+      });
+    } else {
+      reset({
+        ten: productType.ten,
+        id: productType.ID,
+      });
+    }
+  };
+
+  useEffect(() => {
+    resetForm();
+  }, [productType, reset]);
+
   const [open, setOpen] = useState(false);
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
     if (!isOpen) {
-      reset({
-        ten: productType.ten, // Reset lại tên khi đóng dialog
-        id: productType.ID,
-      });
+      resetForm();
     }
+  };
+  const handleResetForm = (data?: ProductTypeFormValues) => {
+    setOpen(false); // ✅ Đóng form sau khi API gọi thành công
+    if (data) resetForm(data);
+    else resetForm();
   };
   // const handleOpenChange = (isOpen: boolean) => {
   //   setOpen(isOpen);
@@ -105,7 +104,6 @@ export default function Edit({
   //   }
   // };
   const onSubmit = async (data: ProductTypeFormValues) => {
-    console.log(data);
     const formData = new FormData();
     // Thêm dữ liệu vào formData
     Object.entries(data).forEach(([key, value]) => {
@@ -119,22 +117,13 @@ export default function Edit({
         formData.append(key, value as string | Blob);
       }
     });
-    setOpen(false); // ✅ Đóng form sau khi API gọi thành công
-    setLoading(true);
-    showLoadingAlert();
-
     try {
-      const res = await productTypeApi.edit(formData);
-      if (res.error === 0) {
-        showSuccessAlert("Chỉnh sửa dữ liệu thành công!");
-        onEdited(); // ✅ Gọi callback để cập nhật dữ liệu
-        reset({ ten: data.ten, id: data.id }); // ✅ Reset lại form
-      }
-    } catch (error) {
-      console.log(error);
-      showErrorAlert("Đã có lỗi xảy ra. Vui lòng thử lại sau!");
-    } finally {
-      setLoading(false);
+      await productTypeApi.edit(formData);
+      handleResetForm(data);
+      onEdited();
+      showSuccessAlert("Thêm dữ liệu thành công!");
+    } catch (error: any) {
+      setError("ten", { type: "manual", message: error.message });
     }
   };
 
@@ -193,11 +182,17 @@ export default function Edit({
               </div>
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="space-x-2">
+              <Button
+                type="button"
+                className="bg-black/80 hover:bg-black"
+                onClick={() => handleResetForm()}
+              >
+                Đóng
+              </Button>
               <Button type="submit">Lưu</Button>
             </DialogFooter>
           </form>
-          {loading && <Loader type="inside" />}
         </>
       </DialogContent>
     </Dialog>

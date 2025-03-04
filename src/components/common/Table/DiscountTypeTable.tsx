@@ -1,49 +1,56 @@
-import productTypeApi from "@/apis/modules/productType.api";
+import discountTypeApi from "@/apis/modules/discountType.api";
 import ConfirmDeleteButton from "@/components/common/ConfirmDeleteButton";
 import GenericTable from "@/components/common/GenericTable";
-import { Column, FilterSearch, IProductType, ISortOrder } from "@/models/interfaces";
-import Edit from "@/pages/ProductManagement/ProductType/Edit";
+import {
+  Column,
+  FilterSearch,
+  IDiscountType,
+  ISortOrder,
+} from "@/models/interfaces";
+import Edit from "@/pages/ProductManagement/DiscountType/Edit";
 import { useCallback } from "react";
 
-interface IProductTypesTableProps {
-  productTypes: IProductType[];
+interface IDiscountTypeTableProps {
+  discountTypes: IDiscountType[];
   filters: FilterSearch[];
-  sortOrder: ISortOrder<IProductType>;
+  sortOrder: ISortOrder<IDiscountType>;
   onFilterChange: (newFilters: FilterSearch[]) => void;
-  onSortOrder: (sortOrder: ISortOrder<IProductType>) => void;
+  onSortOrder: (sortOrder: ISortOrder<IDiscountType>) => void;
   onDeleted: () => void;
   onEdited: () => void;
 }
 
-const columns: Column<IProductType>[] = [
-  { key: "ID", sortName: "ID", label: "ID"},
+const columns: Column<IDiscountType>[] = [
+  { key: "ID", sortName: "ID", label: "ID" },
   {
     key: "ten",
-    label: "Tên loại sản phẩm",
-    sortName:"ten",
+    label: "Tên loại giảm giá",
+    sortName: "ten",
     searchCondition: "text",
   },
   {
-    key:"hinh_anh",
-    label:"Hình ảnh",
+    key: "gia_tri",
+    label: "Giá trị (%)",
+    sortName: "gia_tri",
+    searchCondition: "number",
   },
-  { key: "CreatedAt",sortName:"created_at", label: "Ngày tạo" },
+  { key: "CreatedAt", sortName: "created_at", label: "Ngày tạo" },
 ];
 
-const ProductTypeTable = ({
-  productTypes,
+const DiscountTypeTable = ({
+  discountTypes,
   filters,
   sortOrder,
   onFilterChange,
   onSortOrder,
   onDeleted,
   onEdited,
-}: IProductTypesTableProps) => {
+}: IDiscountTypeTableProps) => {
   const onConfirmDelete = useCallback(
     async (id: string | number) => {
       // eslint-disable-next-line no-useless-catch
       try {
-        await productTypeApi.delete(id);
+        await discountTypeApi.delete(id);
         onDeleted();
       } catch (error) {
         throw error;
@@ -53,8 +60,8 @@ const ProductTypeTable = ({
   ); // Chỉ re-create khi `onDeleted` thay đổi
   // console.log("re-render");
   return (
-    <GenericTable<IProductType>
-      data={productTypes}
+    <GenericTable<IDiscountType>
+      data={discountTypes}
       columns={columns}
       filters={filters}
       sortOrder={sortOrder}
@@ -62,10 +69,7 @@ const ProductTypeTable = ({
       onSortOrder={onSortOrder}
       actions={(row) => (
         <>
-          <Edit
-            onEdited={onEdited}
-            productType={row}
-          />
+          <Edit onEdited={onEdited} discountType={row} />
           <ConfirmDeleteButton
             id={row.ID}
             onConfirm={onConfirmDelete}
@@ -77,4 +81,4 @@ const ProductTypeTable = ({
   );
 };
 
-export default ProductTypeTable;
+export default DiscountTypeTable;

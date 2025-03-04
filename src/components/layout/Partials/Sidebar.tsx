@@ -11,7 +11,7 @@ import {
   Percent,
 } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 interface IItem {
   url: string | "";
@@ -35,8 +35,8 @@ const sidebarItems: ISidebarItem[] = [
       },
       { title: "Loại sản phẩm", icon: List, url: "/loai-san-pham" },
       { title: "Đơn vị tính", icon: Hash, url: "/don-vi-tinh" },
-      { title: "Loại giảm giá", icon: Percent, url: "/" },
-      { title: "Thời gian bảo hành", icon: Clock, url: "/" },
+      { title: "Loại giảm giá", icon: Percent, url: "/loai-giam-gia" },
+      { title: "Thời gian bảo hành", icon: Clock, url: "/thoi-gian-bao-hanh" },
     ],
   },
 ];
@@ -98,50 +98,56 @@ export function Sidebar() {
       {/* Menu */}
       <nav className="flex-1  overflow-hidden p-5">
         {sidebarItems.map((items) => (
-            <ul className="border-b pb-2 overflow-hidden" key={items.title}>
-              {!isCollapsed && (
-                <h3 className="text-emphasis text-sm mb-[14px] font-bold">
-                  {items.title}
-                </h3>
-              )}
-              {items.items.map((subItems) => (
-                <li
-                  key={subItems.title}
-                  className=" text-sm transition hover:text-primary"
-                >
-                  <Link
-                    to={subItems.url}
-                    className={`w-full flex items-center ${
+          <ul className="border-b pb-2 overflow-hidden" key={items.title}>
+            {!isCollapsed && (
+              <h3 className="text-emphasis text-sm mb-[14px] font-bold">
+                {items.title}
+              </h3>
+            )}
+            {items.items.map((subItems) => (
+              <li
+                key={subItems.title}
+                className=" text-sm transition hover:text-primary"
+              >
+                <NavLink
+                  to={subItems.url}
+                  className={({ isActive }) =>
+                    clsx(
+                      "w-full flex items-center",
+                      isActive
+                        ? "text-primary font-semibold"
+                        : "hover:text-primary",
                       isCollapsed && !isHovered
                         ? "justify-center p-[10px]"
                         : "py-[10px] px-[18px]"
-                    }`}
-                    onClick={() =>
-                      subItems.subItems && toggleSection(subItems.title)
-                    }
-                  >
-                    {subItems.icon && (
-                      <subItems.icon
-                        className="h-4 w-4 transition-transform duration-300"
-                        style={{
-                          transform: openSections.includes(subItems.title)
-                            ? "rotate(180deg)"
-                            : "rotate(0deg)",
-                        }}
-                      />
+                    )
+                  }
+                  onClick={() =>
+                    subItems.subItems && toggleSection(subItems.title)
+                  }
+                >
+                  {subItems.icon && (
+                    <subItems.icon
+                      className="h-4 w-4 transition-transform"
+                      style={{
+                        transform: openSections.includes(subItems.title)
+                          ? "rotate(180deg)"
+                          : "rotate(0deg)",
+                      }}
+                    />
+                  )}
+                  <span
+                    className={clsx(
+                      "flex-1 transition-all overflow-hidden whitespace-nowrap",
+                      isCollapsed && !isHovered
+                        ? "opacity-0 w-0"
+                        : "opacity-100 ml-2 w-auto"
                     )}
-                    <span
-                      className={clsx(
-                        "flex-1 transition-all duration-300 overflow-hidden whitespace-nowrap",
-                        isCollapsed && !isHovered
-                          ? "opacity-0 w-0"
-                          : "opacity-100 ml-2 w-auto"
-                      )}
-                    >
-                      {showContent && subItems.title}
-                    </span>
-                  </Link>
-                  {/* {item.subItems &&
+                  >
+                    {showContent && subItems.title}
+                  </span>
+                </NavLink>
+                {/* {item.subItems &&
                     openSections.includes(item.title) &&
                     !isCollapsed && (
                       <ul className="ml-6 mt-2 space-y-1">
@@ -158,9 +164,9 @@ export function Sidebar() {
                         ))}
                       </ul>
                     )} */}
-                </li>
-              ))}
-            </ul>
+              </li>
+            ))}
+          </ul>
         ))}
       </nav>
     </aside>

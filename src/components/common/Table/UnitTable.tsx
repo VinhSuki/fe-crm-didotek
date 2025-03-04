@@ -1,11 +1,11 @@
-import unitApi from "@/apis/modules/unit";
+import unitApi from "@/apis/modules/unit.api";
 import ConfirmDeleteButton from "@/components/common/ConfirmDeleteButton";
-import GenericTable from "@/components/GenericTable";
+import GenericTable from "@/components/common/GenericTable";
 import { Column, FilterSearch, ISortOrder, IUnit } from "@/models/interfaces";
 import Edit from "@/pages/ProductManagement/Unit/Edit";
 import { useCallback } from "react";
 
-interface ProductTableProps {
+interface IUnitTableProps {
   units: IUnit[];
   filters: FilterSearch[];
   sortOrder: ISortOrder<IUnit>;
@@ -19,7 +19,7 @@ const columns: Column<IUnit>[] = [
   { key: "ID", sortName: "ID", label: "ID"},
   {
     key: "ten",
-    label: "Tên sản phẩm",
+    label: "Tên đơn vị tính",
     sortName:"ten",
     searchCondition: "text",
   },
@@ -34,7 +34,7 @@ const UnitTable = ({
   onSortOrder,
   onDeleted,
   onEdited,
-}: ProductTableProps) => {
+}: IUnitTableProps) => {
   const onConfirmDelete = useCallback(
     async (id: string | number) => {
       // eslint-disable-next-line no-useless-catch

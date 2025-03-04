@@ -13,6 +13,8 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
+        success: "#28c76f",
+        danger: "#ca1515",
         "background-input": "#f3f6f9",
         emphasis: "#1b2950",
         hover: "#FFF7F0",
@@ -70,6 +72,6 @@ export default {
       },
     },
   },
-  safelist: ["border-primary"],
+  safelist: ["border-primary","text-danger","text-success"],
   plugins: [require("tailwindcss-animate")],
 };

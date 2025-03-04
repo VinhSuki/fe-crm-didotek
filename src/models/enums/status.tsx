@@ -1,6 +1,6 @@
 export enum EStatus {
-  ACTIVE = 'Active',
-  INACTIVE = 'Inactive'
+  ACTIVE = 'active',
+  INACTIVE = 'inactive'
 }
 
 export enum EOrderStatus {

@@ -3,25 +3,25 @@ import { ESortOrderValue } from "@/models/enums/option";
 import {
   FilterSearch,
   IApiResponse,
-  IProduct
+  IWarrantyTime
 } from "@/models/interfaces";
 
-const productApi = {
+const warrantyTimeApi = {
   async list(params: {
     page?: number;
     limit?: number;
     filters?: FilterSearch[];
-    sort?: keyof IProduct | "";
+    sort?: keyof IWarrantyTime | "";
     order?: ESortOrderValue;
-  }): Promise<IApiResponse<IProduct[]>> {
-    return axiosPublic.get("api/v1/san-pham", {
+  }): Promise<IApiResponse<IWarrantyTime[]>> {
+    return axiosPublic.get("api/v1/thoi-gian-bao-hanh", {
       params: { ...params, filters: JSON.stringify(params.filters) },
     });
   },
   async add(data: { ten: string }): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.post(`api/v1/san-pham`, data);
+      return await axiosPublic.post(`api/v1/thoi-gian-bao-hanh`, data);
     } catch (error) {
       throw error;
     }
@@ -29,7 +29,7 @@ const productApi = {
   async delete(id: number | string): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.delete(`api/v1/san-pham/${id}`);
+      return await axiosPublic.delete(`api/v1/thoi-gian-bao-hanh/${id}`);
     } catch (error) {
       throw error;
     }
@@ -40,11 +40,11 @@ const productApi = {
   }): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.put(`api/v1/san-pham`, data);
+      return await axiosPublic.put(`api/v1/thoi-gian-bao-hanh`, data);
     } catch (error) {
       throw error;
     }
   },
 };
 
-export default productApi;
+export default warrantyTimeApi;

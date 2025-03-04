@@ -1,67 +1,137 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { IProduct } from "@/models/interfaces";
+import productApi from "@/apis/modules/product.api";
+import ConfirmDeleteButton from "@/components/common/ConfirmDeleteButton";
+import GenericTable from "@/components/common/GenericTable";
+import {
+  Column,
+  FilterSearch,
+  IProduct,
+  ISortOrder,
+} from "@/models/interfaces";
+import Edit from "@/pages/ProductManagement/ProductType/Edit";
+import { useCallback } from "react";
 
-interface ProductTableProps {
+interface IProductsTableProps {
   products: IProduct[];
-  filters: { [key: string]: string };
-  onFilterChange: (key: keyof IProduct, value: string) => void;
+  filters: FilterSearch[];
+  sortOrder: ISortOrder<IProduct>;
+  onFilterChange: (newFilters: FilterSearch[]) => void;
+  onSortOrder: (sortOrder: ISortOrder<IProduct>) => void;
+  onDeleted: () => void;
+  onEdited: () => void;
 }
 
-export default function ProductTable({ products, filters, onFilterChange }: ProductTableProps) {
+const columns: Column<IProduct>[] = [
+  { key: "ID", sortName: "ID", label: "ID", minW: "min-w-[50px]" },
+  {
+    key: "hinh_anh",
+    label: "Hình ảnh",
+  },
+  {
+    key: "ten",
+    label: "Tên sản phẩm",
+    sortName: "ten",
+    searchCondition: "text",
+    minW: "min-w-[200px]",
+  },
+  {
+    key: "upc",
+    label: "Mã sản phẩm",
+    sortName: "upc",
+    searchCondition: "text",
+    minW: "min-w-[200px]",
+  },
+  {
+    key: "loai_san_pham",
+    label: "Loại sản phẩm",
+    sortName: "loai_san_pham",
+    searchCondition: "text",
+    minW: "min-w-[200px]",
+  },
+  {
+    key: "don_vi_tinh",
+    label: "Đơn vị tính",
+    sortName: "don_vi_tinh",
+    searchCondition: "text",
+    minW: "min-w-[200px]",
+  },
+  {
+    key: "vat",
+    label: "VAT",
+    sortName: "vat",
+    searchCondition: "number",
+    minW: "min-w-[100px]",
+  },
+  {
+    key: "trang_thai",
+    label: "Trạng thái",
+    sortName: "trang_thai",
+    searchCondition: "text",
+    minW: "min-w-[200px]",
+  },
+  {
+    key: "loai_giam_gia",
+    label: "Loại giảm giá",
+    sortName: "loai_giam_gia",
+    searchCondition: "text",
+    minW: "min-w-[200px]",
+  },
+  {
+    key: "thoi_gian_bao_hanh",
+    label: "Thời gian bảo hành",
+    sortName: "thoi_gian_bao_hanh",
+    searchCondition: "text",
+    minW: "min-w-[200px]",
+  },
+  {
+    key: "CreatedAt",
+    sortName: "created_at",
+    label: "Ngày tạo",
+    minW: "min-w-[200px]",
+  },
+];
+
+const ProductTable = ({
+  products,
+  filters,
+  sortOrder,
+  onFilterChange,
+  onSortOrder,
+  onDeleted,
+  onEdited,
+}: IProductsTableProps) => {
+  const onConfirmDelete = useCallback(
+    async (id: string | number) => {
+      // eslint-disable-next-line no-useless-catch
+      try {
+        await productApi.delete(id);
+        onDeleted();
+      } catch (error) {
+        throw error;
+      }
+    },
+    [onDeleted]
+  ); // Chỉ re-create khi `onDeleted` thay đổi
+  // console.log("re-render");
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>ID</TableHead>
-          <TableHead>Hình ảnh</TableHead>
-          <TableHead>Tên sản phẩm</TableHead>
-          <TableHead>Mã</TableHead>
-          <TableHead>Danh mục</TableHead>
-          <TableHead>Đơn vị</TableHead>
-          <TableHead>VAT</TableHead>
-          <TableHead>Trạng thái</TableHead>
-          <TableHead>Giảm giá</TableHead>
-          <TableHead>Bảo hành</TableHead>
-          <TableHead>Ngày tạo</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {/* Ô tìm kiếm (bỏ ID, Hình ảnh, Ngày tạo) */}
-        <TableRow>
-          <TableCell />
-          <TableCell />
-          {["name", "code", "category", "unit", "vat", "status", "discountType", "warranty"].map((key) => (
-            <TableCell key={key}>
-              <Input
-                placeholder={`Tìm ${key}`}
-                value={filters[key] || ""}
-                onChange={(e) => onFilterChange(key as keyof IProduct, e.target.value)}
-                className="h-8 w-full"
-              />
-            </TableCell>
-          ))}
-          <TableCell />
-        </TableRow>
-        {/* Hiển thị dữ liệu */}
-        {products.map((product) => (
-          <TableRow key={product.id}>
-            <TableCell>{product.id}</TableCell>
-            <TableCell>
-              <img src={product.image} alt={product.name} className="w-10 h-10" />
-            </TableCell>
-            <TableCell>{product.name}</TableCell>
-            <TableCell>{product.code}</TableCell>
-            <TableCell>{product.category}</TableCell>
-            <TableCell>{product.unit}</TableCell>
-            <TableCell>{product.vat}</TableCell>
-            <TableCell>{product.status}</TableCell>
-            <TableCell>{product.discountType}</TableCell>
-            <TableCell>{product.warranty}</TableCell>
-            <TableCell>{product.createdAt}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <GenericTable<IProduct>
+      data={products}
+      columns={columns}
+      filters={filters}
+      sortOrder={sortOrder}
+      onFilterChange={onFilterChange}
+      onSortOrder={onSortOrder}
+      actions={(row) => (
+        <>
+          <Edit onEdited={onEdited} productType={row} />
+          <ConfirmDeleteButton
+            id={row.ID}
+            onConfirm={onConfirmDelete}
+            title={`Bạn có chắc chắn muốn xóa sản phẩm ${row.ten}?`}
+          />
+        </>
+      )}
+    />
   );
-}
+};
+
+export default ProductTable;

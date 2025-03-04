@@ -20,16 +20,21 @@ export interface IProduct {
   ten: string;
   upc: string;
   loai_san_pham_ID: number;
+  loai_san_pham:string;
   hinh_anh: string;
-  don_vi_tinh_ID: number;
+  don_vi_tinh_id: number; 
+  don_vi_tinh:string;
   vat: number;
   mo_ta: string;
   trang_thai: string;
   loai_giam_gia_ID: number;
+  loai_giam_gia: string;
   thoi_gian_bao_hanh_ID: number;
+  thoi_gian_bao_hanh:string;
   UpdatedAt: string;
   DeletedAt: string;
   CreatedAt: string;
+  created_at: string;
 }
 export interface IProductDetail {
   ID: number;
@@ -44,6 +49,7 @@ export interface IProductDetail {
   UpdatedAt: string;
   DeletedAt: string;
   CreatedAt: string;
+  created_at: string;
 }
 
 export interface IProductType {
@@ -65,13 +71,14 @@ export interface IUnit {
   created_at: string;
 }
 
-export interface ISaleType {
+export interface IDiscountType {
   ID: number;
   ten: string;
   gia_tri: number;
   UpdatedAt: string;
   DeletedAt: string;
   CreatedAt: string;
+  created_at: string;
 }
 
 export interface IWarrantyTime {
@@ -80,6 +87,7 @@ export interface IWarrantyTime {
   UpdatedAt: string;
   DeletedAt: string;
   CreatedAt: string;
+  created_at: string;
 }
 
 export interface FilterOption {
@@ -105,4 +113,5 @@ export interface Column<T> {
   sortName?: keyof T;
   searchCondition?: "number" | "text" | undefined;
   render?: (row: T) => React.ReactNode;
+  minW?:string
 }

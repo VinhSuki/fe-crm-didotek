@@ -1,4 +1,4 @@
-import unitApi from "@/apis/modules/unit";
+import unitApi from "@/apis/modules/unit.api";
 import Loader from "@/components/common/Loader";
 import PaginationCustom from "@/components/common/PaginationCustom";
 import UnitTable from "@/components/common/Table/UnitTable";
@@ -11,42 +11,52 @@ import {
   setFilters,
   setPagination,
   setSortOrder,
-  toggleReset
+  toggleReset,
 } from "@/redux/slices/genericPage.slice";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-const ENTITY_KEY = "Unit"; // Định danh động
+const ENTITY_KEY = "unit"; // Định danh động
 
 export default function Index() {
   const dispatch = useDispatch<AppDispatch>();
 
-  useEffect(() => {
-    dispatch(initState(ENTITY_KEY));
-  }, [dispatch]);
   const {
-    data  : units = [],
+    data: units = [],
     filters = [],
     pagination = { currentPage: 1, totalPage: 0 },
     sortOrder = { sort: "", order: ESortOrderValue.ASC },
     isLoading = false,
-    isReset
+    isReset,
+    isInitialized,
   } = useSelector((state: RootState) => state.genericPage[ENTITY_KEY] || {});
 
   useEffect(() => {
-    console.log("Call");
-    dispatch(fetchDynamicData({ key: ENTITY_KEY, api: unitApi }));
-  }, [dispatch, filters, sortOrder, pagination.currentPage,isReset]);
+    dispatch(initState(ENTITY_KEY));
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (isInitialized) {
+      // 🆕 Chỉ gọi API khi đã khởi tạo
+      console.log("Da vao");
+      dispatch(fetchDynamicData({ key: ENTITY_KEY, api: unitApi }));
+    }
+  }, [
+    dispatch,
+    filters,
+    sortOrder,
+    pagination.currentPage,
+    isReset,
+    isInitialized,
+  ]);
 
   return (
     <div className="space-y-6 relative">
       {/* Product Table */}
       <Card>
         <CardHeader className="flex-row justify-end items-center border-b">
-          <Add
-            onAdded={() => dispatch(toggleReset(ENTITY_KEY))}
-          />
+          <Add onAdded={() => dispatch(toggleReset(ENTITY_KEY))} />
         </CardHeader>
         <CardContent className="p-4">
           <UnitTable

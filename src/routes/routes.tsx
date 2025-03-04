@@ -19,10 +19,19 @@ const Loadable = <P extends object>(
   );
 };
 
-const Product = Loadable(lazy(() => import("@/pages/ProductManagement/Product")));
-const ProductType = Loadable(lazy(() => import("@/pages/ProductManagement/ProductType")));
+const Product = Loadable(
+  lazy(() => import("@/pages/ProductManagement/Product"))
+);
+const ProductType = Loadable(
+  lazy(() => import("@/pages/ProductManagement/ProductType"))
+);
 const Unit = Loadable(lazy(() => import("@/pages/ProductManagement/Unit")));
-
+const DiscountType = Loadable(
+  lazy(() => import("@/pages/ProductManagement/DiscountType"))
+);
+const WarrantyTime = Loadable(
+  lazy(() => import("@/pages/ProductManagement/WarrantyTime"))
+);
 
 function AppRouter() {
   const routes = [
@@ -57,6 +66,19 @@ function AppRouter() {
               </MainContent>
             </>
           ),
+          children: [
+            {
+              path: "add",
+              element: (
+                <>
+                  <PageTitle title="Thêm sản phẩm" />
+                  <MainContent title="Thêm sản phẩm">
+                    <Product />
+                  </MainContent>
+                </>
+              ),
+            },
+          ],
         },
         {
           path: "/loai-san-pham",
@@ -76,6 +98,28 @@ function AppRouter() {
               <PageTitle title="Đơn vị tính" />
               <MainContent title="Đơn vị tính">
                 <Unit />
+              </MainContent>
+            </>
+          ),
+        },
+        {
+          path: "/loai-giam-gia",
+          element: (
+            <>
+              <PageTitle title="Loại giảm giá" />
+              <MainContent title="Loại giảm giá">
+                <DiscountType />
+              </MainContent>
+            </>
+          ),
+        },
+        {
+          path: "/thoi-gian-bao-hanh",
+          element: (
+            <>
+              <PageTitle title="Thời gian bảo hành" />
+              <MainContent title="Thời gian bảo hành">
+                <WarrantyTime />
               </MainContent>
             </>
           ),

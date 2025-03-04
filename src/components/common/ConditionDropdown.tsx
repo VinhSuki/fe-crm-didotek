@@ -66,7 +66,7 @@ export default function ConditionDropdown({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="cursor-pointer ">
-        <span className={clsx(className,'p-1')}>{selectedCondition.icon}</span>
+        <span className={clsx(className,'')}>{selectedCondition.icon}</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-full">
         {conditionOptions.map((option) => (

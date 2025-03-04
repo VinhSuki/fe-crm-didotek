@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import unitApi from "@/apis/modules/unit.api";
+import discountTypeApi from "@/apis/modules/discountType.api";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { IUnit } from "@/models/interfaces";
+import { IDiscountType } from "@/models/interfaces";
 import { showSuccessAlert } from "@/utils/alert";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
@@ -19,45 +19,52 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-const unitSchema = z.object({
+const discountTypeSchema = z.object({
   ten: z.string().min(1, "Vui lòng nhập tên đơn vị tính"),
+  gia_tri: z
+    .string()
+    .min(1, "Vui lòng nhập giá trị")
+    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+      message: "Giá trị phải là số lớn hơn 0",
+    }),
   id: z.number(),
 });
 
-type unitFormValues = z.infer<typeof unitSchema>;
+type discountTypeFormValues = z.infer<typeof discountTypeSchema>;
 
 interface EditProps {
-  unit: IUnit;
+  discountType: IDiscountType;
   onEdited: () => void;
 }
 
-export default function Edit({ unit, onEdited }: EditProps) {
+export default function Edit({ discountType, onEdited }: EditProps) {
   const {
     register,
     handleSubmit,
     reset,
     setError,
     formState: { errors },
-  } = useForm<unitFormValues>({
-    resolver: zodResolver(unitSchema),
+  } = useForm<discountTypeFormValues>({
+    resolver: zodResolver(discountTypeSchema),
   });
-  const resetForm = (data?: unitFormValues) => {
+  const resetForm = (data?: discountTypeFormValues) => {
     if (data) {
       reset({
         ten: data.ten,
+        gia_tri: String(data.gia_tri),
         id: data.id,
       });
     } else {
       reset({
-        ten: unit.ten,
-        id: unit.ID,
+        ten: discountType.ten,
+        gia_tri: String(discountType.gia_tri),
+        id: discountType.ID,
       });
     }
   };
-
   useEffect(() => {
     resetForm();
-  }, [unit]);
+  }, [discountType]);
   const [open, setOpen] = useState(false);
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
@@ -65,14 +72,14 @@ export default function Edit({ unit, onEdited }: EditProps) {
       resetForm();
     }
   };
-  const handleResetForm = (data?: unitFormValues) => {
+  const handleResetForm = (data?: discountTypeFormValues) => {
     setOpen(false); // ✅ Đóng form sau khi API gọi thành công
     if (data) resetForm(data);
     else resetForm();
   };
-  const onSubmit = async (data: unitFormValues) => {
+  const onSubmit = async (data: discountTypeFormValues) => {
     try {
-      await unitApi.edit(data);
+      await discountTypeApi.edit(data);
       handleResetForm(data);
       showSuccessAlert("Chỉnh sửa dữ liệu thành công!");
       onEdited(); // ✅ Gọi callback để cập nhật dữ liệu
@@ -92,7 +99,7 @@ export default function Edit({ unit, onEdited }: EditProps) {
       <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle className="border-b pb-4">
-            Chỉnh sửa đơn vị tính
+            Chỉnh sửa loại giảm giá
           </DialogTitle>
         </DialogHeader>
         <>
@@ -100,7 +107,7 @@ export default function Edit({ unit, onEdited }: EditProps) {
             {/* Input Ảnh */}
             <div className="grid grid-cols-4 gap-4">
               <Label htmlFor="ten" className="text-zinc-500">
-                Tên đơn vị tính
+                Tên loại giảm giá
               </Label>
               <div className="col-span-3">
                 <Input
@@ -111,6 +118,26 @@ export default function Edit({ unit, onEdited }: EditProps) {
                 />
                 {errors.ten && (
                   <p className="text-red-500 text-sm">{errors.ten.message}</p>
+                )}
+              </div>
+            </div>
+            <div className="grid grid-cols-4 gap-4">
+              <Label htmlFor="ten" className="text-zinc-500">
+                Giá trị (%)
+              </Label>
+              <div className="col-span-3">
+                <Input
+                  min={1}
+                  autoComplete="off"
+                  id="ten"
+                  type="number"
+                  {...register("gia_tri")}
+                  placeholder="Nhập giá trị"
+                />
+                {errors.gia_tri && (
+                  <p className="text-red-500 text-sm">
+                    {errors.gia_tri.message}
+                  </p>
                 )}
               </div>
             </div>

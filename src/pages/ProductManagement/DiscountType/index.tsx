@@ -1,10 +1,10 @@
-import productTypeApi from "@/apis/modules/productType.api";
+import discountTypeApi from "@/apis/modules/discountType.api";
 import Loader from "@/components/common/Loader";
 import PaginationCustom from "@/components/common/PaginationCustom";
-import ProductTypeTable from "@/components/common/Table/ProductTypeTable";
+import DiscountTypeTable from "@/components/common/Table/DiscountTypeTable";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ESortOrderValue } from "@/models/enums/option";
-import Add from "@/pages/ProductManagement/ProductType/Add";
+import Add from "@/pages/ProductManagement/DiscountType/Add";
 import {
   fetchDynamicData,
   initState,
@@ -17,13 +17,13 @@ import { AppDispatch, RootState } from "@/redux/store";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-const ENTITY_KEY = "productType"; // Định danh động
+const ENTITY_KEY = "discountType"; // Định danh động
 
 export default function Index() {
   const dispatch = useDispatch<AppDispatch>();
 
   const {
-    data  : productTypes = [],
+    data  : discountTypes = [],
     filters = [],
     pagination = { currentPage: 1, totalPage: 0 },
     sortOrder = { sort: "", order: ESortOrderValue.ASC },
@@ -39,24 +39,25 @@ export default function Index() {
   useEffect(() => {
     if (isInitialized) { // 🆕 Chỉ gọi API khi đã khởi tạo
       console.log("Da vao");
-      dispatch(fetchDynamicData({ key: ENTITY_KEY, api: productTypeApi }));
+      dispatch(fetchDynamicData({ key: ENTITY_KEY, api: discountTypeApi }));
     }
   }, [dispatch, filters, sortOrder, pagination.currentPage, isReset, isInitialized]);
+  
 
   return (
     <div className="space-y-6 relative">
       {/* Product Table */}
       <Card>
         <CardHeader className="flex-row justify-end items-center border-b">
-          <Add 
+          <Add
             onAdded={() => dispatch(toggleReset(ENTITY_KEY))}
           />
         </CardHeader>
         <CardContent className="p-4">
-          <ProductTypeTable
+          <DiscountTypeTable
             onEdited={() => dispatch(toggleReset(ENTITY_KEY))}
             onDeleted={() => dispatch(toggleReset(ENTITY_KEY))}
-            productTypes={productTypes} // Dữ liệu lấy từ Redux
+            discountTypes={discountTypes} // Dữ liệu lấy từ Redux
             filters={filters}
             sortOrder={sortOrder}
             onFilterChange={(newFilters) =>
