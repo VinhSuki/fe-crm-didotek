@@ -22,6 +22,9 @@ const Loadable = <P extends object>(
 const Product = Loadable(
   lazy(() => import("@/pages/ProductManagement/Product"))
 );
+const AddProduct = Loadable(
+  lazy(() => import("@/pages/ProductManagement/Product/Add"))
+);
 const ProductType = Loadable(
   lazy(() => import("@/pages/ProductManagement/ProductType"))
 );
@@ -58,22 +61,31 @@ function AppRouter() {
         },
         {
           path: "/san-pham",
-          element: (
-            <>
-              <PageTitle title="sản phẩm" />
-              <MainContent title="sản phẩm">
-                <Product />
-              </MainContent>
-            </>
-          ),
           children: [
             {
-              path: "add",
+              path: "",
+              element: (
+                <>
+                  <PageTitle title="Danh sách sản phẩm" />
+                  <MainContent title="Quản lý sản phẩm">
+                    <Product />
+                  </MainContent>
+                </>
+              ),
+            },
+            {
+              path: "them-moi",
               element: (
                 <>
                   <PageTitle title="Thêm sản phẩm" />
-                  <MainContent title="Thêm sản phẩm">
-                    <Product />
+                  <MainContent
+                  title="Thêm sản phẩm"
+                    breadcrumb={{
+                      parent: { title: "Sản phẩm", url: "/san-pham" },
+                      current: "Thêm mới",
+                    }}
+                  >
+                    <AddProduct />
                   </MainContent>
                 </>
               ),
@@ -84,8 +96,8 @@ function AppRouter() {
           path: "/loai-san-pham",
           element: (
             <>
-              <PageTitle title="loại sản phẩm" />
-              <MainContent title="loại sản phẩm">
+              <PageTitle title="Danh sách loại sản phẩm" />
+              <MainContent title="Quản lý loại sản phẩm">
                 <ProductType />
               </MainContent>
             </>
@@ -95,8 +107,8 @@ function AppRouter() {
           path: "/don-vi-tinh",
           element: (
             <>
-              <PageTitle title="Đơn vị tính" />
-              <MainContent title="Đơn vị tính">
+              <PageTitle title="Danh sách đơn vị tính" />
+              <MainContent title="Quản lý đơn vị tính">
                 <Unit />
               </MainContent>
             </>
@@ -106,8 +118,8 @@ function AppRouter() {
           path: "/loai-giam-gia",
           element: (
             <>
-              <PageTitle title="Loại giảm giá" />
-              <MainContent title="Loại giảm giá">
+              <PageTitle title="Danh sách loại giảm giá" />
+              <MainContent title="Quản lý Loại giảm giá">
                 <DiscountType />
               </MainContent>
             </>
@@ -117,8 +129,8 @@ function AppRouter() {
           path: "/thoi-gian-bao-hanh",
           element: (
             <>
-              <PageTitle title="Thời gian bảo hành" />
-              <MainContent title="Thời gian bảo hành">
+              <PageTitle title="Danh sách thời gian bảo hành" />
+              <MainContent title="Quản lý thời gian bảo hành">
                 <WarrantyTime />
               </MainContent>
             </>
@@ -127,10 +139,10 @@ function AppRouter() {
       ],
     },
     {
-      path: "/login",
+      path: "/dang-nhap",
       element: (
         <>
-          <PageTitle title="Login" />
+          <PageTitle title="Đăng nhập" />
           <PublicRoute>
             <Login />
           </PublicRoute>

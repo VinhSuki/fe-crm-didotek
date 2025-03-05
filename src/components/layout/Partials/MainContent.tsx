@@ -1,22 +1,56 @@
-import { Button } from "@/components/ui/button";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { useNavbarContext } from "@/context/NavbarContext";
 import clsx from "clsx";
 import { ChevronUp } from "lucide-react";
 
 interface MainContentProps {
   children: React.ReactElement;
-  title: string;
+  title?: string;
+  breadcrumb?: {
+    parent: {
+      title: string;
+      url: string;
+    };
+    current: string;
+  };
 }
 
-export function MainContent({ children, title }: MainContentProps) {
+export function MainContent({ children, title, breadcrumb }: MainContentProps) {
   const navbar = useNavbarContext();
-  // console.log(navbar);
   return (
     <main className="flex-1 p-6 bg-background-overlay/5 space-y-5">
       <div className="flex justify-between items-center">
         <div className="space-y-1">
-          <h3 className="text-emphasis text-lg font-bold">Danh sách {title}</h3>
-          <p className="text-sm">Quản lý {title}</p>
+          <h3 className="text-emphasis text-lg font-bold">{title}</h3>
+          {breadcrumb ? (
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink
+                    href={breadcrumb.parent.url}
+                    className="text-zinc-500 font-semibold"
+                  >
+                    {breadcrumb.parent.title}
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage className="text-primary">
+                    {breadcrumb.current}
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          ) : (
+            <p className="text-sm">{title}</p>
+          )}
         </div>
         <button
           className={clsx(

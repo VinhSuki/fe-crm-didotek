@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Images } from "@/constant";
+import { useSidebarContext } from "@/context/SidebarContext";
 import clsx from "clsx";
 import {
   ChevronsLeft,
@@ -43,7 +44,7 @@ const sidebarItems: ISidebarItem[] = [
 
 export function Sidebar() {
   const [openSections, setOpenSections] = useState<string[]>([]);
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const {isCollapsed,setIsCollapsed} = useSidebarContext()
   const [isHovered, setIsHovered] = useState(false);
   const showContent = !isCollapsed || isHovered;
 
@@ -52,7 +53,7 @@ export function Sidebar() {
       prev.includes(title) ? prev.filter((t) => t !== title) : [...prev, title]
     );
   };
-
+  console.log(isCollapsed);
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };

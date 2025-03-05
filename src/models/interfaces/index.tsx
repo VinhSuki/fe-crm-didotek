@@ -90,6 +90,12 @@ export interface IWarrantyTime {
   created_at: string;
 }
 
+export interface IClassify {
+  hinh_anh: string;
+  ten_phan_loai: string;
+  trang_thai:string
+}
+
 export interface FilterOption {
   ID: string;
   label: string;
@@ -114,4 +120,5 @@ export interface Column<T> {
   searchCondition?: "number" | "text" | undefined;
   render?: (row: T) => React.ReactNode;
   minW?:string
+  isImgFile?:boolean
 }

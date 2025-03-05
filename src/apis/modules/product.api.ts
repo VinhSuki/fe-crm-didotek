@@ -14,14 +14,14 @@ const productApi = {
     sort?: keyof IProduct | "";
     order?: ESortOrderValue;
   }): Promise<IApiResponse<IProduct[]>> {
-    return axiosPublic.get("api/v1/san-pham", {
+    return axiosPublic.get("api/san-pham", {
       params: { ...params, filters: JSON.stringify(params.filters) },
     });
   },
   async add(data: { ten: string }): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.post(`api/v1/san-pham`, data);
+      return await axiosPublic.post(`api/san-pham`, data);
     } catch (error) {
       throw error;
     }
@@ -29,7 +29,7 @@ const productApi = {
   async delete(id: number | string): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.delete(`api/v1/san-pham/${id}`);
+      return await axiosPublic.delete(`api/san-pham/${id}`);
     } catch (error) {
       throw error;
     }
@@ -40,7 +40,7 @@ const productApi = {
   }): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.put(`api/v1/san-pham`, data);
+      return await axiosPublic.put(`api/san-pham`, data);
     } catch (error) {
       throw error;
     }

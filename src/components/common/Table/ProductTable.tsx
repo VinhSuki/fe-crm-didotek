@@ -84,7 +84,7 @@ const columns: Column<IProduct>[] = [
   },
   {
     key: "CreatedAt",
-    sortName: "created_at",
+    sortName: "CreatedAt",
     label: "Ngày tạo",
     minW: "min-w-[200px]",
   },

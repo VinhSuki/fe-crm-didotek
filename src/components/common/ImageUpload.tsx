@@ -1,6 +1,7 @@
 import React, { useState, ChangeEvent, ForwardedRef, useEffect } from "react";
 import Loader from "./Loader";
 import { CloudUpload } from "lucide-react";
+import clsx from "clsx";
 
 interface ImageUploadProps {
   label?: string;
@@ -80,7 +81,7 @@ const ImageUpload = React.forwardRef<HTMLInputElement, ImageUploadProps>(
         {label && (
           <label
             htmlFor={name}
-            className="mb-3 block text-black dark:text-white"
+            className={clsx("mb-2 block text-sm",error && 'text-destructive')}
           >
             {label}
           </label>
@@ -127,7 +128,7 @@ const ImageUpload = React.forwardRef<HTMLInputElement, ImageUploadProps>(
             </>
           )}
         </div>
-        {error && <p className="text-sm text-red-500">{error}</p>}
+        {error && <p className="text-xs text-destructive">{error}</p>}
       </div>
     );
   }

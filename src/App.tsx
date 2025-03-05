@@ -2,13 +2,16 @@ import AuthProvider from "./context/Auth/AuthProvider";
 import AppRouter from "./routes/routes";
 import "./App.css";
 import NavbarProvider from "@/context/NavbarContext";
+import SidebarProvider from "@/context/SidebarContext";
 
 function App() {
   return (
     <AuthProvider>
-      <NavbarProvider>
-        <AppRouter />
-      </NavbarProvider>
+      <SidebarProvider>
+        <NavbarProvider>
+          <AppRouter />
+        </NavbarProvider>
+      </SidebarProvider>
     </AuthProvider>
   );
 }

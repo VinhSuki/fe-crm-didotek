@@ -11,14 +11,14 @@ const productTypeApi = {
     sort?: keyof IProductType | "";
     order?: ESortOrderValue;
   }): Promise<IApiResponse<IProductType[]>> {
-    return axiosPublic.get("api/v1/loai-san-pham", {
+    return axiosPublic.get("api/loai-san-pham", {
       params: { ...params, filters: JSON.stringify(params.filters) },
     });
   },
   async add(data: FormData): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.post(`api/v1/loai-san-pham`, data, {
+      return await axiosPublic.post(`api/loai-san-pham`, data, {
         headers: {
           "Content-Type": "multipart/form-data", // Đảm bảo header phù hợp với FormData
         },
@@ -30,7 +30,7 @@ const productTypeApi = {
   async delete(id: number | string): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.delete(`api/v1/loai-san-pham/${id}`);
+      return await axiosPublic.delete(`api/loai-san-pham/${id}`);
     } catch (error) {
       throw error;
     }
@@ -38,7 +38,7 @@ const productTypeApi = {
   async edit(data: FormData): Promise<IApiResponse<IProductType>> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.put(`api/v1/loai-san-pham`, data, {
+      return await axiosPublic.put(`api/loai-san-pham`, data, {
         headers: {
           "Content-Type": "multipart/form-data", // Đảm bảo header phù hợp với FormData
         },

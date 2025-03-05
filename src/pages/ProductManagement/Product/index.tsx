@@ -1,10 +1,12 @@
-  import productApi from "@/apis/modules/product.api";
+import productApi from "@/apis/modules/product.api";
 import Loader from "@/components/common/Loader";
 import PaginationCustom from "@/components/common/PaginationCustom";
 import ProductTable from "@/components/common/Table/ProductTable";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useSidebarContext } from "@/context/SidebarContext";
 import { ESortOrderValue } from "@/models/enums/option";
-import Add from "@/pages/ProductManagement/WarrantyTime/Add";
+import Add from "@/pages/ProductManagement/Product/Add";
 import {
   fetchDynamicData,
   initState,
@@ -14,8 +16,11 @@ import {
   toggleReset,
 } from "@/redux/slices/genericPage.slice";
 import { AppDispatch, RootState } from "@/redux/store";
+import clsx from "clsx";
+import { Plus } from "lucide-react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 const ENTITY_KEY = "product"; // Định danh động
 
@@ -31,6 +36,7 @@ export default function Index() {
     isReset,
     isInitialized,
   } = useSelector((state: RootState) => state.genericPage[ENTITY_KEY] || {});
+  const sidebar = useSidebarContext();
 
   useEffect(() => {
     dispatch(initState(ENTITY_KEY));
@@ -55,9 +61,19 @@ export default function Index() {
       {/* Product Table */}
       <Card className="w-full">
         <CardHeader className="flex-row justify-end items-center border-b">
-          <Add onAdded={() => dispatch(toggleReset(ENTITY_KEY))} />
+          <Link to="/san-pham/them-moi">
+            <Button className="bg-primary hover:bg-secondary text-white">
+              <Plus />
+              <span>Thêm mới</span>
+            </Button>
+          </Link>
         </CardHeader>
-        <CardContent className="p-4 max-w-[1200px] overflow-x-auto">
+        <CardContent
+          className={clsx(
+            "p-4 overflow-x-auto",
+            sidebar.isCollapsed ? "max-w-[1380px]" : "max-w-[1200px]"
+          )}
+        >
           <ProductTable
             onEdited={() => dispatch(toggleReset(ENTITY_KEY))}
             onDeleted={() => dispatch(toggleReset(ENTITY_KEY))}

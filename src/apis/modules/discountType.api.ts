@@ -15,14 +15,14 @@ const discountTypeApi = {
     sort?: keyof IDiscountType | "";
     order?: ESortOrderValue;
   }): Promise<IApiResponse<IDiscountType[]>> {
-    return axiosPublic.get("api/v1/loai-giam-gia", {
+    return axiosPublic.get("api/loai-giam-gia", {
       params: { ...params, filters: JSON.stringify(params.filters) },
     });
   },
   async add(data: { ten: string,gia_tri:string }): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.post(`api/v1/loai-giam-gia`, data);
+      return await axiosPublic.post(`api/loai-giam-gia`, data);
     } catch (error) {
       throw error;
     }
@@ -30,7 +30,7 @@ const discountTypeApi = {
   async delete(id: number | string): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.delete(`api/v1/loai-giam-gia/${id}`);
+      return await axiosPublic.delete(`api/loai-giam-gia/${id}`);
     } catch (error) {
       throw error;
     }
@@ -42,7 +42,7 @@ const discountTypeApi = {
   }): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.put(`api/v1/loai-giam-gia`, data);
+      return await axiosPublic.put(`api/loai-giam-gia`, data);
     } catch (error) {
       throw error;
     }
