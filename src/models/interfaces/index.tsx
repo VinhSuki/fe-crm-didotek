@@ -16,36 +16,36 @@ export interface IApiResponse<T = undefined> {
 }
 
 export interface IProduct {
-  ID: number;
+  ID: number | string;
   ten: string;
   upc: string;
-  loai_san_pham_ID: number;
-  loai_san_pham:string;
+  loai_san_pham_id: number | string;
+  loai_san_pham: string;
   hinh_anh: string;
-  don_vi_tinh_id: number; 
-  don_vi_tinh:string;
-  vat: number;
+  don_vi_tinh_id: number | string;
+  don_vi_tinh: string;
+  vat: number | string;
   mo_ta: string;
-  trang_thai: string;
-  loai_giam_gia_ID: number;
+  trang_thai: string | number;
+  loai_giam_gia_id: number | string;
   loai_giam_gia: string;
-  thoi_gian_bao_hanh_ID: number;
-  thoi_gian_bao_hanh:string;
+  thoi_gian_bao_hanh_id: number | string;
+  thoi_gian_bao_hanh: string;
   UpdatedAt: string;
   DeletedAt: string;
   CreatedAt: string;
   created_at: string;
 }
 export interface IProductDetail {
-  ID: number;
+  ID: number | string;
   hinh_anh: string;
-  san_pham_ID: string;
+  san_pham_ID: string | number;
   ten_phan_loai: string;
-  gia_nhap: number;
-  gia_ban: number;
-  so_luong: number;
-  trang_thai: string;
-  khong_phan_loai: number;
+  gia_nhap: number | string;
+  gia_ban: number | string;
+  so_luong: number | string;
+  trang_thai: string | number;
+  khong_phan_loai: number | string;
   UpdatedAt: string;
   DeletedAt: string;
   CreatedAt: string;
@@ -53,7 +53,7 @@ export interface IProductDetail {
 }
 
 export interface IProductType {
-  ID: number;
+  ID: number | string;
   ten: string;
   hinh_anh: string;
   UpdatedAt: string;
@@ -63,7 +63,7 @@ export interface IProductType {
 }
 
 export interface IUnit {
-  ID: number;
+  ID: number | string;
   ten: string;
   UpdatedAt: string;
   DeletedAt: string;
@@ -72,9 +72,9 @@ export interface IUnit {
 }
 
 export interface IDiscountType {
-  ID: number;
+  ID: number | string;
   ten: string;
-  gia_tri: number;
+  gia_tri: string | number;
   UpdatedAt: string;
   DeletedAt: string;
   CreatedAt: string;
@@ -82,7 +82,7 @@ export interface IDiscountType {
 }
 
 export interface IWarrantyTime {
-  ID: number;
+  ID: number | string;
   ten: string;
   UpdatedAt: string;
   DeletedAt: string;
@@ -91,9 +91,10 @@ export interface IWarrantyTime {
 }
 
 export interface IClassify {
+  ID?: string | number;
   hinh_anh: string;
   ten_phan_loai: string;
-  trang_thai:string
+  trang_thai: string | number;
 }
 
 export interface FilterOption {
@@ -119,6 +120,5 @@ export interface Column<T> {
   sortName?: keyof T;
   searchCondition?: "number" | "text" | undefined;
   render?: (row: T) => React.ReactNode;
-  minW?:string
-  isImgFile?:boolean
+  minW?: string;
 }

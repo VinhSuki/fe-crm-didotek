@@ -24,8 +24,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { IClassify } from "@/models/interfaces";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus } from "lucide-react";
+import { SquarePen } from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
@@ -40,44 +41,64 @@ const classifySchema = z.object({
     })
     .refine((file) => !file || file.size <= 5 * 1024 * 1024, {
       message: "Kích thước ảnh tối đa 5MB",
-    }),
-  trang_thai: z.string({
-    required_error: "Vui lòng chọn trạng thái",
-  }),
+    })
+    .optional(),
+  trang_thai: z.union([z.string(), z.number()]),
+  id: z.union([z.string(), z.number()]),
 });
 
 // Kiểu dữ liệu
 type ClassifyFormValues = z.infer<typeof classifySchema>;
 
-export default function AddClassify({
-  onAdded,
+export default function Edit({
+  id,
+  classify,
+  onEdited,
 }: {
-  onAdded: (data: ClassifyFormValues) => void;
+  id: string | number;
+  classify: IClassify;
+  onEdited: (id: string | number, data: ClassifyFormValues) => void;
 }) {
   const [open, setOpen] = useState(false);
   const form = useForm<ClassifyFormValues>({
     resolver: zodResolver(classifySchema),
-    defaultValues:{
-        ten_phan_loai:""
-    }
+    defaultValues: {
+      ten_phan_loai: classify.ten_phan_loai,
+      trang_thai: classify.trang_thai,
+      id: classify.ID,
+    },
   });
 
-  const handleResetForm = () => {
-    form.reset();
-    setOpen(false);
+  const resetForm = (data?: ClassifyFormValues) => {
+    if (data) {
+      form.reset({
+        ten_phan_loai: data.ten_phan_loai,
+        trang_thai: data.trang_thai,
+      });
+    } else {
+      form.reset({
+        ten_phan_loai: classify.ten_phan_loai,
+        trang_thai: classify.trang_thai,
+      });
+    }
+  };
+  const handleResetForm = (data?: ClassifyFormValues) => {
+    setOpen(false); // ✅ Đóng form sau khi API gọi thành công
+    if (data) resetForm(data);
+    else resetForm();
   };
 
   const onSubmit = (data: ClassifyFormValues) => {
-    onAdded(data); // Gửi dữ liệu lên component cha
-    handleResetForm();
+    onEdited(id, data); // Gửi dữ liệu lên component cha
+    handleResetForm(data);
   };
 
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button className="bg-primary hover:bg-secondary text-white">
-            <Plus />
+          <Button type="button" className="bg-zinc-700 hover:bg-zinc-800">
+            <SquarePen />
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[500px]">
@@ -104,10 +125,11 @@ export default function AddClassify({
                 control={form.control}
                 render={({ field }) => (
                   <ImageUpload
-                  label="Hình ảnh"
+                    label="Hình ảnh"
                     {...field} // Truyền các props của field vào ImageUpload
                     error={form.formState.errors.hinh_anh?.message} // Hiển thị lỗi nếu có
                     onChange={(file) => field.onChange(file)} // Cập nhật giá trị khi file thay đổi
+                    initialImageUrl={classify.hinh_anh}
                   />
                 )}
               />
@@ -119,7 +141,7 @@ export default function AddClassify({
                     <FormLabel>Trạng thái *</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      defaultValue={String(field.value)}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -140,7 +162,7 @@ export default function AddClassify({
               <Button
                 type="button"
                 className="bg-black/80 hover:bg-black"
-                onClick={handleResetForm}
+                onClick={() => handleResetForm()}
               >
                 Đóng
               </Button>

@@ -6,14 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useSidebarContext } from "@/context/SidebarContext";
 import { ESortOrderValue } from "@/models/enums/option";
-import Add from "@/pages/ProductManagement/Product/Add";
 import {
   fetchDynamicData,
   initState,
+  setAdded,
+  setDeleted,
   setFilters,
   setPagination,
-  setSortOrder,
-  toggleReset,
+  setSortOrder
 } from "@/redux/slices/genericPage.slice";
 import { AppDispatch, RootState } from "@/redux/store";
 import clsx from "clsx";
@@ -33,7 +33,9 @@ export default function Index() {
     pagination = { currentPage: 1, totalPage: 0 },
     sortOrder = { sort: "", order: ESortOrderValue.ASC },
     isLoading = false,
-    isReset,
+    isEdited,
+    isAdded,
+    isDeleted,
     isInitialized,
   } = useSelector((state: RootState) => state.genericPage[ENTITY_KEY] || {});
   const sidebar = useSidebarContext();
@@ -52,10 +54,11 @@ export default function Index() {
     filters,
     sortOrder,
     pagination.currentPage,
-    isReset,
+    isAdded,
+    isDeleted,
     isInitialized,
+    isEdited,
   ]);
-
   return (
     <div className="space-y-6 relative w-full">
       {/* Product Table */}
@@ -75,8 +78,8 @@ export default function Index() {
           )}
         >
           <ProductTable
-            onEdited={() => dispatch(toggleReset(ENTITY_KEY))}
-            onDeleted={() => dispatch(toggleReset(ENTITY_KEY))}
+            onEdited={()=>console.log()}
+            onDeleted={() => dispatch(setDeleted(ENTITY_KEY))}
             products={products} // Dữ liệu lấy từ Redux
             filters={filters}
             sortOrder={sortOrder}

@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { showSuccessAlert } from "@/utils/alert";
+import { fileToBase64 } from "@/utils/handleImage";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import { useState } from "react";
@@ -51,21 +52,16 @@ export default function Add({ onAdded }: { onAdded: () => void }) {
   });
 
   const onSubmit = async (data: ProductTypeFormValues) => {
-    const formData = new FormData();
-    // Thêm dữ liệu vào formData
-    Object.entries(data).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        // Nếu là mảng, thêm từng phần tử với cùng tên trường
-        value.forEach((item) => formData.append(key, item.toString()));
-      } else if (key === "productFile" && value instanceof File) {
-        // Kiểm tra và thêm file nếu tồn tại
-        formData.append(key, value);
-      } else {
-        formData.append(key, value as string | Blob);
-      }
-    });
+    const mainImageBase64 = data.hinh_anh
+      ? await fileToBase64(data.hinh_anh)
+      : null;
+    const convertData = {
+      ...data,
+      hinh_anh: mainImageBase64,
+    };
+
     try {
-      await productTypeApi.add(formData);
+      await productTypeApi.add(convertData);
       handleResetForm();
       onAdded();
       showSuccessAlert("Thêm dữ liệu thành công!");

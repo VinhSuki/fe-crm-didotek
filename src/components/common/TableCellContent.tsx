@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Badge } from "@/components/ui/badge";
-import { EStatus } from "@/models/enums/status";
 import { convertRFC1123 } from "@/utils/convertRFC1123";
-import clsx from "clsx";
 
 interface TableCellContentProps {
   keyName: string;
@@ -13,18 +11,13 @@ interface TableCellContentProps {
 export default function TableCellContent({
   keyName,
   value,
-  isImgFile,
 }: TableCellContentProps) {
   if (keyName === "hinh_anh") {
     return (
       <img
-        src={
-          isImgFile
-            ? value
-            : `${import.meta.env.VITE_API_URL}public/images/${value}}`
-        }
+        src={value}
         alt="Hình ảnh"
-        className="h-16 object-cover rounded bg-zinc-500"
+        className="h-16 object-cover rounded border"
       />
     );
   }
@@ -35,8 +28,14 @@ export default function TableCellContent({
 
   if (keyName === "trang_thai") {
     return (
-      <Badge className={value === "1" ? "bg-success" : "bg-destructive"}>
-        {value === "1" ? "Đang kinh doanh" : "Ngừng kinh doanh"}
+      <Badge
+        className={
+          Number(value) === 1
+            ? "bg-success/80 hover:bg-success"
+            : "bg-destructive/80 hover:bg-destructive"
+        }
+      >
+        {Number(value) === 1 ? "Đang kinh doanh" : "Ngừng kinh doanh"}
       </Badge>
     );
   }

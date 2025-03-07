@@ -1,10 +1,10 @@
 import axiosPublic from "@/apis/client/public.client";
 import { ESortOrderValue } from "@/models/enums/option";
-import {
-  FilterSearch,
-  IApiResponse,
-  IUnit
-} from "@/models/interfaces";
+import { FilterSearch, IApiResponse, IUnit } from "@/models/interfaces";
+
+const unitEndpoints = {
+  common: "don-vi-tinh",
+};
 
 const unitApi = {
   async list(params: {
@@ -14,14 +14,14 @@ const unitApi = {
     sort?: keyof IUnit | "";
     order?: ESortOrderValue;
   }): Promise<IApiResponse<IUnit[]>> {
-    return axiosPublic.get("api/don-vi-tinh", {
+    return axiosPublic.get(unitEndpoints.common, {
       params: { ...params, filters: JSON.stringify(params.filters) },
     });
   },
   async add(data: { ten: string }): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.post(`api/don-vi-tinh`, data);
+      return await axiosPublic.post(unitEndpoints.common, data);
     } catch (error) {
       throw error;
     }
@@ -29,7 +29,7 @@ const unitApi = {
   async delete(id: number | string): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.delete(`api/don-vi-tinh/${id}`);
+      return await axiosPublic.delete(unitEndpoints.common + "/" + id);
     } catch (error) {
       throw error;
     }
@@ -40,7 +40,7 @@ const unitApi = {
   }): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.put(`api/don-vi-tinh`, data);
+      return await axiosPublic.put(unitEndpoints.common, data);
     } catch (error) {
       throw error;
     }

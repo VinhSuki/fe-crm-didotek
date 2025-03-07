@@ -25,6 +25,9 @@ const Product = Loadable(
 const AddProduct = Loadable(
   lazy(() => import("@/pages/ProductManagement/Product/Add"))
 );
+const EditProduct = Loadable(
+  lazy(() => import("@/pages/ProductManagement/Product/Edit"))
+);
 const ProductType = Loadable(
   lazy(() => import("@/pages/ProductManagement/ProductType"))
 );
@@ -79,13 +82,30 @@ function AppRouter() {
                 <>
                   <PageTitle title="Thêm sản phẩm" />
                   <MainContent
-                  title="Thêm sản phẩm"
+                    title="Thêm sản phẩm"
                     breadcrumb={{
                       parent: { title: "Sản phẩm", url: "/san-pham" },
                       current: "Thêm mới",
                     }}
                   >
                     <AddProduct />
+                  </MainContent>
+                </>
+              ),
+            },
+            {
+              path: "cap-nhat/:productId",
+              element: (
+                <>
+                  <PageTitle title="Cập nhật sản phẩm" />
+                  <MainContent
+                    title="Cập nhật sản phẩm"
+                    breadcrumb={{
+                      parent: { title: "Sản phẩm", url: "/san-pham" },
+                      current: "Cập nhật",
+                    }}
+                  >
+                    <EditProduct />
                   </MainContent>
                 </>
               ),

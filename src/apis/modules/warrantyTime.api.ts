@@ -1,10 +1,10 @@
 import axiosPublic from "@/apis/client/public.client";
 import { ESortOrderValue } from "@/models/enums/option";
-import {
-  FilterSearch,
-  IApiResponse,
-  IWarrantyTime
-} from "@/models/interfaces";
+import { FilterSearch, IApiResponse, IWarrantyTime } from "@/models/interfaces";
+
+const warrantyTimeEndpoints = {
+  common: "thoi-gian-bao-hanh",
+};
 
 const warrantyTimeApi = {
   async list(params: {
@@ -14,14 +14,14 @@ const warrantyTimeApi = {
     sort?: keyof IWarrantyTime | "";
     order?: ESortOrderValue;
   }): Promise<IApiResponse<IWarrantyTime[]>> {
-    return axiosPublic.get("api/thoi-gian-bao-hanh", {
+    return axiosPublic.get(warrantyTimeEndpoints.common, {
       params: { ...params, filters: JSON.stringify(params.filters) },
     });
   },
   async add(data: { ten: string }): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.post(`api/thoi-gian-bao-hanh`, data);
+      return await axiosPublic.post(warrantyTimeEndpoints.common, data);
     } catch (error) {
       throw error;
     }
@@ -29,7 +29,7 @@ const warrantyTimeApi = {
   async delete(id: number | string): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.delete(`api/thoi-gian-bao-hanh/${id}`);
+      return await axiosPublic.delete(warrantyTimeEndpoints.common + "/" + id);
     } catch (error) {
       throw error;
     }
@@ -40,7 +40,7 @@ const warrantyTimeApi = {
   }): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.put(`api/thoi-gian-bao-hanh`, data);
+      return await axiosPublic.put(warrantyTimeEndpoints.common, data);
     } catch (error) {
       throw error;
     }

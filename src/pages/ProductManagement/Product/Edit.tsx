@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-empty */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import discountTypeApi from "@/apis/modules/discountType.api";
@@ -6,6 +7,7 @@ import productTypeApi from "@/apis/modules/productType.api";
 import unitApi from "@/apis/modules/unit.api";
 import warrantyTimeApi from "@/apis/modules/warrantyTime.api";
 import ImageUpload from "@/components/common/ImageUpload";
+import Loader from "@/components/common/Loader";
 import ClassifyTable from "@/components/common/Table/ClassifyTable";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,12 +30,13 @@ import {
   IApiResponse,
   IClassify,
   IDiscountType,
+  IProduct,
   IProductType,
   IUnit,
   IWarrantyTime,
 } from "@/models/interfaces";
-import AddClassify from "@/pages/ProductManagement/Product/Classify/Add";
-import { showSuccessAlert } from "@/utils/alert";
+import Add from "@/pages/ProductManagement/Product/Classify/Add";
+import { showErrorAlert, showSuccessAlert } from "@/utils/alert";
 import { fileToBase64, getImageFromFile } from "@/utils/handleImage";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -48,20 +51,17 @@ import {
   Ellipsis,
   FileText,
   Image,
-  Loader,
   Tag,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { z } from "zod";
-
 const productSchema = z.object({
+  id: z.union([z.number(), z.string()]),
   ten: z.string().min(1, "Vui lòng nhập tên sản phẩm"),
   upc: z.string().min(1, "Vui lòng nhập mã UPC"),
-  loai_san_pham_id: z.string({
-    required_error: "Vui lòng chọn loại sản phẩm",
-  }),
+  loai_san_pham_id: z.string(),
   hinh_anh: z
     .instanceof(File)
     .refine((file) => file.type.startsWith("image/"), {
@@ -69,55 +69,46 @@ const productSchema = z.object({
     })
     .refine((file) => file.size <= 5 * 1024 * 1024, {
       message: "Kích thước ảnh tối đa 5MB",
-    }),
-  don_vi_tinh_id: z.string({
-    required_error: "Vui lòng chọn đơn vị tính",
-  }),
-  vat: z
-    .string()
-    .min(1, "Vui lòng nhập giá trị")
-    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
-      message: "Giá trị phải là số dương",
-    }),
-  mo_ta: z.string().optional(),
-  trang_thai: z
-    .string({
-      required_error: "Vui lòng chọn trạng thái",
     })
-    .transform(Number),
-  loai_giam_gia_id: z.string().optional(),
-  thoi_gian_bao_hanh_id: z.string().optional(),
+    .optional(),
+  don_vi_tinh_id: z.string(),
+  vat: z.union([
+    z
+      .string()
+      .min(1, "Vui lòng nhập giá trị")
+      .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+        message: "Giá trị phải là số dương",
+      }),
+    z.number(),
+  ]),
+  mo_ta: z.string().optional(),
+  trang_thai: z.union([z.string(), z.number()]),
+  loai_giam_gia_id: z.string(),
+  thoi_gian_bao_hanh_id: z.string(),
   chi_tiet_san_pham: z.array(
     z.object({
+      id: z.union([z.number(), z.string()]),
       ten_phan_loai: z.string().min(1, "Vui lòng nhập tên phân loại"),
-      hinh_anh: z
-        .instanceof(File)
-        .refine((file) => !file || file.type.startsWith("image/"), {
-          message: "File phải là ảnh",
-        })
-        .refine((file) => !file || file.size <= 5 * 1024 * 1024, {
-          message: "Kích thước ảnh tối đa 5MB",
-        }),
-      trang_thai: z.string({
-        required_error: "Vui lòng chọn trạng thái",
-      }),
+      hinh_anh: z.union([
+        z
+          .instanceof(File)
+          .refine((file) => !file || file.type.startsWith("image/"), {
+            message: "File phải là ảnh",
+          })
+          .refine((file) => !file || file.size <= 5 * 1024 * 1024, {
+            message: "Kích thước ảnh tối đa 5MB",
+          }),
+        z.null(),
+      ]),
+      trang_thai: z.union([z.string(), z.number()]),
     })
   ),
 });
 type ProductFormValues = z.infer<typeof productSchema>;
 
-const Add = () => {
+const Edit = () => {
   const form = useForm({
     resolver: zodResolver(productSchema), // Sử dụng zodResolver với schema của bạn
-    defaultValues: {
-      ten: "",
-      upc: "",
-      vat: "0", // Giá trị có thể null thì để undefined
-      mo_ta: "",
-      chi_tiet_san_pham: [], // Mặc định có một phân loại
-      loai_giam_gia_id: "0",
-      thoi_gian_bao_hanh_id: "0",
-    },
   });
   const convertProductData = async (data: ProductFormValues) => {
     // Chuyển ảnh chính sang Base64 nếu có
@@ -129,6 +120,7 @@ const Add = () => {
     const chiTietSanPham = await Promise.all(
       data.chi_tiet_san_pham.map(async (item) => ({
         ...item,
+        id: Number(item.id),
         hinh_anh: item.hinh_anh ? await fileToBase64(item.hinh_anh) : null,
         trang_thai: Number(item.trang_thai), // ✅ Chuyển trang_thai về số
       }))
@@ -136,6 +128,7 @@ const Add = () => {
 
     return {
       ...data,
+      id: Number(data.id),
       hinh_anh: mainImageBase64,
       vat: Number(data.vat),
       chi_tiet_san_pham: chiTietSanPham,
@@ -152,35 +145,74 @@ const Add = () => {
   };
 
   const [loading, setLoading] = useState(false);
+  const params = useParams();
+  const productId = params.productId;
 
   const listProductDetail = form.watch("chi_tiet_san_pham");
-  const [listClassify, setListClassify] = useState<IClassify[]>(() =>
-    listProductDetail.map((p) => ({
-      ...p,
-      hinh_anh: getImageFromFile(p.hinh_anh),
-    }))
-  );
+  const [listClassify, setListClassify] = useState<IClassify[]>([]);
   const [listProductType, setListProductType] = useState<IProductType[]>([]);
   const [listUnit, setListUnit] = useState<IUnit[]>([]);
   const [listDiscountType, setListDiscountType] = useState<IDiscountType[]>([]);
   const [listWarrantyTime, setListWarrantyTime] = useState<IWarrantyTime[]>([]);
+  const [product, setProduct] = useState<IProduct>(Object);
   const navigate = useNavigate();
 
   const fetchApiList = async (api: any, setList: any) => {
     const res: IApiResponse<any[]> = await api.list({});
-    if (res) {
+    if (res.data?.data) {
       setList(res.data?.data);
+    }
+  };
+
+  const fetApiClassify = async (id: string) => {
+    const res: IApiResponse<IClassify[]> = await productApi.classify(id);
+    if (res.data?.data) {
+      setListClassify(res.data.data);
+      return res.data?.data;
+    }
+  };
+
+  const fetApiProdut = async (id: string) => {
+    const res = await productApi.list({
+      filters: [{ field: "san_pham.id", condition: "=", value: id }],
+      page: 1,
+      limit: 5,
+    });
+    if (res.data?.data) {
+      setProduct(res.data.data[0]);
+      return res.data?.data[0];
     }
   };
 
   useEffect(() => {
     const getApiList = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
         await fetchApiList(productTypeApi, setListProductType);
         await fetchApiList(unitApi, setListUnit);
         await fetchApiList(discountTypeApi, setListDiscountType);
         await fetchApiList(warrantyTimeApi, setListWarrantyTime);
+        const dataClassify = await fetApiClassify(productId ?? "0");
+        const dataProduct = await fetApiProdut(productId ?? "0");
+        form.reset({
+          id: productId,
+          ten: dataProduct?.ten,
+          upc: dataProduct?.upc,
+          loai_san_pham_id: String(dataProduct?.loai_san_pham_id),
+          don_vi_tinh_id: String(dataProduct?.don_vi_tinh_id),
+          vat: dataProduct?.vat,
+          chi_tiet_san_pham: dataClassify?.map((v) => ({
+            ...v,
+            hinh_anh: null,
+            id: v.ID,
+          })),
+          loai_giam_gia_id: String(dataProduct?.loai_giam_gia_id ?? "0"),
+          thoi_gian_bao_hanh_id: String(
+            dataProduct?.thoi_gian_bao_hanh_id ?? "0"
+          ),
+          trang_thai: dataProduct?.trang_thai,
+          mo_ta: dataProduct?.mo_ta,
+        });
       } catch (error: any) {
         console.log(error);
       } finally {
@@ -188,9 +220,9 @@ const Add = () => {
       }
     };
     getApiList();
-  }, []);
-
+  }, [productId]);
   const handleAddClassify = (data: {
+    id: string | number;
     hinh_anh: File;
     trang_thai: string;
     ten_phan_loai: string;
@@ -205,8 +237,9 @@ const Add = () => {
   const handleEditClassify = (
     id: string | number,
     data: {
+      id: string | number;
       ten_phan_loai: string;
-      trang_thai: string;
+      trang_thai: string | number;
       hinh_anh?: File | undefined;
     }
   ) => {
@@ -251,14 +284,15 @@ const Add = () => {
     const convertData = await convertProductData(data);
     console.log(convertData);
     try {
-      await productApi.add(convertData);
+      await productApi.edit(convertData);
+      form.reset();
       showSuccessAlert("Thêm dữ liệu thành công!");
-      navigate("/san-pham")
+      navigate("/san-pham");
     } catch (error: any) {
-      form.setError("ten", { type: "manual", message: error.message });
+      showErrorAlert(error.message);
     }
   };
-
+  // console.log(product);
   return (
     <>
       <Form {...form}>
@@ -316,7 +350,7 @@ const Add = () => {
                             <FormLabel>Loại sản phẩm (*)</FormLabel>
                             <Select
                               onValueChange={field.onChange}
-                              defaultValue={field.value}
+                              value={field.value}
                             >
                               <FormControl>
                                 <SelectTrigger>
@@ -345,7 +379,7 @@ const Add = () => {
                             <FormLabel>Đơn vị tính (*)</FormLabel>
                             <Select
                               onValueChange={field.onChange}
-                              defaultValue={field.value}
+                              value={field.value}
                             >
                               <FormControl>
                                 <SelectTrigger>
@@ -387,6 +421,7 @@ const Add = () => {
                       control={form.control}
                       render={({ field }) => (
                         <ImageUpload
+                          initialImageUrl={product.hinh_anh}
                           {...field} // Truyền các props của field vào ImageUpload
                           error={form.formState.errors.hinh_anh?.message} // Hiển thị lỗi nếu có
                           onChange={(file) => field.onChange(file)} // Cập nhật giá trị khi file thay đổi
@@ -449,7 +484,7 @@ const Add = () => {
               <CollapsibleContent className="w-full">
                 <div className="p-4 bg-white border w-full rounded-b-md space-y-4">
                   <div className="flex justify-end">
-                    <AddClassify onAdded={handleAddClassify} />
+                    <Add onAdded={handleAddClassify} />
                   </div>
                   <ClassifyTable
                     data={listClassify}
@@ -493,9 +528,7 @@ const Add = () => {
                           <FormLabel>Trạng thái (*)</FormLabel>
                           <Select
                             onValueChange={field.onChange}
-                            defaultValue={
-                              field.value ? String(field.value) : undefined
-                            }
+                            value={String(field.value)}
                           >
                             <FormControl>
                               <SelectTrigger>
@@ -521,7 +554,7 @@ const Add = () => {
                           <FormLabel>Loại giảm giá</FormLabel>
                           <Select
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            value={field.value}
                           >
                             <FormControl>
                               <SelectTrigger>
@@ -551,7 +584,7 @@ const Add = () => {
                           <FormLabel>Thời gian bảo hành</FormLabel>
                           <Select
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            value={field.value}
                           >
                             <FormControl>
                               <SelectTrigger>
@@ -594,4 +627,4 @@ const Add = () => {
   );
 };
 
-export default Add;
+export default Edit;

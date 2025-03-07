@@ -22,12 +22,15 @@ import * as z from "zod";
 const discountTypeSchema = z.object({
   ten: z.string().min(1, "Vui lòng nhập tên đơn vị tính"),
   gia_tri: z
-    .string()
-    .min(1, "Vui lòng nhập giá trị")
-    .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-      message: "Giá trị phải là số lớn hơn 0",
-    }),
-  id: z.number(),
+    .union([z.string(), z.number()]) // Chấp nhận cả string và number
+    .refine(
+      (val) => {
+        const num = typeof val === "string" ? Number(val) : val;
+        return !isNaN(num) && num > 0;
+      },
+      { message: "Giá trị phải là số lớn hơn 0" }
+    ),
+  id: z.union([z.number(), z.string()]),
 });
 
 type discountTypeFormValues = z.infer<typeof discountTypeSchema>;
@@ -51,13 +54,13 @@ export default function Edit({ discountType, onEdited }: EditProps) {
     if (data) {
       reset({
         ten: data.ten,
-        gia_tri: String(data.gia_tri),
+        gia_tri: data.gia_tri,
         id: data.id,
       });
     } else {
       reset({
         ten: discountType.ten,
-        gia_tri: String(discountType.gia_tri),
+        gia_tri: discountType.gia_tri,
         id: discountType.ID,
       });
     }

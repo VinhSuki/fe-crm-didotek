@@ -8,10 +8,12 @@ import Add from "@/pages/ProductManagement/Unit/Add";
 import {
   fetchDynamicData,
   initState,
+  setAdded,
+  setDeleted,
+  setEdited,
   setFilters,
   setPagination,
   setSortOrder,
-  toggleReset,
 } from "@/redux/slices/genericPage.slice";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useEffect } from "react";
@@ -28,7 +30,9 @@ export default function Index() {
     pagination = { currentPage: 1, totalPage: 0 },
     sortOrder = { sort: "", order: ESortOrderValue.ASC },
     isLoading = false,
-    isReset,
+    isEdited,
+    isAdded,
+    isDeleted,
     isInitialized,
   } = useSelector((state: RootState) => state.genericPage[ENTITY_KEY] || {});
 
@@ -39,7 +43,6 @@ export default function Index() {
   useEffect(() => {
     if (isInitialized) {
       // 🆕 Chỉ gọi API khi đã khởi tạo
-      console.log("Da vao");
       dispatch(fetchDynamicData({ key: ENTITY_KEY, api: unitApi }));
     }
   }, [
@@ -47,8 +50,10 @@ export default function Index() {
     filters,
     sortOrder,
     pagination.currentPage,
-    isReset,
+    isAdded,
+    isDeleted,
     isInitialized,
+    isEdited,
   ]);
 
   return (
@@ -56,12 +61,12 @@ export default function Index() {
       {/* Product Table */}
       <Card>
         <CardHeader className="flex-row justify-end items-center border-b">
-          <Add onAdded={() => dispatch(toggleReset(ENTITY_KEY))} />
+          <Add onAdded={() => dispatch(setAdded(ENTITY_KEY))} />
         </CardHeader>
         <CardContent className="p-4">
           <UnitTable
-            onEdited={() => dispatch(toggleReset(ENTITY_KEY))}
-            onDeleted={() => dispatch(toggleReset(ENTITY_KEY))}
+            onEdited={() => dispatch(setEdited(ENTITY_KEY))}
+            onDeleted={() => dispatch(setDeleted(ENTITY_KEY))}
             units={units} // Dữ liệu lấy từ Redux
             filters={filters}
             sortOrder={sortOrder}

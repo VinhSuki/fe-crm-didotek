@@ -8,10 +8,12 @@ import Add from "@/pages/ProductManagement/ProductType/Add";
 import {
   fetchDynamicData,
   initState,
+  setAdded,
+  setDeleted,
+  setEdited,
   setFilters,
   setPagination,
   setSortOrder,
-  toggleReset
 } from "@/redux/slices/genericPage.slice";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useEffect } from "react";
@@ -23,39 +25,48 @@ export default function Index() {
   const dispatch = useDispatch<AppDispatch>();
 
   const {
-    data  : productTypes = [],
+    data: productTypes = [],
     filters = [],
     pagination = { currentPage: 1, totalPage: 0 },
     sortOrder = { sort: "", order: ESortOrderValue.ASC },
     isLoading = false,
-    isReset,
-    isInitialized
+    isEdited,
+    isAdded,
+    isDeleted,
+    isInitialized,
   } = useSelector((state: RootState) => state.genericPage[ENTITY_KEY] || {});
-  
+
   useEffect(() => {
     dispatch(initState(ENTITY_KEY));
   }, [dispatch]);
-  
+
   useEffect(() => {
-    if (isInitialized) { // 🆕 Chỉ gọi API khi đã khởi tạo
-      console.log("Da vao");
+    if (isInitialized) {
+      // 🆕 Chỉ gọi API khi đã khởi tạo
       dispatch(fetchDynamicData({ key: ENTITY_KEY, api: productTypeApi }));
     }
-  }, [dispatch, filters, sortOrder, pagination.currentPage, isReset, isInitialized]);
+  }, [
+    dispatch,
+    filters,
+    sortOrder,
+    pagination.currentPage,
+    isAdded,
+    isDeleted,
+    isInitialized,
+    isEdited,
+  ]);
 
   return (
     <div className="space-y-6 relative">
       {/* Product Table */}
       <Card>
         <CardHeader className="flex-row justify-end items-center border-b">
-          <Add 
-            onAdded={() => dispatch(toggleReset(ENTITY_KEY))}
-          />
+          <Add onAdded={() => dispatch(setAdded(ENTITY_KEY))} />
         </CardHeader>
         <CardContent className="p-4">
           <ProductTypeTable
-            onEdited={() => dispatch(toggleReset(ENTITY_KEY))}
-            onDeleted={() => dispatch(toggleReset(ENTITY_KEY))}
+            onEdited={() => dispatch(setEdited(ENTITY_KEY))}
+            onDeleted={() => dispatch(setDeleted(ENTITY_KEY))}
             productTypes={productTypes} // Dữ liệu lấy từ Redux
             filters={filters}
             sortOrder={sortOrder}

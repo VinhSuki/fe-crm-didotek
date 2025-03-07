@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "@/components/ui/button";
 import {
   showErrorAlert,
@@ -45,9 +46,9 @@ export default function ConfirmDeleteButton({
       try {
         await onConfirm(id); // Gọi API
         showSuccessAlert("Xóa dữ liệu thành công!");
-      } catch (error) {
+      } catch (error : any) {
         console.log(error);
-        showErrorAlert("Đã có lỗi xảy ra. Vui lòng thử lại sau!");
+        showErrorAlert(error.message);
       } finally {
         setLoading(false);
       }

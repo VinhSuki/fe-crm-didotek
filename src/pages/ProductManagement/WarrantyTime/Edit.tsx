@@ -21,7 +21,7 @@ import * as z from "zod";
 
 const warrantyTimeSchema = z.object({
   ten: z.string().min(1, "Vui lòng nhập tên đơn vị tính"),
-  id: z.number(),
+   id: z.union([z.number(), z.string()]),
 });
 
 type warrantyTimeFormValues = z.infer<typeof warrantyTimeSchema>;

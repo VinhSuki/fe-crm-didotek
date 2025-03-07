@@ -48,7 +48,7 @@ export default function Add({ onAdded }: { onAdded: () => void }) {
 
   const onSubmit = async (data: discountTypeFormValues) => {
     try {
-      await discountTypeApi.add(data);
+      await discountTypeApi.add({ ...data, gia_tri: Number(data.gia_tri) });
       handleResetForm();
       onAdded();
       showSuccessAlert("Thêm dữ liệu thành công!");

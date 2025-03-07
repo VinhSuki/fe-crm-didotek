@@ -1,14 +1,17 @@
 import productApi from "@/apis/modules/product.api";
 import ConfirmDeleteButton from "@/components/common/ConfirmDeleteButton";
 import GenericTable from "@/components/common/GenericTable";
+import { Button } from "@/components/ui/button";
 import {
   Column,
   FilterSearch,
   IProduct,
   ISortOrder,
 } from "@/models/interfaces";
-import Edit from "@/pages/ProductManagement/ProductType/Edit";
+import Edit from "@/pages/ProductManagement/Product";
+import { SquarePen } from "lucide-react";
 import { useCallback } from "react";
+import { Link } from "react-router-dom";
 
 interface IProductsTableProps {
   products: IProduct[];
@@ -122,7 +125,11 @@ const ProductTable = ({
       onSortOrder={onSortOrder}
       actions={(row) => (
         <>
-          <Edit onEdited={onEdited} productType={row} />
+          <Link to={`cap-nhat/${row.ID}`}>
+            <Button className="bg-zinc-700 hover:bg-zinc-800">
+              <SquarePen />
+            </Button>
+          </Link>
           <ConfirmDeleteButton
             id={row.ID}
             onConfirm={onConfirmDelete}

@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "../store";
-import { IApiResponse, FilterSearch, ISortOrder } from "@/models/interfaces";
-import { IPagination } from "@/models/interfaces/pagination";
-import { ESortOrderValue } from "@/models/enums/option";
 import { PAGINATION } from "@/constant";
+import { ESortOrderValue } from "@/models/enums/option";
+import { FilterSearch, IApiResponse, ISortOrder } from "@/models/interfaces";
+import { IPagination } from "@/models/interfaces/pagination";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { RootState } from "../store";
 
 // Interface chung cho tất cả các danh mục
 interface DynamicState<T> {
@@ -13,10 +13,11 @@ interface DynamicState<T> {
   sortOrder: ISortOrder<T>;
   pagination: IPagination;
   isLoading: boolean;
-  isReset: boolean;
+  isDeleted: boolean;
+  isEdited: boolean;
+  isAdded: boolean;
   isInitialized: boolean; // 🆕 Thêm trạng thái khởi tạo
 }
-
 
 // Hàm khởi tạo state động
 const createDynamicInitialState = <T>(): DynamicState<T> => ({
@@ -25,17 +26,48 @@ const createDynamicInitialState = <T>(): DynamicState<T> => ({
   sortOrder: { sort: "", order: ESortOrderValue.ASC },
   pagination: { currentPage: PAGINATION.DEFAULT_PAGE, totalPage: 0 },
   isLoading: false,
-  isReset: false,
+  isDeleted: false,
+  isAdded: false,
+  isEdited: false,
   isInitialized: false, // 🆕 Ban đầu chưa khởi tạo
 });
-
 
 // Async thunk để fetch dữ liệu động
 export const fetchDynamicData = createAsyncThunk(
   "dynamic/fetchData",
-  async ({ key, api }: { key: string; api: any }, { getState }) => {
+  async ({ key, api }: { key: string; api: any }, { getState, dispatch }) => {
     const state = getState() as RootState;
     const entityState = state.genericPage[key] as DynamicState<any>;
+    let currentPage = entityState.pagination.currentPage;
+    // Khi xóa dữ liệu
+    if (entityState.isDeleted) {
+      currentPage = Math.max(
+        1,
+        Math.ceil((entityState.data.length - 1) / PAGINATION.DEFAULT_LIMIT)
+          ? currentPage
+          : currentPage - 1
+      );
+      dispatch(setDeleted(key));
+    }
+
+    // Khi thêm dữ liệu
+    if (entityState.isAdded) {
+      currentPage = Math.floor(
+        (entityState.data.length + 1) / PAGINATION.DEFAULT_LIMIT
+      )
+        ? currentPage + 1
+        : currentPage;
+      dispatch(setAdded(key)); // Gọi action để cập nhật isAdded
+    }
+    if (entityState.isEdited) {
+      dispatch(setEdited(key));
+    }
+    dispatch(
+      setPagination({
+        key,
+        pagination: { ...entityState.pagination, currentPage },
+      })
+    );
 
     const params = {
       page: entityState.pagination.currentPage,
@@ -44,7 +76,6 @@ export const fetchDynamicData = createAsyncThunk(
       sort: entityState.sortOrder.sort,
       order: entityState.sortOrder.order,
     };
-
     const res: IApiResponse<any[]> = await api.list(params);
     return { key, data: res.data };
   }
@@ -54,20 +85,35 @@ const genericPage = createSlice({
   name: "dynamic",
   initialState: {} as Record<string, DynamicState<any>>,
   reducers: {
-    setFilters: (state, action: PayloadAction<{ key: string; filters: FilterSearch[] }>) => {
+    setFilters: (
+      state,
+      action: PayloadAction<{ key: string; filters: FilterSearch[] }>
+    ) => {
       if (!state[action.payload.key]) {
         state[action.payload.key] = createDynamicInitialState();
       }
       state[action.payload.key].filters = action.payload.filters;
     },
-    setSortOrder: (state, action: PayloadAction<{ key: string; sortOrder: ISortOrder<any> }>) => {
+    setSortOrder: (
+      state,
+      action: PayloadAction<{ key: string; sortOrder: ISortOrder<any> }>
+    ) => {
       state[action.payload.key].sortOrder = action.payload.sortOrder;
     },
-    setPagination: (state, action: PayloadAction<{ key: string; pagination: IPagination }>) => {
+    setPagination: (
+      state,
+      action: PayloadAction<{ key: string; pagination: IPagination }>
+    ) => {
       state[action.payload.key].pagination = action.payload.pagination;
     },
-    toggleReset: (state, action: PayloadAction<string>) => {
-      state[action.payload].isReset = !state[action.payload].isReset;
+    setDeleted: (state, action: PayloadAction<string>) => {
+      state[action.payload].isDeleted = !state[action.payload].isDeleted;
+    },
+    setAdded: (state, action: PayloadAction<string>) => {
+      state[action.payload].isAdded = !state[action.payload].isAdded;
+    },
+    setEdited: (state, action: PayloadAction<string>) => {
+      state[action.payload].isEdited = !state[action.payload].isEdited;
     },
     initState: (state, action: PayloadAction<string>) => {
       if (!state[action.payload]) {
@@ -75,7 +121,6 @@ const genericPage = createSlice({
       }
       state[action.payload].isInitialized = true; // 🆕 Đánh dấu là đã khởi tạo
     },
-    
   },
   extraReducers: (builder) => {
     builder.addCase(fetchDynamicData.pending, (state, action) => {
@@ -97,5 +142,13 @@ const genericPage = createSlice({
   },
 });
 
-export const { setFilters, setSortOrder, setPagination, toggleReset, initState } = genericPage.actions;
+export const {
+  setFilters,
+  setSortOrder,
+  setPagination,
+  setAdded,
+  setDeleted,
+  setEdited,
+  initState,
+} = genericPage.actions;
 export default genericPage.reducer;

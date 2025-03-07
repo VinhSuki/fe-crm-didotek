@@ -14,10 +14,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { IProductType } from "@/models/interfaces";
 import { showSuccessAlert } from "@/utils/alert";
+import { fileToBase64 } from "@/utils/handleImage";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useParams } from "react-router-dom";
 import * as z from "zod";
 
 const productTypeSchema = z.object({
@@ -33,7 +35,7 @@ const productTypeSchema = z.object({
       }), // Kiểm tra kích thước file
     z.null().optional(),
   ]),
-  id: z.number(),
+  id: z.union([z.number(), z.string()]),
 });
 
 type ProductTypeFormValues = z.infer<typeof productTypeSchema>;
@@ -58,6 +60,8 @@ export default function Edit({ productType, onEdited }: EditProps) {
       id: productType.ID,
     }, // Truyền productTypes vào schema
   });
+  const params = useParams();
+  console.log(params);
 
   const resetForm = (data?: ProductTypeFormValues) => {
     if (data) {
@@ -104,21 +108,17 @@ export default function Edit({ productType, onEdited }: EditProps) {
   //   }
   // };
   const onSubmit = async (data: ProductTypeFormValues) => {
-    const formData = new FormData();
-    // Thêm dữ liệu vào formData
-    Object.entries(data).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        // Nếu là mảng, thêm từng phần tử với cùng tên trường
-        value.forEach((item) => formData.append(key, item.toString()));
-      } else if (key === "productFile" && value instanceof File) {
-        // Kiểm tra và thêm file nếu tồn tại
-        formData.append(key, value);
-      } else {
-        formData.append(key, value as string | Blob);
-      }
-    });
+    console.log(data);
+    const mainImageBase64 = data.hinh_anh
+      ? await fileToBase64(data.hinh_anh)
+      : null;
+    const convertData = {
+      ...data,
+      hinh_anh: mainImageBase64,
+    };
+    console.log(convertData);
     try {
-      await productTypeApi.edit(formData);
+      await productTypeApi.edit(convertData);
       handleResetForm(data);
       onEdited();
       showSuccessAlert("Thêm dữ liệu thành công!");

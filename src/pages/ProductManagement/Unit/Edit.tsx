@@ -21,7 +21,7 @@ import * as z from "zod";
 
 const unitSchema = z.object({
   ten: z.string().min(1, "Vui lòng nhập tên đơn vị tính"),
-  id: z.number(),
+  id: z.union([z.number(), z.string()]),
 });
 
 type unitFormValues = z.infer<typeof unitSchema>;

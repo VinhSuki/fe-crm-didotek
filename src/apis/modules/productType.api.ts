@@ -1,7 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // import { IProductDetailResponse } from "@/models/interfaces/product";
 import axiosPublic from "@/apis/client/public.client";
 import { ESortOrderValue } from "@/models/enums/option";
 import { FilterSearch, IApiResponse, IProductType } from "@/models/interfaces";
+
+const productTypeEndpoints = {
+  common: "loai-san-pham",
+};
 
 const productTypeApi = {
   async list(params: {
@@ -11,18 +16,14 @@ const productTypeApi = {
     sort?: keyof IProductType | "";
     order?: ESortOrderValue;
   }): Promise<IApiResponse<IProductType[]>> {
-    return axiosPublic.get("api/loai-san-pham", {
+    return axiosPublic.get(productTypeEndpoints.common, {
       params: { ...params, filters: JSON.stringify(params.filters) },
     });
   },
-  async add(data: FormData): Promise<IApiResponse> {
+  async add(data: any): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.post(`api/loai-san-pham`, data, {
-        headers: {
-          "Content-Type": "multipart/form-data", // Đảm bảo header phù hợp với FormData
-        },
-      });
+      return await axiosPublic.post(productTypeEndpoints.common, data);
     } catch (error) {
       throw error;
     }
@@ -30,19 +31,15 @@ const productTypeApi = {
   async delete(id: number | string): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.delete(`api/loai-san-pham/${id}`);
+      return await axiosPublic.delete(productTypeEndpoints.common + "/" + id);
     } catch (error) {
       throw error;
     }
   },
-  async edit(data: FormData): Promise<IApiResponse<IProductType>> {
+  async edit(data: any): Promise<IApiResponse<IProductType>> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.put(`api/loai-san-pham`, data, {
-        headers: {
-          "Content-Type": "multipart/form-data", // Đảm bảo header phù hợp với FormData
-        },
-      });
+      return await axiosPublic.put(productTypeEndpoints.common, data);
     } catch (error) {
       throw error;
     }

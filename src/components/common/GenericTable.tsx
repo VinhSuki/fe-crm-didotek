@@ -223,7 +223,9 @@ export default function GenericTable<T>({
   return (
     <>
       {data.length === 0 && filters.length === 0 ? (
-        <div className="text-center text-zinc-500 text-xl">Không có dữ liệu</div>
+        <div className="text-center text-zinc-500 text-lg">
+          Chưa có dữ liệu
+        </div>
       ) : (
         <Table className="overflow-x-auto w-full">
           <TableHeader>
@@ -351,8 +353,8 @@ export default function GenericTable<T>({
                   </TableCell>
                 ))}
                 {actions && (
-                  <TableCell className="flex space-x-2">
-                    {actions(row)}
+                  <TableCell>
+                    <div className="flex space-x-2">{actions(row)}</div>
                   </TableCell>
                 )}
               </TableRow>

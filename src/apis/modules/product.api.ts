@@ -1,10 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axiosPublic from "@/apis/client/public.client";
 import { ESortOrderValue } from "@/models/enums/option";
 import {
   FilterSearch,
   IApiResponse,
-  IProduct
+  IClassify,
+  IProduct,
 } from "@/models/interfaces";
+
+const productEndpoints = {
+  common: "san-pham",
+  classify: "chi-tiet-san-pham",
+};
 
 const productApi = {
   async list(params: {
@@ -14,14 +21,22 @@ const productApi = {
     sort?: keyof IProduct | "";
     order?: ESortOrderValue;
   }): Promise<IApiResponse<IProduct[]>> {
-    return axiosPublic.get("api/san-pham", {
+    return axiosPublic.get(productEndpoints.common, {
       params: { ...params, filters: JSON.stringify(params.filters) },
     });
   },
-  async add(data: { ten: string }): Promise<IApiResponse> {
+  async add(data: any): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.post(`api/san-pham`, data);
+      return await axiosPublic.post(productEndpoints.common, data);
+    } catch (error) {
+      throw error;
+    }
+  },
+  async edit(data: any): Promise<IApiResponse> {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      return await axiosPublic.put(productEndpoints.common, data);
     } catch (error) {
       throw error;
     }
@@ -29,18 +44,15 @@ const productApi = {
   async delete(id: number | string): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.delete(`api/san-pham/${id}`);
+      return await axiosPublic.delete(productEndpoints.common + "/" + id);
     } catch (error) {
       throw error;
     }
   },
-  async edit(data: {
-    id: string | number;
-    ten: string;
-  }): Promise<IApiResponse> {
+  async classify(id: string | number): Promise<IApiResponse<IClassify[]>> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.put(`api/san-pham`, data);
+      return await axiosPublic.get(productEndpoints.classify + "/" + id);
     } catch (error) {
       throw error;
     }
