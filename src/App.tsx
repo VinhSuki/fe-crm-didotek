@@ -1,4 +1,4 @@
-import AuthProvider from "./context/Auth/AuthProvider";
+import AuthProvider from "./context/AuthContext";
 import AppRouter from "./routes/routes";
 import "./App.css";
 import NavbarProvider from "@/context/NavbarContext";

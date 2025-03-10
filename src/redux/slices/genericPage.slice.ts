@@ -39,6 +39,15 @@ export const fetchDynamicData = createAsyncThunk(
     const state = getState() as RootState;
     const entityState = state.genericPage[key] as DynamicState<any>;
     let currentPage = entityState.pagination.currentPage;
+
+    const params = {
+      page: entityState.pagination.currentPage,
+      limit: PAGINATION.DEFAULT_LIMIT,
+      filters: entityState.filters,
+      sort: entityState.sortOrder.sort,
+      order: entityState.sortOrder.order,
+    };
+    const res: IApiResponse<any[]> = await api.list(params);
     // Khi xóa dữ liệu
     if (entityState.isDeleted) {
       currentPage = Math.max(
@@ -49,13 +58,13 @@ export const fetchDynamicData = createAsyncThunk(
       );
       dispatch(setDeleted(key));
     }
-
+    console.log(entityState.pagination.totalPage);
     // Khi thêm dữ liệu
     if (entityState.isAdded) {
       currentPage = Math.floor(
         (entityState.data.length + 1) / PAGINATION.DEFAULT_LIMIT
       )
-        ? currentPage + 1
+        ? res.data!.total_page
         : currentPage;
       dispatch(setAdded(key)); // Gọi action để cập nhật isAdded
     }
@@ -68,15 +77,6 @@ export const fetchDynamicData = createAsyncThunk(
         pagination: { ...entityState.pagination, currentPage },
       })
     );
-
-    const params = {
-      page: entityState.pagination.currentPage,
-      limit: PAGINATION.DEFAULT_LIMIT,
-      filters: entityState.filters,
-      sort: entityState.sortOrder.sort,
-      order: entityState.sortOrder.order,
-    };
-    const res: IApiResponse<any[]> = await api.list(params);
     return { key, data: res.data };
   }
 );

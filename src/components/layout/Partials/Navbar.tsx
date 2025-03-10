@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { useAuthContext } from "@/context/AuthContext";
 import { useNavbarContext } from "@/context/NavbarContext";
 import clsx from "clsx";
 import {
@@ -25,12 +26,15 @@ export function Navbar() {
   const [lang, setLang] = useState("EN");
   const [isOpen, setIsOpen] = useState(false);
   const navbar = useNavbarContext();
-
+  const authMethod = useAuthContext();
+  console.log(authMethod?.account);
   return (
     <nav
       className={clsx(
         "flex items-center justify-between bg-white border-b px-6 transition-all duration-300",
-        navbar?.isOpenNavbar ? "h-[70px] opacity-100 py-3" : "h-0 opacity-0 py-0"
+        navbar?.isOpenNavbar
+          ? "h-[70px] opacity-100 py-3"
+          : "h-0 opacity-0 py-0"
       )}
     >
       {/* Left Section - Search */}
@@ -87,11 +91,16 @@ export function Navbar() {
           <DropdownMenuTrigger asChild>
             <div className="flex items-center gap-3 cursor-pointer">
               <Avatar>
-                <AvatarImage src="https://via.placeholder.com/40" />
+                <AvatarImage
+                  src={
+                    authMethod?.account?.avatar ||
+                    "https://via.placeholder.com/40"
+                  }
+                />
                 <AvatarFallback>U</AvatarFallback>
               </Avatar>
               <div className="text-sm">
-                <p className="font-semibold">Đoàn Văn Quốc</p>
+                <p className="font-semibold">{authMethod?.account!.ho_ten}</p>
                 <p className="text-gray-500">Super Admin</p>
               </div>
               <ChevronDown
@@ -103,23 +112,26 @@ export function Navbar() {
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem className="hover:bg-gray-100">
+            <DropdownMenuItem>
               <Link to={"/hello"} className="flex gap-2">
                 <User className="mr-2 h-4 w-4" />
                 Hồ sơ của tôi
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className="hover:bg-gray-100">
+            <DropdownMenuItem>
               <Link to={"/hello"} className="flex gap-2">
                 <Settings className="mr-2 h-4 w-4" />
                 Cài đặt
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className="hover:bg-red-100 text-red-600 hover:text-red-800">
-              <Link to={"/hello"} className="flex gap-2">
+            <DropdownMenuItem>
+              <button
+                className="flex gap-2 text-red-600"
+                onClick={() => authMethod?.logout()}
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 Đăng xuất
-              </Link>
+              </button>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -10,6 +10,9 @@ import {
   List,
   Package,
   Percent,
+  User,
+  UserCheck,
+  Warehouse,
 } from "lucide-react";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
@@ -40,11 +43,41 @@ const sidebarItems: ISidebarItem[] = [
       { title: "Thời gian bảo hành", icon: Clock, url: "/thoi-gian-bao-hanh" },
     ],
   },
+  {
+    title: "Quản lý nhân viên",
+    items: [
+      {
+        title: "Nhân viên",
+        icon: UserCheck,
+        url: "/nhan-vien",
+      },
+    ],
+  },
+  {
+    title: "Quản lý kho",
+    items: [
+      {
+        title: "Kho",
+        icon: Warehouse,
+        url: "/kho",
+      },
+    ],
+  },
+  {
+    title: "Quản lý đối tác",
+    items: [
+      {
+        title: "Khách hàng",
+        icon: User,
+        url: "/khach-hang",
+      },
+    ],
+  },
 ];
 
 export function Sidebar() {
   const [openSections, setOpenSections] = useState<string[]>([]);
-  const {isCollapsed,setIsCollapsed} = useSidebarContext()
+  const { isCollapsed, setIsCollapsed } = useSidebarContext();
   const [isHovered, setIsHovered] = useState(false);
   const showContent = !isCollapsed || isHovered;
 
@@ -99,7 +132,7 @@ export function Sidebar() {
       {/* Menu */}
       <nav className="flex-1  overflow-hidden p-5">
         {sidebarItems.map((items) => (
-          <ul className="border-b pb-2 overflow-hidden" key={items.title}>
+          <ul className="overflow-hidden" key={items.title}>
             {!isCollapsed && (
               <h3 className="text-emphasis text-sm mb-[14px] font-bold">
                 {items.title}
@@ -114,7 +147,7 @@ export function Sidebar() {
                   to={subItems.url}
                   className={({ isActive }) =>
                     clsx(
-                      "w-full flex items-center",
+                      "w-full flex",
                       isActive
                         ? "text-primary font-semibold"
                         : "hover:text-primary",
@@ -167,6 +200,7 @@ export function Sidebar() {
                     )} */}
               </li>
             ))}
+            <div className="w-full h-[1px] bg-zinc-200 my-5"></div>
           </ul>
         ))}
       </nav>

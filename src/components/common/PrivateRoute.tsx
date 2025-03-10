@@ -1,10 +1,14 @@
-import AuthContext from '@/context/Auth/AuthContext';
-import React, { PropsWithChildren, useContext } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useAuthContext } from "@/context/AuthContext";
+import React, { PropsWithChildren } from "react";
+import { Navigate } from "react-router-dom";
 
 const PrivateRoute: React.FC<PropsWithChildren> = ({ children }) => {
-  const authMethod = useContext(AuthContext)
-  return authMethod?.isAuthenticated || false ? <>{children}</> : <Navigate to="/login" />;
+  const authMethod = useAuthContext();
+  return authMethod?.isAuthenticated || false ? (
+    <>{children}</>
+  ) : (
+    <Navigate to="/dang-nhap" />
+  );
 };
 
 export default PrivateRoute;

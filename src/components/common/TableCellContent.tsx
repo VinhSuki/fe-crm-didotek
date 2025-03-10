@@ -12,12 +12,12 @@ export default function TableCellContent({
   keyName,
   value,
 }: TableCellContentProps) {
-  if (keyName === "hinh_anh") {
+  if (keyName === "hinh_anh" || keyName === "avatar") {
     return (
       <img
         src={value}
         alt="Hình ảnh"
-        className="h-16 object-cover rounded border"
+        className="h-12 object-cover rounded border"
       />
     );
   }

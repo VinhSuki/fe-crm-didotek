@@ -137,7 +137,7 @@ export default function Edit({ productType, onEdited }: EditProps) {
       <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle className="border-b pb-4">
-            Thêm loại sản phẩm
+            Sửa loại sản phẩm
           </DialogTitle>
         </DialogHeader>
         <>

@@ -2,10 +2,10 @@ import authApi from "@/apis/modules/auth.api";
 import Loader from "@/components/common/Loader";
 import { Button } from "@/components/ui/button";
 import { Images } from "@/constant";
-import AuthContext from "@/context/Auth/AuthContext";
+import { useAuthContext } from "@/context/AuthContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeClosed, User } from "lucide-react";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -51,7 +51,7 @@ const Login: React.FC = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  const authMethod = useContext(AuthContext);
+  const authMethod = useAuthContext()
 
   const onSubmit = async (data: loginFormData) => {
     setLoading(true);
@@ -63,12 +63,12 @@ const Login: React.FC = () => {
         console.log(userInfo);
         authMethod?.login(userInfo);
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+    } catch (error:any) {
       reset();
       setError("password", {
         type: "manual",
-        message: "username or password is incorrect",
+        message: error.message,
       });
     } finally {
       setLoading(false);
@@ -159,7 +159,7 @@ const Login: React.FC = () => {
                   type="submit"
                   className="w-full relative bg-primary text-white font-bold overflow-hidden group"
                 >
-                  <span className="relative z-10">Đăng nhập</span>
+                  <span className="relative">Đăng nhập</span>
                   <span
                     className="absolute left-[-100%] top-0 w-[20%] h-full bg-white/30 -skew-x-[45deg]
                transition-all duration-700 group-hover:left-[110%]"

@@ -38,16 +38,24 @@ const DiscountType = Loadable(
 const WarrantyTime = Loadable(
   lazy(() => import("@/pages/ProductManagement/WarrantyTime"))
 );
+const Employee = Loadable(
+  lazy(() => import("@/pages/EmployeeManagement/Employee"))
+);
+const Warehouse = Loadable(
+  lazy(() => import("@/pages/WarehouseManagement/Warehouse"))
+);
+const Customer = Loadable(
+  lazy(() => import("@/pages/PartnerManagement/Customer"))
+);
 
 function AppRouter() {
   const routes = [
     {
       path: "/",
       element: (
-        // <PrivateRoute>
-        <DefaultLayout />
-        // </PrivateRoute>
-        // <DefaultLayout />
+        <PrivateRoute>
+          <DefaultLayout />
+        </PrivateRoute>
       ),
       children: [
         {
@@ -152,6 +160,39 @@ function AppRouter() {
               <PageTitle title="Danh sách thời gian bảo hành" />
               <MainContent title="Quản lý thời gian bảo hành">
                 <WarrantyTime />
+              </MainContent>
+            </>
+          ),
+        },
+        {
+          path: "/nhan-vien",
+          element: (
+            <>
+              <PageTitle title="Danh sách nhân viên" />
+              <MainContent title="Quản lý nhân viên">
+                <Employee />
+              </MainContent>
+            </>
+          ),
+        },
+        {
+          path: "/kho",
+          element: (
+            <>
+              <PageTitle title="Danh sách kho" />
+              <MainContent title="Quản lý kho">
+                <Warehouse />
+              </MainContent>
+            </>
+          ),
+        },
+        {
+          path: "/khach-hang",
+          element: (
+            <>
+              <PageTitle title="Danh sách khách hàng" />
+              <MainContent title="Quản lý khách hàng">
+                <Customer />
               </MainContent>
             </>
           ),

@@ -122,3 +122,54 @@ export interface Column<T> {
   render?: (row: T) => React.ReactNode;
   minW?: string;
 }
+
+export interface IAccountLogin {
+  message: string;
+  token: string;
+}
+
+export interface IEmployee {
+  ID: string | number;
+  ten_dang_nhap: string;
+  ho_ten: string;
+  email: string;
+  dien_thoai: string;
+  dia_chi: string;
+  avatar: string;
+  chuc_vu_id: string | number;
+  chuc_vu: string;
+  UpdatedAt: string;
+  DeletedAt: string;
+  CreatedAt: string;
+  created_at: string;
+}
+
+export interface IRole {
+  ID: string | number;
+  ten: string;
+  UpdatedAt: string;
+  DeletedAt: string;
+  CreatedAt: string;
+  created_at: string;
+}
+
+export interface IWarehouse {
+  ID: number | string;
+  ten: string;
+  dia_chi: string;
+  UpdatedAt: string;
+  DeletedAt: string;
+  CreatedAt: string;
+  created_at: string;
+}
+
+export interface ICustomer {
+  ID: string | number;
+  ho_ten: string;
+  dien_thoai: string;
+  dia_chi: string;
+  UpdatedAt: string;
+  DeletedAt: string;
+  CreatedAt: string;
+  created_at: string;
+}
