@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Badge } from "@/components/ui/badge";
 import { convertRFC1123 } from "@/utils/convertRFC1123";
+import formatVND from "@/utils/formatVND";
 
 interface TableCellContentProps {
   keyName: string;
@@ -22,8 +23,12 @@ export default function TableCellContent({
     );
   }
 
-  if (keyName === "CreatedAt") {
+  if (keyName === "CreatedAt" || keyName === "ngay_nhap") {
     return <>{convertRFC1123(value)}</>;
+  }
+
+  if (keyName === "con_lai" || keyName === "tong_tien" || keyName === "tra_truoc") {
+    return <>{formatVND(value)}</>;
   }
 
   if (keyName === "trang_thai") {

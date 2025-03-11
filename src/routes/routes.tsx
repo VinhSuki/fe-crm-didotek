@@ -47,6 +47,22 @@ const Warehouse = Loadable(
 const Customer = Loadable(
   lazy(() => import("@/pages/PartnerManagement/Customer"))
 );
+const Distributor = Loadable(
+  lazy(() => import("@/pages/PartnerManagement/Distributor"))
+);
+const AddDistributor = Loadable(
+  lazy(() => import("@/pages/PartnerManagement/Distributor/Add"))
+);
+const EditDistributor = Loadable(
+  lazy(() => import("@/pages/PartnerManagement/Distributor/Edit"))
+);
+
+const ImportWarehouse = Loadable(
+  lazy(() => import("@/pages/WarehouseManagement/ImportWarehouse"))
+);
+const AddImportWarehouse = Loadable(
+  lazy(() => import("@/pages/WarehouseManagement/ImportWarehouse/index"))
+);
 
 function AppRouter() {
   const routes = [
@@ -196,6 +212,102 @@ function AppRouter() {
               </MainContent>
             </>
           ),
+        },
+        {
+          path: "/nha-phan-phoi",
+          children: [
+            {
+              path: "",
+              element: (
+                <>
+                  <PageTitle title="Danh sách nhà phân phối" />
+                  <MainContent title="Quản lý nhà phân phối">
+                    <Distributor />
+                  </MainContent>
+                </>
+              ),
+            },
+            {
+              path: "them-moi",
+              element: (
+                <>
+                  <PageTitle title="Thêm nhà phân phối" />
+                  <MainContent
+                    title="Thêm nhà phân phối"
+                    breadcrumb={{
+                      parent: { title: "Nhà phân phối", url: "/nha-phan-phoi" },
+                      current: "Thêm mới",
+                    }}
+                  >
+                    <AddDistributor />
+                  </MainContent>
+                </>
+              ),
+            },
+            {
+              path: "cap-nhat/:distributorId",
+              element: (
+                <>
+                  <PageTitle title="Cập nhật nhà phân phối" />
+                  <MainContent
+                    title="Cập nhật nhà phân phối"
+                    breadcrumb={{
+                      parent: { title: "Nhà phân phối", url: "/nha-phan-phoi" },
+                      current: "Cập nhật",
+                    }}
+                  >
+                    <EditDistributor />
+                  </MainContent>
+                </>
+              ),
+            },
+          ],
+        },
+        {
+          path: "/nhap-kho",
+          children: [
+            {
+              path: "",
+              element: (
+                <>
+                  <PageTitle title="Danh sách hóa đơn nhập kho" />
+                  <MainContent title="Quản lý hóa đơn nhập kho">
+                    <ImportWarehouse />
+                  </MainContent>
+                </>
+              ),
+            },
+            {
+              path: "them-moi",
+              element: (
+                <>
+                  <PageTitle title="Nhập kho" />
+                  <MainContent
+                    title="Nhập kho"
+                  >
+                    <AddImportWarehouse />
+                  </MainContent>
+                </>
+              ),
+            },
+            {
+              path: "cap-nhat/:productId",
+              element: (
+                <>
+                  <PageTitle title="Cập nhật sản phẩm" />
+                  <MainContent
+                    title="Cập nhật sản phẩm"
+                    breadcrumb={{
+                      parent: { title: "Sản phẩm", url: "/san-pham" },
+                      current: "Cập nhật",
+                    }}
+                  >
+                    <EditProduct />
+                  </MainContent>
+                </>
+              ),
+            },
+          ],
         },
       ],
     },

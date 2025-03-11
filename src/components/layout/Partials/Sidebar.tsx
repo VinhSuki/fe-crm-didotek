@@ -3,6 +3,7 @@ import { Images } from "@/constant";
 import { useSidebarContext } from "@/context/SidebarContext";
 import clsx from "clsx";
 import {
+  Box,
   ChevronsLeft,
   ChevronsRight,
   Clock,
@@ -10,6 +11,7 @@ import {
   List,
   Package,
   Percent,
+  Truck,
   User,
   UserCheck,
   Warehouse,
@@ -61,11 +63,26 @@ const sidebarItems: ISidebarItem[] = [
         icon: Warehouse,
         url: "/kho",
       },
+      {
+        title: "Nhập kho",
+        icon: Box,
+        url: "/nhap-kho",
+      },
+      {
+        title: "Xuất kho",
+        icon: Box,
+        url: "/xuat-kho",
+      },
     ],
   },
   {
     title: "Quản lý đối tác",
     items: [
+      {
+        title: "Nhà phân phối",
+        icon: Truck,
+        url: "/nha-phan-phoi",
+      },
       {
         title: "Khách hàng",
         icon: User,
@@ -130,7 +147,7 @@ export function Sidebar() {
       </div>
 
       {/* Menu */}
-      <nav className="flex-1  overflow-hidden p-5">
+      <nav className="overflow-y-auto p-5 h-full">
         {sidebarItems.map((items) => (
           <ul className="overflow-hidden" key={items.title}>
             {!isCollapsed && (

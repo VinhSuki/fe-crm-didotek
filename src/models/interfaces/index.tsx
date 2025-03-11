@@ -118,7 +118,7 @@ export interface Column<T> {
   key: keyof T;
   label: string;
   sortName?: keyof T;
-  searchCondition?: "number" | "text" | undefined;
+  searchCondition?: "number" | "text" | "money" | undefined;
   render?: (row: T) => React.ReactNode;
   minW?: string;
 }
@@ -144,6 +144,19 @@ export interface IEmployee {
   created_at: string;
 }
 
+export interface IDistributor {
+  ID: string | number;
+  ten: string;
+  email: string;
+  dien_thoai: string;
+  dia_chi: string;
+  ds_san_pham: IProduct[]
+  UpdatedAt: string;
+  DeletedAt: string;
+  CreatedAt: string;
+  created_at: string;
+}
+
 export interface IRole {
   ID: string | number;
   ten: string;
@@ -163,6 +176,39 @@ export interface IWarehouse {
   created_at: string;
 }
 
+export interface IImportProduct {
+  chiet_khau: string | number;
+  ctsp_id: number | string;
+  don_vi_tinh: string;
+  gia_ban: number | string;
+  gia_nhap: number | string;
+  ke: string;
+  la_qua_tang: boolean;
+  san_pham_id: number | string;
+  so_luong: number | string;
+  upc: string;
+}
+
+export interface IImportWarehouse {
+  ID: number | string;
+  con_lai: string | number;
+  ghi_chu: string;
+  kho: string;
+  kho_id: string | number;
+  ma_hoa_don: string;
+  ngay_nhap: string;
+  nha_phan_phoi: string;
+  nha_phan_phoi_id: string | number;
+  so_hoa_don: string;
+  tong_tien: string | number;
+  tra_truoc: string | number;
+  ds_san_pham_nhap: IImportProduct[];
+  UpdatedAt: string;
+  DeletedAt: string;
+  CreatedAt: string;
+  created_at: string;
+}
+
 export interface ICustomer {
   ID: string | number;
   ho_ten: string;
@@ -172,4 +218,9 @@ export interface ICustomer {
   DeletedAt: string;
   CreatedAt: string;
   created_at: string;
+}
+
+export interface IOption {
+  ID: string | number;
+  ten: string;
 }

@@ -18,7 +18,7 @@ import {
   Search,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { JSX, useState } from "react";
 
 const ConditionTextOptions = [
   {
@@ -101,11 +101,29 @@ const ConditionNumberOptions = [
   },
 ];
 
+const ConditionMoneyOptions = [
+  {
+    id: "=",
+    label: "Equals",
+    icon: <Equal className="w-4 h-4 text-zinc-500" />,
+  },
+  {
+    id: "between",
+    label: "Between",
+    icon: <AlignHorizontalSpaceAround className="w-4 h-4 text-zinc-500" />,
+  },
+  {
+    id: "=",
+    label: "Reset",
+    icon: <Search className="w-4 h-4 text-zinc-500" />,
+  },
+];
+
 interface ConditionDropdownProps {
   onConditionChange: (condition: string, name: string) => void;
   className: string;
   name: string;
-  type: "text" | "number";
+  type: "text" | "number" | "money";
 }
 
 export default function ConditionDropdown({
@@ -114,8 +132,19 @@ export default function ConditionDropdown({
   name,
   type,
 }: ConditionDropdownProps) {
-  const conditionOptions =
-    type === "text" ? ConditionTextOptions : ConditionNumberOptions;
+  let conditionOptions:{
+    id: string;
+    label: string;
+    icon: JSX.Element;
+}[] | null = null
+  switch(type){
+    case "text": conditionOptions = ConditionTextOptions 
+    break
+    case "number": conditionOptions = ConditionNumberOptions 
+    break
+    case "money": conditionOptions = ConditionMoneyOptions 
+    break
+  }
 
   const [selectedCondition, setSelectedCondition] = useState(
     conditionOptions[conditionOptions.length - 1]

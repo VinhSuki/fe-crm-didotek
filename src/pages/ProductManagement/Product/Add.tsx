@@ -206,7 +206,7 @@ const Add = () => {
     id: string | number,
     data: {
       ten_phan_loai: string;
-      trang_thai: string;
+      trang_thai: string | number;
       hinh_anh?: File | undefined;
     }
   ) => {

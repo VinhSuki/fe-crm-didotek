@@ -34,12 +34,12 @@ interface IBetweenCondition {
 }
 
 interface GenericTableProps<T> {
-  filters: FilterSearch[];
-  sortOrder: ISortOrder<T>;
+  filters?: FilterSearch[];
+  sortOrder?: ISortOrder<T>;
   data: T[];
   columns: Column<T>[];
-  onFilterChange: (newFilters: FilterSearch[]) => void;
-  onSortOrder: (sortOrder: ISortOrder<T>) => void;
+  onFilterChange?: (newFilters: FilterSearch[]) => void;
+  onSortOrder?: (sortOrder: ISortOrder<T>) => void;
   actions?: (row: T) => React.ReactNode;
 }
 
@@ -53,6 +53,7 @@ export default function GenericTable<T>({
   sortOrder,
 }: GenericTableProps<T>) {
   const [fieldBetween, setFieldBetween] = useState<string[]>([]);
+  const typeMoney: string[] = ["tra_truoc", "con_lai", "tong_tien"];
   const [searchValues, setSearchValues] = useState(() => {
     return columns.reduce((acc, { key, searchCondition }) => {
       if (searchCondition) {
@@ -71,12 +72,13 @@ export default function GenericTable<T>({
         betweenValue?: IBetweenCondition;
       }>
     ) => {
-      let updatedFilters = filters;
+      let updatedFilters = filters ?? [];
 
       // Xóa các filters cũ có cùng field với filters mới
-      updatedFilters = filters.filter(
-        (f) => !newFilters.some((nf) => nf.field === f.field)
-      );
+      updatedFilters =
+        filters?.filter(
+          (f) => !newFilters.some((nf) => nf.field === f.field)
+        ) ?? [];
 
       // Thêm các filters mới
       newFilters.forEach(({ field, condition, value, betweenValue }) => {
@@ -100,7 +102,7 @@ export default function GenericTable<T>({
       });
 
       // Gọi onFilterChange chỉ một lần
-      onFilterChange(updatedFilters);
+      if (onFilterChange) onFilterChange(updatedFilters);
     },
     [filters, onFilterChange]
   );
@@ -113,12 +115,12 @@ export default function GenericTable<T>({
         ({ minValue, maxValue, value }) => !minValue && !maxValue && !value
       ) && fieldBetween.length === 0;
     if (isAllEmpty) {
-      if (filters.length > 0) {
+      if (filters && filters.length > 0) {
         const updatedEmptyFilters = filters.map((f) => ({
           ...f,
           value: "",
         }));
-        onFilterChange(updatedEmptyFilters);
+        if (onFilterChange) onFilterChange(updatedEmptyFilters);
       }
       return;
     }
@@ -131,7 +133,7 @@ export default function GenericTable<T>({
     }[] = [];
 
     Object.keys(debouncedSearchValues).forEach((key) => {
-      const currentFilter = filters.find((f) => f.field === key);
+      const currentFilter = filters?.find((f) => f.field === key);
       const isCurrentFilterBetween = fieldBetween.includes(key);
       const newValue =
         debouncedSearchValues[key as keyof typeof debouncedSearchValues];
@@ -152,7 +154,11 @@ export default function GenericTable<T>({
         if (!currentFilter || currentFilter.value !== newValue.value) {
           newFilters.push({
             field: key,
-            condition: currentFilter?.condition || "contains",
+            condition: currentFilter?.condition
+              ? currentFilter?.condition
+              : typeMoney.some((v) => v === key)
+              ? ">="
+              : "contains",
             value: newValue.value,
           });
         }
@@ -175,7 +181,7 @@ export default function GenericTable<T>({
     if (condition !== "between") {
       const fieldValue = fieldBetween.some((f) => f === field)
         ? ""
-        : filters.find((f) => f.field === field)?.value;
+        : filters?.find((f) => f.field === field)?.value;
       updateFilters([{ field, condition, value: fieldValue ?? "" }]); // Cập nhật một lần
       setFieldBetween((prev) => prev.filter((f) => f !== field));
     } else {
@@ -200,17 +206,17 @@ export default function GenericTable<T>({
     sortOrder = {
       sort: field,
       order:
-        sortOrder.sort === field
+        sortOrder?.sort === field
           ? sortOrder.order === ESortOrderValue.ASC
             ? ESortOrderValue.DESC
             : ESortOrderValue.ASC
           : ESortOrderValue.ASC,
     };
-    onSortOrder(sortOrder);
+    if (onSortOrder) onSortOrder(sortOrder);
   };
 
   const renderSortIcon = (field: keyof T) => {
-    if (sortOrder.sort === field) {
+    if (sortOrder?.sort === field) {
       return sortOrder.order === ESortOrderValue.ASC ? (
         <ArrowUp size={16} />
       ) : (
@@ -222,10 +228,8 @@ export default function GenericTable<T>({
 
   return (
     <>
-      {data.length === 0 && filters.length === 0 ? (
-        <div className="text-center text-zinc-500 text-lg">
-          Chưa có dữ liệu
-        </div>
+      {data.length === 0 && filters?.length === 0 ? (
+        <div className="text-center text-zinc-500 text-lg">Chưa có dữ liệu</div>
       ) : (
         <Table className="overflow-x-auto w-full">
           <TableHeader>

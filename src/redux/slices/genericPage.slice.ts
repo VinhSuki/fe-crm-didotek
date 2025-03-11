@@ -58,7 +58,6 @@ export const fetchDynamicData = createAsyncThunk(
       );
       dispatch(setDeleted(key));
     }
-    console.log(entityState.pagination.totalPage);
     // Khi thêm dữ liệu
     if (entityState.isAdded) {
       currentPage = Math.floor(

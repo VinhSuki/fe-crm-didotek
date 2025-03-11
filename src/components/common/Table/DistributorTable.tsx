@@ -1,110 +1,68 @@
-import productApi from "@/apis/modules/product.api";
+import distributorApi from "@/apis/modules/distributor.api";
 import ConfirmDeleteButton from "@/components/common/ConfirmDeleteButton";
 import GenericTable from "@/components/common/GenericTable";
 import { Button } from "@/components/ui/button";
 import {
   Column,
   FilterSearch,
-  IProduct,
+  IDistributor,
   ISortOrder,
 } from "@/models/interfaces";
 import { SquarePen } from "lucide-react";
 import { useCallback } from "react";
 import { Link } from "react-router-dom";
 
-interface IProductsTableProps {
-  products: IProduct[];
+interface IDistributorTableProps {
+  distributors: IDistributor[];
   filters: FilterSearch[];
-  sortOrder: ISortOrder<IProduct>;
+  sortOrder: ISortOrder<IDistributor>;
   onFilterChange: (newFilters: FilterSearch[]) => void;
-  onSortOrder: (sortOrder: ISortOrder<IProduct>) => void;
+  onSortOrder: (sortOrder: ISortOrder<IDistributor>) => void;
   onDeleted: () => void;
   onEdited: () => void;
 }
 
-const columns: Column<IProduct>[] = [
-  { key: "ID", sortName: "ID", label: "ID", minW: "min-w-[50px]" },
-  {
-    key: "hinh_anh",
-    label: "Hình ảnh",
-  },
+const columns: Column<IDistributor>[] = [
   {
     key: "ten",
-    label: "Tên sản phẩm",
+    label: "Tên",
     sortName: "ten",
     searchCondition: "text",
-    minW: "min-w-[200px]",
   },
   {
-    key: "upc",
-    label: "Mã sản phẩm",
-    sortName: "upc",
+    key: "dia_chi",
+    label: "Địa chỉ",
+    sortName: "dia_chi",
     searchCondition: "text",
-    minW: "min-w-[200px]",
   },
   {
-    key: "loai_san_pham",
-    label: "Loại sản phẩm",
-    sortName: "loai_san_pham",
+    key: "email",
+    label: "Email",
+    sortName: "email",
     searchCondition: "text",
-    minW: "min-w-[200px]",
   },
   {
-    key: "don_vi_tinh",
-    label: "Đơn vị tính",
-    sortName: "don_vi_tinh",
+    key: "dien_thoai",
+    label: "Điện thoại",
+    sortName: "dien_thoai",
     searchCondition: "text",
-    minW: "min-w-[200px]",
   },
-  {
-    key: "vat",
-    label: "VAT",
-    sortName: "vat",
-    searchCondition: "number",
-    minW: "min-w-[100px]",
-  },
-  {
-    key: "trang_thai",
-    label: "Trạng thái",
-    sortName: "trang_thai",
-    searchCondition: "text",
-    minW: "min-w-[200px]",
-  },
-  {
-    key: "loai_giam_gia",
-    label: "Loại giảm giá",
-    sortName: "loai_giam_gia",
-    searchCondition: "text",
-    minW: "min-w-[200px]",
-  },
-  {
-    key: "thoi_gian_bao_hanh",
-    label: "Thời gian bảo hành",
-    sortName: "thoi_gian_bao_hanh",
-    searchCondition: "text",
-    minW: "min-w-[200px]",
-  },
-  {
-    key: "CreatedAt",
-    sortName: "CreatedAt",
-    label: "Ngày tạo",
-    minW: "min-w-[200px]",
-  },
+  { key: "CreatedAt", sortName: "CreatedAt", label: "Ngày tạo" },
 ];
 
-const ProductTable = ({
-  products,
+const DistributorTable = ({
+  distributors,
   filters,
   sortOrder,
   onFilterChange,
   onSortOrder,
   onDeleted,
-}: IProductsTableProps) => {
+}: IDistributorTableProps) => {
   const onConfirmDelete = useCallback(
     async (id: string | number) => {
       // eslint-disable-next-line no-useless-catch
       try {
-        await productApi.delete(id);
+        await distributorApi.delete(id);
         onDeleted();
       } catch (error) {
         throw error;
@@ -114,8 +72,8 @@ const ProductTable = ({
   ); // Chỉ re-create khi `onDeleted` thay đổi
   // console.log("re-render");
   return (
-    <GenericTable<IProduct>
-      data={products}
+    <GenericTable<IDistributor>
+      data={distributors}
       columns={columns}
       filters={filters}
       sortOrder={sortOrder}
@@ -139,4 +97,4 @@ const ProductTable = ({
   );
 };
 
-export default ProductTable;
+export default DistributorTable;

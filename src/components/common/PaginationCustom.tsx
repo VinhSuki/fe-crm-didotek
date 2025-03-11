@@ -22,7 +22,8 @@ export default function PaginationCustom({
 
   // Tạo danh sách số trang hiển thị
   const generatePageNumbers = (): (number | string)[] => {
-    if (totalPage <= 5) return Array.from({ length: totalPage }, (_, i) => i + 1);
+    if (totalPage <= 5)
+      return Array.from({ length: totalPage }, (_, i) => i + 1);
 
     const pages: (number | string)[] = [1];
 
@@ -51,7 +52,9 @@ export default function PaginationCustom({
           <PaginationPrevious
             onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
             className={
-              currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"
+              currentPage === 1
+                ? "pointer-events-none opacity-50"
+                : "cursor-pointer"
             }
           />
         </PaginationItem>
@@ -61,6 +64,7 @@ export default function PaginationCustom({
           <PaginationItem key={index}>
             {typeof page === "number" ? (
               <Button
+                type="button"
                 variant={page === currentPage ? "default" : "outline"}
                 size="sm"
                 onClick={() => onPageChange(page)}
@@ -80,7 +84,9 @@ export default function PaginationCustom({
               currentPage < totalPage && onPageChange(currentPage + 1)
             }
             className={
-              currentPage === totalPage ? "pointer-events-none opacity-50" : "cursor-pointer"
+              currentPage === totalPage
+                ? "pointer-events-none opacity-50"
+                : "cursor-pointer"
             }
           />
         </PaginationItem>
