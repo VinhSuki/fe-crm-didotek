@@ -147,7 +147,7 @@ export function Sidebar() {
       </div>
 
       {/* Menu */}
-      <nav className="overflow-y-auto p-5 h-full">
+      <nav className="overflow-y-auto p-5 max-h-screen">
         {sidebarItems.map((items) => (
           <ul className="overflow-hidden" key={items.title}>
             {!isCollapsed && (

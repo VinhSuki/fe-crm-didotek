@@ -2,22 +2,23 @@ import importWarehouseApi from "@/apis/modules/importWarehouse.api";
 import Loader from "@/components/common/Loader";
 import PaginationCustom from "@/components/common/PaginationCustom";
 import ImportWarehouseTable from "@/components/common/Table/ImportWarehouseTable";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useSidebarContext } from "@/context/SidebarContext";
 import { ESortOrderValue } from "@/models/enums/option";
-import Add from "@/pages/WarehouseManagement/Warehouse/Add";
 import {
   fetchDynamicData,
   initState,
-  setAdded,
   setFilters,
   setPagination,
-  setSortOrder,
+  setSortOrder
 } from "@/redux/slices/genericPage.slice";
 import { AppDispatch, RootState } from "@/redux/store";
 import clsx from "clsx";
+import { Plus } from "lucide-react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 const ENTITY_KEY = "importWarehouse"; // Định danh động
 
@@ -61,7 +62,12 @@ export default function Index() {
       {/* Product Table */}
       <Card>
         <CardHeader className="flex-row justify-end items-center border-b">
-          <Add onAdded={() => dispatch(setAdded(ENTITY_KEY))} />
+          <Link to="/nhap-kho/them-moi">
+            <Button className="bg-primary hover:bg-secondary text-white">
+              <Plus />
+              <span>Thêm mới</span>
+            </Button>
+          </Link>
         </CardHeader>
         <CardContent
           className={clsx(

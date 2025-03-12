@@ -98,9 +98,9 @@ const productSchema = z.object({
         .refine((file) => !file || file.size <= 5 * 1024 * 1024, {
           message: "Kích thước ảnh tối đa 5MB",
         }),
-      trang_thai: z.string({
+      trang_thai: z.union([z.string({
         required_error: "Vui lòng chọn trạng thái",
-      }),
+      }),z.number()]),
     })
   ),
 });

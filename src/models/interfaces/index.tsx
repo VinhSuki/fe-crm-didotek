@@ -150,7 +150,7 @@ export interface IDistributor {
   email: string;
   dien_thoai: string;
   dia_chi: string;
-  ds_san_pham: IProduct[]
+  ds_san_pham: IProduct[];
   UpdatedAt: string;
   DeletedAt: string;
   CreatedAt: string;
@@ -177,16 +177,18 @@ export interface IWarehouse {
 }
 
 export interface IImportProduct {
-  chiet_khau: string | number;
+  chiet_khau?: string;
   ctsp_id: number | string;
-  don_vi_tinh: string;
-  gia_ban: number | string;
-  gia_nhap: number | string;
-  ke: string;
-  la_qua_tang: boolean;
+  don_vi_tinh?: string;
+  gia_ban?: string;
+  gia_nhap?: string;
+  ke?: string;
+  la_qua_tang?: boolean;
   san_pham_id: number | string;
-  so_luong: number | string;
-  upc: string;
+  so_luong?: string;
+  upc?: string;
+  han_su_dung?: string;
+  ctsp_ten: string;
 }
 
 export interface IImportWarehouse {
@@ -223,4 +225,15 @@ export interface ICustomer {
 export interface IOption {
   ID: string | number;
   ten: string;
+}
+
+export interface IGroupProduct {
+  group: string;
+  groupId: string | number;
+  items: {
+    ID: string | number;
+    ten: string;
+    upc: string;
+    don_vi_tinh: string;
+  }[];
 }

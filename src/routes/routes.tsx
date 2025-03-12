@@ -61,7 +61,7 @@ const ImportWarehouse = Loadable(
   lazy(() => import("@/pages/WarehouseManagement/ImportWarehouse"))
 );
 const AddImportWarehouse = Loadable(
-  lazy(() => import("@/pages/WarehouseManagement/ImportWarehouse/index"))
+  lazy(() => import("@/pages/WarehouseManagement/ImportWarehouse/Add"))
 );
 
 function AppRouter() {
