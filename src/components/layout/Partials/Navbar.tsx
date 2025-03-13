@@ -1,3 +1,4 @@
+import SelectSearchNoForm from "@/components/common/SelectSearchNoForm";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useAuthContext } from "@/context/AuthContext";
 import { useNavbarContext } from "@/context/NavbarContext";
+import { useWarehouseContext } from "@/context/Warehouse";
 import clsx from "clsx";
 import {
   Bell,
@@ -27,7 +29,7 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const navbar = useNavbarContext();
   const authMethod = useAuthContext();
-  console.log(authMethod?.account);
+  const warehouse = useWarehouseContext();
   return (
     <nav
       className={clsx(
@@ -61,8 +63,12 @@ export function Navbar() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
-        {/* Icons */}
+        <SelectSearchNoForm
+          value={warehouse?.selectedId}
+          onChange={(id) => warehouse?.setSelectedId(id)}
+          options={warehouse?.list ?? []}
+        />
+        ;{/* Icons */}
         <div className="flex items-center gap-2">
           <Button variant="ghost" className="relative">
             <Mail className="h-5 w-5 text-gray-600" />

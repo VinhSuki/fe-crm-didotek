@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import ConfirmDeleteButton from "@/components/common/ConfirmDeleteButton";
 import NumericInput from "@/components/common/NumericInput";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -31,7 +33,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -61,7 +63,7 @@ const productSchema = z.object({
             message: "Giá trị phải là số dương",
           }),
         upc: z.string(),
-        han_su_dung: z.date(),
+        han_su_dung: z.coerce.date(),
       })
       .superRefine(({ gia_ban, gia_nhap }, ctx) => {
         const giaBanNum = Number(gia_ban);
@@ -81,9 +83,18 @@ const productSchema = z.object({
 type productFormValues = z.infer<typeof productSchema>;
 interface TableProps {
   listImportProduct: IImportProduct[];
+  onDeleted: (id: string | number) => void;
+  onTotalMoneyChange: (totalData: {
+    id: string | number;
+    total: number;
+  }) => void;
 }
 
-export default function ImportProductTable({ listImportProduct }: TableProps) {
+export default function ImportProductTable({
+  listImportProduct,
+  onDeleted,
+  onTotalMoneyChange,
+}: TableProps) {
   const form = useForm<productFormValues>({
     resolver: zodResolver(productSchema), // Truyền warehouses vào schema
     defaultValues: {
@@ -101,52 +112,86 @@ export default function ImportProductTable({ listImportProduct }: TableProps) {
       })),
     },
   });
+  const listFormImportProduct = form.watch("ds_san_pham_nhap") ?? [];
   useEffect(() => {
-    form.reset({
-      ds_san_pham_nhap: listImportProduct.map((p) => ({
-        upc: p.upc,
-        san_pham_id: p.san_pham_id,
-        ctsp_id: p.ctsp_id,
-        so_luong: p.so_luong || "0",
-        gia_nhap: "0",
-        gia_ban: "0",
-        don_vi_tinh: p.don_vi_tinh || "",
-        ke: p.ke || "",
-        la_qua_tang: p.la_qua_tang || false,
-        chiet_khau: p.chiet_khau || "0",
-      })),
-    });
+    if (listImportProduct.length > 0) {
+      if (listImportProduct.length >= listFormImportProduct.length) {
+        const lastProduct = listImportProduct[listImportProduct.length - 1];
+
+        const updatedValue = [
+          ...listFormImportProduct.filter(
+            (p) => Object.values(p).some((value) => value !== undefined) // Chỉ giữ lại object có ít nhất một giá trị khác undefined
+          ),
+          {
+            upc: lastProduct.upc || "",
+            san_pham_id: lastProduct.san_pham_id,
+            ctsp_id: lastProduct.ctsp_id,
+            so_luong: lastProduct.so_luong || "0",
+            gia_nhap: "0",
+            gia_ban: "0",
+            don_vi_tinh: lastProduct.don_vi_tinh || "",
+            ke: lastProduct.ke || "",
+            la_qua_tang: lastProduct.la_qua_tang ?? false,
+            chiet_khau: lastProduct.chiet_khau || "0",
+            han_su_dung: lastProduct.han_su_dung
+              ? new Date(lastProduct.han_su_dung)
+              : new Date(), // Nếu không có thì lấy ngày hiện tại
+          },
+        ];
+        form.setValue("ds_san_pham_nhap", updatedValue);
+      } else {
+        const updatedValue = listFormImportProduct.filter((p) =>
+          listImportProduct.some((ip) => ip.ctsp_id === p.ctsp_id)
+        );
+        form.setValue("ds_san_pham_nhap", updatedValue);
+      }
+    } else {
+      form.setValue("ds_san_pham_nhap", []);
+    }
   }, [listImportProduct]);
-  const [toggleListCheckbox, setToggleListCheckbox] = useState<boolean[]>(
-    listImportProduct.map(() => false)
-  );
-  const handleToggleCheckbox = ()=>{
-    
-  }
-  const listFormImportProduct = form.watch("ds_san_pham_nhap");
-  const [listValueCheckbox, setListValueCheckbox] = useState<
-    {
-      gia_nhap: string;
-      gia_ban: string;
-      chiet_khau: string;
-    }[]
-  >(
-    listFormImportProduct.map((p) => ({
-      gia_nhap: p.gia_nhap,
-      gia_ban: p.gia_ban,
-      chiet_khau: p.chiet_khau,
-    }))
-  );
+  // const handleToggleCheckbox = (index: number) => {};
+
+  // const [listValueCheckbox, setListValueCheckbox] = useState<
+  //   {
+  //     isChecked: boolean;
+  //     gia_nhap: string;
+  //     gia_ban: string;
+  //     chiet_khau: string;
+  //   }[]
+  // >([]);
+  // useEffect(() => {
+  //   setListValueCheckbox((prev) => [
+  //     ...prev,
+  //     {
+  //       isChecked: false,
+  //       gia_nhap: listImportProduct[listImportProduct.length - 1].gia_nhap,
+  //       gia_ban: listImportProduct[listImportProduct.length - 1].gia_ban,
+  //       chiet_khau: listImportProduct[listImportProduct.length - 1].chiet_khau,
+  //     },
+  //   ]);
+  // }, [listImportProduct]);
 
   const getTotalMoney = (index: number) => {
-    const total =
-      listFormImportProduct.length > 0
-        ? Number(listFormImportProduct[index].gia_nhap ?? 0) *
-          Number(listFormImportProduct[index].so_luong ?? 0) *
-          (1 - Number(listFormImportProduct[index].chiet_khau ?? 0) / 100)
-        : 0;
-    return formatVND(total);
+    if (
+      listFormImportProduct.length > 0 &&
+      index < listFormImportProduct.length
+    ) {
+      const total =
+        Number(listFormImportProduct[index].gia_nhap ?? 0) *
+        Number(listFormImportProduct[index].so_luong ?? 0) *
+        (1 - Number(listFormImportProduct[index].chiet_khau ?? 0) / 100);
+      onTotalMoneyChange({ id: listFormImportProduct[index].ctsp_id, total });
+      return formatVND(total);
+    }
+    return;
   };
+
+  const onConfirmDelete = useCallback(
+    async (id: string | number) => {
+      await onDeleted(id);
+    },
+    [onDeleted]
+  ); // Chỉ re-create khi `onDeleted` thay đổi
 
   return (
     <>
@@ -254,10 +299,6 @@ export default function ImportProductTable({ listImportProduct }: TableProps) {
                                 mode="single"
                                 selected={field.value}
                                 onSelect={field.onChange}
-                                disabled={(date) =>
-                                  date > new Date() ||
-                                  date < new Date("1900-01-01")
-                                }
                                 initialFocus
                               />
                             </PopoverContent>
@@ -325,9 +366,16 @@ export default function ImportProductTable({ listImportProduct }: TableProps) {
                         <FormItem>
                           <FormControl>
                             <NumericInput
-                              max={Number(listFormImportProduct[index].gia_ban)}
+                              // eslint-disable-next-line no-constant-binary-expression
+                              max={
+                                listFormImportProduct[index]?.gia_ban
+                                  ? Number(
+                                      listFormImportProduct[index]?.gia_ban
+                                    )
+                                  : undefined
+                              }
                               min={0}
-                              value={formatVND(field.value)}
+                              value={formatVND(field.value ?? "0")}
                               onChange={field.onChange}
                             />
                           </FormControl>
@@ -344,10 +392,14 @@ export default function ImportProductTable({ listImportProduct }: TableProps) {
                         <FormItem>
                           <FormControl>
                             <NumericInput
-                              min={Number(
-                                listFormImportProduct[index].gia_nhap
-                              )}
-                              value={formatVND(field.value)}
+                              min={
+                                listFormImportProduct[index]?.gia_nhap
+                                  ? Number(
+                                      listFormImportProduct[index]?.gia_nhap
+                                    )
+                                  : undefined
+                              }
+                              value={formatVND(field.value ?? "0")}
                               onChange={field.onChange}
                             />
                           </FormControl>
@@ -366,7 +418,7 @@ export default function ImportProductTable({ listImportProduct }: TableProps) {
                             <NumericInput
                               min={0}
                               max={99}
-                              value={formatVND(field.value)}
+                              value={formatVND(field.value ?? "0")}
                               onChange={field.onChange}
                             />
                           </FormControl>
@@ -379,7 +431,7 @@ export default function ImportProductTable({ listImportProduct }: TableProps) {
                     <Input
                       readOnly
                       className="bg-zinc-100 cursor-default"
-                      type="number"
+                      type="text"
                       value={getTotalMoney(index)}
                     />
                   </TableCell>
@@ -397,6 +449,13 @@ export default function ImportProductTable({ listImportProduct }: TableProps) {
                           </FormControl>
                         </FormItem>
                       )}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <ConfirmDeleteButton
+                      id={row.san_pham_id + ":" + row.ctsp_id}
+                      onConfirm={onConfirmDelete}
+                      title={`Bạn có chắc chắn muốn xóa sản phẩm ${row.ctsp_ten}?`}
                     />
                   </TableCell>
                 </TableRow>

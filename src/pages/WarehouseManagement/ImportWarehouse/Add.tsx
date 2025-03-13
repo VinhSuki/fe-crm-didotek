@@ -27,7 +27,11 @@ import {
   IProduct,
 } from "@/models/interfaces";
 import ImportProductTable from "@/pages/WarehouseManagement/ImportWarehouse/ImportProduct/Table";
-import { showSuccessAlert } from "@/utils/alert";
+import {
+  showErrorAlert,
+  showLoadingAlert,
+  showSuccessAlert,
+} from "@/utils/alert";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
 import { format } from "date-fns";
@@ -38,6 +42,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import AddImportProduct from "./ImportProduct/Add";
 import { useSidebarContext } from "@/context/SidebarContext";
+import Swal from "sweetalert2";
+import NumericInput from "@/components/common/NumericInput";
+import formatVND from "@/utils/formatVND";
+import { Textarea } from "@/components/ui/textarea";
 // import AddImportProduct from "./Product/Add";
 
 const distributorSchema = z.object({
@@ -53,47 +61,45 @@ const distributorSchema = z.object({
   }),
   tong_tien: z.string(),
   tra_truoc: z
-    .string()
-    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
-      message: "Giá trị phải là số dương",
-    }),
+    .string(),
   con_lai: z.string(),
-  ds_san_pham_nhap: z.array(
-    z
-      .object({
-        chiet_khau: z.string(),
-        ctsp_id: z.union([z.string(), z.number()]),
-        don_vi_tinh: z.string(),
-        gia_ban: z
-          .string()
-          .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
-            message: "Giá trị phải là số dương",
-          }),
-        gia_nhap: z
-          .string()
-          .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
-            message: "Giá trị phải là số dương",
-          }),
-        ke: z.string(),
-        la_qua_tang: z.boolean(),
-        san_pham_id: z.union([z.string(), z.number()]),
-        so_luong: z.union([z.string(), z.number()]),
-        upc: z.string(),
-        han_su_dung: z.date(),
-      })
-      .superRefine(({ gia_ban, gia_nhap }, ctx) => {
-        const giaBanNum = Number(gia_ban);
-        const giaNhapNum = Number(gia_nhap);
+  ds_san_pham_nhap: z
+    .array(
+      z
+        .object({
+          chiet_khau: z.string(),
+          ctsp_id: z.union([z.string(), z.number()]),
+          don_vi_tinh: z.string(),
+          gia_ban: z
+            .string()
+            .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+              message: "Giá trị phải là số dương",
+            }),
+          gia_nhap: z
+            .string()
+            .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+              message: "Giá trị phải là số dương",
+            }),
+          ke: z.string(),
+          la_qua_tang: z.boolean(),
+          san_pham_id: z.union([z.string(), z.number()]),
+          so_luong: z.union([z.string(), z.number()]),
+          upc: z.string(),
+          han_su_dung: z.date(),
+        })
+        .superRefine(({ gia_ban, gia_nhap }, ctx) => {
+          const giaBanNum = Number(gia_ban);
+          const giaNhapNum = Number(gia_nhap);
 
-        if (giaNhapNum >= giaBanNum) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Giá nhập không được lớn hơn giá bán",
-            path: ["gia_nhap"], // Gắn lỗi vào trường `gia_nhap`
-          });
-        }
-      })
-  ),
+          if (giaNhapNum >= giaBanNum) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "Giá nhập không được lớn hơn giá bán",
+              path: ["gia_nhap"], // Gắn lỗi vào trường `gia_nhap`
+            });
+          }
+        })
+    ) 
 });
 type DistributorFormValues = z.infer<typeof distributorSchema>;
 
@@ -108,6 +114,7 @@ const Add = () => {
       ghi_chu: "",
     },
   });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const sidebar = useSidebarContext();
   const [listDistributors, setListDistributors] = useState<IDistributor[]>([]);
@@ -117,6 +124,43 @@ const Add = () => {
   const distributorId = form.watch("nha_phan_phoi_id");
   const [listProduct, setListProduct] = useState<IProduct[]>([]);
   const [listGroupProduct, setListGroupProduct] = useState<IGroupProduct[]>([]);
+  const totalMoney = form.watch("tong_tien") ?? "0";
+  const [listTotalMoney, setListTotalMoney] = useState<
+    { id: string | number; total: number }[]
+  >([]);
+  const handleTotalMoneyChange = (totalData: {
+    id: string | number;
+    total: number;
+  }) => {
+    console.log(listTotalMoney);
+    const totalMoneyFind = listTotalMoney.find((v) => v.id === totalData.id);
+    if (totalMoneyFind) {
+      if (totalMoneyFind.total !== totalData.total)
+        setListTotalMoney(
+          listTotalMoney.map((v) => {
+            return v.id === totalData.id
+              ? {
+                  ...v,
+                  total: totalData.total,
+                }
+              : v;
+          })
+        );
+    } else {
+      setListTotalMoney((prev) => [...prev, totalData]);
+    }
+  };
+
+  // } else {
+  //   setListTotalMoney((prev) => [...prev, totalData]);
+  // }
+
+  useEffect(() => {
+    const total = listTotalMoney.reduce((acc, cur) => {
+      return acc + cur.total;
+    }, 0);
+    form.setValue("tong_tien", String(total));
+  }, [listTotalMoney]);
   useEffect(() => {
     const fetchApi = async () => {
       const res = await distributorApi.list({
@@ -132,35 +176,82 @@ const Add = () => {
         setListProduct(res.data.data[0].ds_san_pham);
       }
     };
-    if (distributorId) fetchApi();
+    const handleChangeDistributor = async () => {
+      if (listImportProduct.length > 0) {
+        const result = await Swal.fire({
+          title: "Bạn có chắc muốn đổi nhà phân phối?",
+          text: "Dữ liệu sản phẩm được thêm vào sẽ bị làm mới",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Xác nhận",
+          cancelButtonText: "Hủy",
+        });
+
+        if (result.isConfirmed) {
+          setLoading(true);
+          showLoadingAlert();
+
+          try {
+            await fetchApi();
+            setListImportProduct([]);
+            showSuccessAlert("Đổi nhà phân phối thành công!");
+          } catch (error: any) {
+            console.log(error);
+            showErrorAlert(error.message);
+          } finally {
+            setLoading(false);
+          }
+        }
+      } else {
+        fetchApi();
+      }
+    };
+    if (distributorId) handleChangeDistributor();
   }, [distributorId]);
   useEffect(() => {
     const fetchApi = async () => {
-      listProduct.forEach(async (element) => {
-        const id = element.ID;
-        if (id) {
-          const res = await productApi.classify(element.ID);
-          if (res.data?.data) {
-            const classify = res.data?.data;
-            setListGroupProduct((prev) => [
-              ...prev,
-              {
-                group: element.ten,
-                groupId: element.ID,
-                items: classify.map((cl) => ({
-                  ID: cl.ID ?? "0",
-                  ten: cl.ten_phan_loai,
-                  upc: element.upc,
-                  don_vi_tinh: element.don_vi_tinh,
-                })),
-              },
-            ]);
+      if (!listProduct.length) return;
+
+      let list: IGroupProduct[] = [];
+
+      // Sử dụng map + Promise.all để chờ tất cả các request
+      const results = await Promise.all(
+        listProduct.map(async (element) => {
+          const id = element.ID;
+          if (id) {
+            try {
+              const res = await productApi.classify(id);
+              if (res.data?.data) {
+                const classify = res.data?.data;
+                return {
+                  group: element.ten,
+                  groupId: id,
+                  items: classify.map((cl) => ({
+                    ID: cl.ID ?? "0",
+                    ten: cl.ten_phan_loai,
+                    upc: element.upc,
+                    don_vi_tinh: element.don_vi_tinh,
+                  })),
+                };
+              }
+            } catch (error) {
+              console.error(`Lỗi khi lấy dữ liệu cho ID: ${id}`, error);
+            }
           }
-        }
-      });
+          return null;
+        })
+      );
+
+      // Loại bỏ các phần tử null và cập nhật state
+      list = results.filter(Boolean) as IGroupProduct[];
+      setListGroupProduct(list);
     };
+
     fetchApi();
   }, [listProduct]);
+
   const convertDistributorData = async (data: DistributorFormValues) => {
     // // Chuyển ảnh và id của ds_san_pham sang số
     // const dsSanPham = await Promise.all(
@@ -188,7 +279,6 @@ const Add = () => {
   const handleAddedProduct = (data: string) => {
     const [groupId, itemId] = data.split(":");
     const group = listGroupProduct.find((p) => String(p.groupId) === groupId);
-    console.log(group);
     const productDetail = group!.items.find((i) => String(i.ID) === itemId);
     setListImportProduct((prev) => [
       ...prev,
@@ -200,14 +290,26 @@ const Add = () => {
         don_vi_tinh: productDetail?.don_vi_tinh,
       },
     ]);
-    // const productFind = listProduct.find(
+
+    const updatedListGroupProduct = listGroupProduct.map((group) => {
+      if (String(group.groupId) === groupId) {
+        return {
+          ...group,
+          items: group.items.filter((i) => String(i.ID) !== itemId),
+        };
+      }
+      return group;
+    });
+
+    setListGroupProduct(updatedListGroupProduct);
+    // const importProductFind = listProduct.find(
     //   (p) => Number(p.ID) === Number(data.id)
     // );
 
-    // if (!productFind) return;
+    // if (!importProductFind) return;
 
     // setListProductAdded((prev) => {
-    //   const newAddedOptions = [...prev, productFind];
+    //   const newAddedOptions = [...prev, importProductFind];
 
     //   // Tính tổng số sản phẩm sau khi thêm
     //   const totalProducts = newAddedOptions.length;
@@ -228,38 +330,48 @@ const Add = () => {
     // );
   };
 
-  // const handleDeleteProduct = async (id: number | string) => {
-  //   return new Promise<void>((resolve) => {
-  //     setTimeout(() => {
-  //       const productFind = listProductAdded.find(
-  //         (p) => Number(p.ID) === Number(id)
-  //       );
-  //       const newProductList = listProductAdded.filter(
-  //         (p) => Number(p.ID) !== Number(id)
-  //       );
-  //       setListProductAdded(newProductList);
+  const handleDeleteImportProduct = async (id: number | string) => {
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        const [groupId, itemId] = String(id).split(":");
+        const importProductFind = listImportProduct.find(
+          (p) => Number(p.ctsp_id) === Number(itemId)
+        );
+        const newImportProductList = listImportProduct.filter(
+          (p) => Number(p.ctsp_id) !== Number(itemId)
+        );
+        const newListTotalMoney = listTotalMoney.filter(
+          (v) => String(v.id) !== itemId
+        );
+        setListImportProduct(newImportProductList);
+        setListTotalMoney(newListTotalMoney);
 
-  //       if (productFind) {
-  //         setListProduct((prev) =>
-  //           [...prev, productFind].sort((a, b) => Number(a.ID) - Number(b.ID))
-  //         );
-  //       }
+        if (importProductFind) {
+          const updatedListGroupProduct = listGroupProduct.map((group) => {
+            if (String(group.groupId) === groupId) {
+              return {
+                ...group,
+                items: [
+                  ...group.items,
+                  {
+                    ID: importProductFind.ctsp_id,
+                    ten: importProductFind.ctsp_ten,
+                    upc: importProductFind.upc,
+                    don_vi_tinh: importProductFind.don_vi_tinh,
+                  },
+                ].sort((a, b) => Number(a.ID) - Number(b.ID)),
+              };
+            }
+            return group;
+          });
 
-  //       const totalPage = Math.ceil(
-  //         newProductList.length / PAGINATION.DEFAULT_LIMIT
-  //       );
-  //       const newCurrentPage = Math.min(pagination.currentPage, totalPage) || 1;
+          setListGroupProduct(updatedListGroupProduct);
+        }
 
-  //       setPagination((prev) => ({
-  //         ...prev,
-  //         totalPage,
-  //         currentPage: newCurrentPage,
-  //       }));
-
-  //       resolve();
-  //     }, 500);
-  //   });
-  // };
+        resolve();
+      }, 500);
+    });
+  };
   const onSubmit = async (data: DistributorFormValues) => {
     const convertData = await convertDistributorData(data);
     console.log(convertData);
@@ -277,13 +389,13 @@ const Add = () => {
         <form
           noValidate={true}
           onSubmit={form.handleSubmit(onSubmit, (errors) =>
-            console.log("Lỗi submit:", errors)
+            console.log(errors)
           )}
         >
           <Card>
             <CardContent
               className={clsx(
-                "p-4 overflow-x-auto space-y-4",
+                "p-4 overflow-x-auto space-y-6",
                 sidebar.isCollapsed ? "max-w-[1380px]" : "max-w-[1200px]"
               )}
             >
@@ -346,9 +458,80 @@ const Add = () => {
                   />
                 </CardHeader>
                 <CardContent className={clsx("p-4 overflow-x-auto")}>
-                  <ImportProductTable listImportProduct={listImportProduct} />
+                  <ImportProductTable
+                    onTotalMoneyChange={handleTotalMoneyChange}
+                    listImportProduct={listImportProduct}
+                    onDeleted={handleDeleteImportProduct}
+                  />
                 </CardContent>
               </Card>
+              <div className="grid grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name={"tong_tien"}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tổng tiền</FormLabel>
+                      <FormControl>
+                        <NumericInput
+                          readOnly
+                          value={formatVND(field.value ?? "0")}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={"tra_truoc"}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Trả trước</FormLabel>
+                      <FormControl>
+                        <NumericInput
+                          max={Number(totalMoney)}
+                          min={0}
+                          value={formatVND(field.value ?? "0")}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={"con_lai"}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Còn lại</FormLabel>
+                      <FormControl>
+                        <NumericInput
+                          readOnly
+                          value={formatVND(field.value ?? "0")}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <FormField
+                control={form.control}
+                name="ghi_chu"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ghi chú</FormLabel>
+                    <FormControl>
+                      <Textarea className="resize-none h-[100px]" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </CardContent>
           </Card>
           <div className="fixed bottom-5 right-5 space-x-2 z-50">

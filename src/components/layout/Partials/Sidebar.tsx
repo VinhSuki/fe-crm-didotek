@@ -103,7 +103,6 @@ export function Sidebar() {
       prev.includes(title) ? prev.filter((t) => t !== title) : [...prev, title]
     );
   };
-  console.log(isCollapsed);
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };

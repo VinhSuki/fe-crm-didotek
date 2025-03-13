@@ -5,6 +5,8 @@ interface NumericInputProps {
   onChange: (value: number | "") => void;
   min?: number;
   max?: number;
+  readOnly?: boolean;
+  disabled?: boolean;
 }
 
 export default function NumericInput({
@@ -12,17 +14,27 @@ export default function NumericInput({
   onChange,
   min,
   max,
+  readOnly = false,
+  disabled = false,
 }: NumericInputProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (readOnly || disabled) return; // Không cho phép thay đổi nếu readOnly hoặc disabled
+  
     let rawValue = e.target.value.replace(/\D/g, ""); // Chỉ giữ lại số
-    console.log(min);
-    if (typeof min === "number" && !isNaN(min) && typeof max === "number" && !isNaN(max) ) {
-      console.log("chay vao");
-      if (Number(e.target.value) < min) rawValue = String(min);
-      if (Number(e.target.value) > max) rawValue = String(max);
+    const numericValue = Number(rawValue);
+  
+    if (!isNaN(numericValue)) {
+      if (typeof min === "number" && numericValue < min) {
+        rawValue = String(min);
+      }
+      if (typeof max === "number" && numericValue > max) {
+        rawValue = String(max);
+      }
     }
+  
     onChange(rawValue ? Number(rawValue) : ""); // Cập nhật giá trị số
   };
+  
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!/[\d\b]/.test(e.key) && e.key !== "Backspace") {
@@ -38,6 +50,9 @@ export default function NumericInput({
       value={value}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
+      readOnly={readOnly}
+      disabled={disabled}
+      className={`${(readOnly || disabled) ? "bg-zinc-100 cursor-default" : ""}`}
     />
   );
 }

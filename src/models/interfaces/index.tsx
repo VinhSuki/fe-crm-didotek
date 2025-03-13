@@ -233,7 +233,7 @@ export interface IGroupProduct {
   items: {
     ID: string | number;
     ten: string;
-    upc: string;
-    don_vi_tinh: string;
+    upc?: string;
+    don_vi_tinh?: string;
   }[];
 }
