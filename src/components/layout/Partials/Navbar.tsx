@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useAuthContext } from "@/context/AuthContext";
 import { useNavbarContext } from "@/context/NavbarContext";
-import { useWarehouseContext } from "@/context/Warehouse";
+import { useWarehouseContext } from "@/context/WarehouseContext";
 import clsx from "clsx";
 import {
   Bell,

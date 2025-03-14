@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axiosPublic from "@/apis/client/public.client";
 import { ESortOrderValue } from "@/models/enums/option";
 import { FilterSearch, IApiResponse, IWarehouse } from "@/models/interfaces";
 
 const importWarehouseEndpoints = {
-  common: "nhap-kho",
+  common: "hoa-don-nhap-kho",
 };
 
 const importWarehouseApi = {
@@ -18,7 +19,7 @@ const importWarehouseApi = {
       params: { ...params, filters: JSON.stringify(params.filters) },
     });
   },
-  async add(data: { ten: string }): Promise<IApiResponse> {
+  async add(data: any): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
       return await axiosPublic.post(importWarehouseEndpoints.common, data);

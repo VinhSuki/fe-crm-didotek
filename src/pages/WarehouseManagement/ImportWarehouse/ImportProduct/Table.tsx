@@ -33,56 +33,34 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const productSchema = z.object({
   ds_san_pham_nhap: z.array(
-    z
-      .object({
-        chiet_khau: z.string(),
-        ctsp_id: z.union([z.string(), z.number()]),
-        don_vi_tinh: z.string(),
-        gia_ban: z
-          .string()
-          .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
-            message: "Giá trị phải là số dương",
-          }),
-        gia_nhap: z
-          .string()
-          .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
-            message: "Giá trị phải là số dương",
-          }),
-        ke: z.string(),
-        la_qua_tang: z.boolean(),
-        san_pham_id: z.union([z.string(), z.number()]),
-        so_luong: z
-          .string()
-          .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
-            message: "Giá trị phải là số dương",
-          }),
-        upc: z.string(),
-        han_su_dung: z.coerce.date(),
-      })
-      .superRefine(({ gia_ban, gia_nhap }, ctx) => {
-        const giaBanNum = Number(gia_ban);
-        const giaNhapNum = Number(gia_nhap);
-
-        if (giaNhapNum >= giaBanNum) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Giá nhập không được lớn hơn giá bán",
-            path: ["gia_nhap"], // Gắn lỗi vào trường `gia_nhap`
-          });
-        }
-      })
+    z.object({
+      chiet_khau: z.union([z.string(), z.number()]),
+      ctsp_id: z.union([z.string(), z.number()]),
+      don_vi_tinh: z.string(),
+      gia_ban: z.union([z.string(), z.number()]),
+      gia_nhap: z.union([z.string(), z.number()]),
+      ke: z.string(),
+      la_qua_tang: z.boolean(),
+      san_pham_id: z.union([z.string(), z.number()]),
+      so_luong: z.union([z.string(), z.number()]),
+      upc: z.string(),
+      han_su_dung: z.coerce.date(),
+      thanh_tien: z.union([z.string(), z.number()]),
+    })
   ),
 });
 
 type productFormValues = z.infer<typeof productSchema>;
 interface TableProps {
   listImportProduct: IImportProduct[];
+  toggleSubmitted: boolean;
+  setListDataImportProduct: (data: IImportProduct[]) => void;
   onDeleted: (id: string | number) => void;
   onTotalMoneyChange: (totalData: {
     id: string | number;
@@ -94,6 +72,8 @@ export default function ImportProductTable({
   listImportProduct,
   onDeleted,
   onTotalMoneyChange,
+  toggleSubmitted,
+  setListDataImportProduct,
 }: TableProps) {
   const form = useForm<productFormValues>({
     resolver: zodResolver(productSchema), // Truyền warehouses vào schema
@@ -109,6 +89,7 @@ export default function ImportProductTable({
         ke: p.ke || "",
         la_qua_tang: p.la_qua_tang || false,
         chiet_khau: p.chiet_khau || "0",
+        thanh_tien: "0",
       })),
     },
   });
@@ -129,6 +110,7 @@ export default function ImportProductTable({
             so_luong: lastProduct.so_luong || "0",
             gia_nhap: "0",
             gia_ban: "0",
+            thanh_tien: "0",
             don_vi_tinh: lastProduct.don_vi_tinh || "",
             ke: lastProduct.ke || "",
             la_qua_tang: lastProduct.la_qua_tang ?? false,
@@ -149,6 +131,10 @@ export default function ImportProductTable({
       form.setValue("ds_san_pham_nhap", []);
     }
   }, [listImportProduct]);
+
+  useEffect(() => {
+    setListDataImportProduct(listFormImportProduct);
+  }, [toggleSubmitted]);
   // const handleToggleCheckbox = (index: number) => {};
 
   // const [listValueCheckbox, setListValueCheckbox] = useState<
@@ -170,7 +156,6 @@ export default function ImportProductTable({
   //     },
   //   ]);
   // }, [listImportProduct]);
-
   const getTotalMoney = (index: number) => {
     if (
       listFormImportProduct.length > 0 &&
@@ -181,10 +166,28 @@ export default function ImportProductTable({
         Number(listFormImportProduct[index].so_luong ?? 0) *
         (1 - Number(listFormImportProduct[index].chiet_khau ?? 0) / 100);
       onTotalMoneyChange({ id: listFormImportProduct[index].ctsp_id, total });
-      return formatVND(total);
+      // form.setValue(`ds_san_pham_nhap.${index}.thanh_tien`, total);
     }
-    return;
   };
+
+  useEffect(() => {
+    console.log("chay vao");
+    listFormImportProduct.forEach((el, index) => {
+      const total =
+        Number(el.gia_nhap ?? 0) *
+        Number(el.so_luong ?? 0) *
+        (1 - Number(el.chiet_khau ?? 0) / 100);
+  
+      // Gửi dữ liệu tổng tiền lên component cha
+      onTotalMoneyChange({ id: el.ctsp_id, total });
+  
+      // Cập nhật giá trị `thanh_tien` trong form
+      form.setValue(`ds_san_pham_nhap.${index}.thanh_tien`, total, {
+        shouldValidate: true, // Gọi validate lại nếu có
+        shouldDirty: true, // Đánh dấu input đã thay đổi
+      });
+    });
+  }, [JSON.stringify(listFormImportProduct)]);
 
   const onConfirmDelete = useCallback(
     async (id: string | number) => {
@@ -428,11 +431,21 @@ export default function ImportProductTable({
                     />
                   </TableCell>
                   <TableCell>
-                    <Input
-                      readOnly
-                      className="bg-zinc-100 cursor-default"
-                      type="text"
-                      value={getTotalMoney(index)}
+                    <FormField
+                      control={form.control}
+                      name={`ds_san_pham_nhap.${index}.thanh_tien`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <NumericInput
+                              readOnly
+                              value={formatVND(field.value ?? "0")}
+                              onChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
                   </TableCell>
                   <TableCell>

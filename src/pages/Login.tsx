@@ -35,8 +35,8 @@ const Login: React.FC = () => {
   };
   // Cấu hình Zod schema
   const loginSchema = z.object({
-    username: z.string().min(1, "Vui lòng nhập tên đăng nhập"),
-    password: z.string().min(1, "Vui lòng nhập mật khẩu"),
+    ten_dang_nhap: z.string().min(1, "Vui lòng nhập tên đăng nhập"),
+    mat_khau: z.string().min(1, "Vui lòng nhập mật khẩu"),
   });
 
   type loginFormData = z.infer<typeof loginSchema>;
@@ -57,16 +57,16 @@ const Login: React.FC = () => {
     setLoading(true);
     try {
       //call api in here...
-      const userInfo = await authApi.login(data.username, data.password);
+      const userInfo = await authApi.login(data.ten_dang_nhap, data.mat_khau);
 
-      if (userInfo) {
+      if (userInfo.data?.data) {
         console.log(userInfo);
-        authMethod?.login(userInfo);
+        authMethod?.login(userInfo.data?.data);
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
     } catch (error:any) {
       reset();
-      setError("password", {
+      setError("mat_khau", {
         type: "manual",
         message: error.message,
       });
@@ -96,7 +96,7 @@ const Login: React.FC = () => {
                   Tên đăng nhập
                 </label>
                 <Controller
-                  name="username"
+                  name="ten_dang_nhap"
                   control={control}
                   defaultValue=""
                   render={({ field }) => (
@@ -114,9 +114,9 @@ const Login: React.FC = () => {
                     </div>
                   )}
                 />
-                {errors.username?.message && (
+                {errors.ten_dang_nhap?.message && (
                   <p className="text-sm text-red-500">
-                    {errors.username?.message}
+                    {errors.ten_dang_nhap?.message}
                   </p>
                 )}
               </div>
@@ -127,7 +127,7 @@ const Login: React.FC = () => {
                 </label>
                 <Controller
                   defaultValue=""
-                  name="password"
+                  name="mat_khau"
                   control={control}
                   render={({ field }) => (
                     <div className="relative">
@@ -147,9 +147,9 @@ const Login: React.FC = () => {
                     </div>
                   )}
                 />
-                {errors.password?.message && (
+                {errors.mat_khau?.message && (
                   <p className="text-sm text-red-500">
-                    {errors.password?.message}
+                    {errors.mat_khau?.message}
                   </p>
                 )}
               </div>

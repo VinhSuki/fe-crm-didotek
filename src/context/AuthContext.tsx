@@ -44,6 +44,7 @@ function AuthProvider({ children }: AuthProviderProps) {
     // Cookies.set('refreshToken', jwt.refreshToken, { expires: expireRefreshToken })
     // Cookies.set('expireAccessToken', jwt.accessToken)
     // Cookies.set('expireRefreshToken', jwt.refreshToken)
+    console.log(accountLogin.token);
     const { token } = accountLogin;
     Cookies.set("token", token);
     try {

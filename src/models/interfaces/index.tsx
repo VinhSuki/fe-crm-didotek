@@ -11,7 +11,7 @@ export interface IApiResponse<T = undefined> {
   message: string;
   data?: {
     data: T;
-    total_page: number;
+    total_page?: number;
   };
 }
 
@@ -124,7 +124,7 @@ export interface Column<T> {
 }
 
 export interface IAccountLogin {
-  message: string;
+  ds_quyen:string[]
   token: string;
 }
 
@@ -177,18 +177,19 @@ export interface IWarehouse {
 }
 
 export interface IImportProduct {
-  chiet_khau?: string;
+  chiet_khau: string | number;
   ctsp_id: number | string;
-  don_vi_tinh?: string;
-  gia_ban?: string;
-  gia_nhap?: string;
-  ke?: string;
-  la_qua_tang?: boolean;
+  don_vi_tinh: string;
+  gia_ban: string | number;
+  gia_nhap: string | number;
+  ke: string;
+  la_qua_tang: boolean;
   san_pham_id: number | string;
-  so_luong?: string;
-  upc?: string;
-  han_su_dung?: string;
-  ctsp_ten: string;
+  so_luong: string | number;
+  upc: string;
+  han_su_dung: Date;
+  ctsp_ten?: string;
+  thanh_tien:string | number
 }
 
 export interface IImportWarehouse {
@@ -198,7 +199,7 @@ export interface IImportWarehouse {
   kho: string;
   kho_id: string | number;
   ma_hoa_don: string;
-  ngay_nhap: string;
+  ngay_nhap: Date;
   nha_phan_phoi: string;
   nha_phan_phoi_id: string | number;
   so_hoa_don: string;
@@ -233,7 +234,7 @@ export interface IGroupProduct {
   items: {
     ID: string | number;
     ten: string;
-    upc?: string;
-    don_vi_tinh?: string;
+    upc: string;
+    don_vi_tinh: string;
   }[];
 }

@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import distributorApi from "@/apis/modules/distributor.api";
 import productApi from "@/apis/modules/product.api";
+import NumericInput from "@/components/common/NumericInput";
 import SelectSearch from "@/components/common/SelectSearch";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -20,6 +21,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
+import { useSidebarContext } from "@/context/SidebarContext";
 import {
   IDistributor,
   IGroupProduct,
@@ -32,6 +35,7 @@ import {
   showLoadingAlert,
   showSuccessAlert,
 } from "@/utils/alert";
+import formatVND from "@/utils/formatVND";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
 import { format } from "date-fns";
@@ -39,16 +43,14 @@ import { CalendarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import { z } from "zod";
 import AddImportProduct from "./ImportProduct/Add";
-import { useSidebarContext } from "@/context/SidebarContext";
-import Swal from "sweetalert2";
-import NumericInput from "@/components/common/NumericInput";
-import formatVND from "@/utils/formatVND";
-import { Textarea } from "@/components/ui/textarea";
+import { useWarehouseContext } from "@/context/WarehouseContext";
+import importWarehouseApi from "@/apis/modules/importWarehouse.api";
 // import AddImportProduct from "./Product/Add";
 
-const distributorSchema = z.object({
+const importWarehouseSchema = z.object({
   ngay_nhap: z.date({
     required_error: "Vui lòng chọn ngày nhập",
   }),
@@ -56,83 +58,69 @@ const distributorSchema = z.object({
     required_error: "Vui lòng chọn nhà phân phối",
   }),
   ghi_chu: z.string(),
-  kho_id: z.string({
-    required_error: "Vui lòng chọn kho ở trên thanh công cụ",
-  }),
-  tong_tien: z.string(),
-  tra_truoc: z
-    .string(),
-  con_lai: z.string(),
+  kho_id: z.string().min(1, "Vui lòng chọn kho ở trên thanh công cụ"),
+  tong_tien: z.union([z.string(), z.number()]),
+  tra_truoc: z.union([z.string(), z.number()]),
+  con_lai: z.union([z.string(), z.number()]),
   ds_san_pham_nhap: z
     .array(
-      z
-        .object({
-          chiet_khau: z.string(),
-          ctsp_id: z.union([z.string(), z.number()]),
-          don_vi_tinh: z.string(),
-          gia_ban: z
-            .string()
-            .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
-              message: "Giá trị phải là số dương",
-            }),
-          gia_nhap: z
-            .string()
-            .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
-              message: "Giá trị phải là số dương",
-            }),
-          ke: z.string(),
-          la_qua_tang: z.boolean(),
-          san_pham_id: z.union([z.string(), z.number()]),
-          so_luong: z.union([z.string(), z.number()]),
-          upc: z.string(),
-          han_su_dung: z.date(),
-        })
-        .superRefine(({ gia_ban, gia_nhap }, ctx) => {
-          const giaBanNum = Number(gia_ban);
-          const giaNhapNum = Number(gia_nhap);
-
-          if (giaNhapNum >= giaBanNum) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: "Giá nhập không được lớn hơn giá bán",
-              path: ["gia_nhap"], // Gắn lỗi vào trường `gia_nhap`
-            });
-          }
-        })
-    ) 
+      z.object({
+        chiet_khau: z.union([z.string(), z.number()]),
+        ctsp_id: z.union([z.string(), z.number()]),
+        don_vi_tinh: z.string(),
+        gia_ban: z.union([z.string(), z.number()]),
+        gia_nhap: z.union([z.string(), z.number()]),
+        ke: z.string(),
+        la_qua_tang: z.boolean(),
+        san_pham_id: z.union([z.string(), z.number()]),
+        so_luong: z.union([z.string(), z.number()]),
+        upc: z.string(),
+        han_su_dung: z.coerce.date(),
+        thanh_tien: z.union([z.string(), z.number()]),
+      })
+    )
+    .min(1, "Vui lòng thêm ít nhất 1 sản phẩm"),
 });
-type DistributorFormValues = z.infer<typeof distributorSchema>;
+type ImportWarehouseFormValues = z.infer<typeof importWarehouseSchema>;
 
 const Add = () => {
+  const warehouse = useWarehouseContext();
+  const [listImportProduct, setListImportProduct] = useState<IImportProduct[]>(
+    []
+  );
   const form = useForm({
-    resolver: zodResolver(distributorSchema), // Sử dụng zodResolver với schema của bạn
+    resolver: zodResolver(importWarehouseSchema), // Sử dụng zodResolver với schema của bạn
     defaultValues: {
       tong_tien: "0",
       tra_truoc: "0",
       con_lai: "0",
-      ds_san_pham_nhap: [],
       ghi_chu: "",
+      kho_id: String(warehouse?.selectedId ?? ""),
+      ds_san_pham_nhap: [],
     },
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const sidebar = useSidebarContext();
   const [listDistributors, setListDistributors] = useState<IDistributor[]>([]);
-  const [listImportProduct, setListImportProduct] = useState<IImportProduct[]>(
-    []
-  );
+
   const distributorId = form.watch("nha_phan_phoi_id");
+  const [toggleSubmitted, setToggleSubmitted] = useState<boolean>(false);
   const [listProduct, setListProduct] = useState<IProduct[]>([]);
   const [listGroupProduct, setListGroupProduct] = useState<IGroupProduct[]>([]);
   const totalMoney = form.watch("tong_tien") ?? "0";
   const [listTotalMoney, setListTotalMoney] = useState<
     { id: string | number; total: number }[]
   >([]);
+  const setListDataImportProduct = (data: IImportProduct[]) => {
+    if (data.length > 0) {
+      form.setValue("ds_san_pham_nhap", data);
+    }
+  };
   const handleTotalMoneyChange = (totalData: {
     id: string | number;
     total: number;
   }) => {
-    console.log(listTotalMoney);
     const totalMoneyFind = listTotalMoney.find((v) => v.id === totalData.id);
     if (totalMoneyFind) {
       if (totalMoneyFind.total !== totalData.total)
@@ -150,11 +138,40 @@ const Add = () => {
       setListTotalMoney((prev) => [...prev, totalData]);
     }
   };
+  const convertImportWarehouse = async (data: ImportWarehouseFormValues) => {
+    // Chuyển ảnh và id của ds_san_pham sang số
+    const dsSanPham = await Promise.all(
+      data.ds_san_pham_nhap.map(async (item) => ({
+        ctsp_id: Number(item.ctsp_id),
+        chiet_khau: Number(item.chiet_khau),
+        san_pham_id: Number(item.san_pham_id),
+        so_luong: Number(item.so_luong),
+        gia_ban: Number(item.gia_ban),
+        gia_nhap: Number(item.gia_nhap),
+        thanh_tien: Number(item.thanh_tien),
+        don_vi_tinh: item.don_vi_tinh,
+        ke: item.ke,
+        la_qua_tang: item.la_qua_tang,
+        upc: item.upc,
+        han_su_dung: new Date(item.han_su_dung).toISOString(), // Chuyển sang chuỗi ISO
+      }))
+    );
 
-  // } else {
-  //   setListTotalMoney((prev) => [...prev, totalData]);
-  // }
-
+    return {
+      ngay_nhap: new Date(data.ngay_nhap).toISOString(), // Chuyển ngày thành chuỗi ISO
+      nha_phan_phoi_id: Number(data.nha_phan_phoi_id),
+      ghi_chu: data.ghi_chu,
+      kho_id: Number(data.kho_id),
+      tong_tien: Number(data.tong_tien),
+      tra_truoc: Number(data.tra_truoc),
+      con_lai: Number(data.con_lai),
+      ds_san_pham_nhap: dsSanPham,
+    };
+  };
+  const prepayment = form.watch("tra_truoc");
+  useEffect(() => {
+    form.setValue("con_lai", Number(totalMoney) - Number(prepayment));
+  }, [prepayment]);
   useEffect(() => {
     const total = listTotalMoney.reduce((acc, cur) => {
       return acc + cur.total;
@@ -252,20 +269,6 @@ const Add = () => {
     fetchApi();
   }, [listProduct]);
 
-  const convertDistributorData = async (data: DistributorFormValues) => {
-    // // Chuyển ảnh và id của ds_san_pham sang số
-    // const dsSanPham = await Promise.all(
-    //   listProductAdded.map(async (item) => Number(item.ID))
-    // );
-    // return {
-    //   ...data,
-    //   ds_san_pham: dsSanPham,
-    // };
-  };
-
-  // const [listProduct, setListProduct] = useState<IProduct[]>([]);
-  // const [listProductAdded, setListProductAdded] = useState<IProduct[]>([]);
-
   useEffect(() => {
     const getApiList = async () => {
       const res = await distributorApi.list({});
@@ -276,6 +279,10 @@ const Add = () => {
     getApiList();
   }, []);
 
+  useEffect(() => {
+    form.setValue("kho_id", String(warehouse?.selectedId ?? ""));
+  }, [warehouse?.selectedId]);
+
   const handleAddedProduct = (data: string) => {
     const [groupId, itemId] = data.split(":");
     const group = listGroupProduct.find((p) => String(p.groupId) === groupId);
@@ -285,9 +292,17 @@ const Add = () => {
       {
         san_pham_id: groupId,
         ctsp_id: itemId,
-        ctsp_ten: productDetail!.ten,
-        upc: productDetail?.upc,
-        don_vi_tinh: productDetail?.don_vi_tinh,
+        ctsp_ten: productDetail?.ten ?? "",
+        upc: productDetail!.upc,
+        don_vi_tinh: productDetail!.don_vi_tinh,
+        han_su_dung: new Date(),
+        gia_ban: "0",
+        gia_nhap: "0",
+        thanh_tien: "0",
+        chiet_khau: "0",
+        la_qua_tang: false,
+        so_luong: "0",
+        ke: "",
       },
     ]);
 
@@ -302,34 +317,7 @@ const Add = () => {
     });
 
     setListGroupProduct(updatedListGroupProduct);
-    // const importProductFind = listProduct.find(
-    //   (p) => Number(p.ID) === Number(data.id)
-    // );
-
-    // if (!importProductFind) return;
-
-    // setListProductAdded((prev) => {
-    //   const newAddedOptions = [...prev, importProductFind];
-
-    //   // Tính tổng số sản phẩm sau khi thêm
-    //   const totalProducts = newAddedOptions.length;
-
-    //   // Xác định trang chứa sản phẩm vừa thêm
-    //   const newCurrentPage = Math.ceil(
-    //     totalProducts / PAGINATION.DEFAULT_LIMIT
-    //   );
-
-    //   setPagination((prev) => ({ ...prev, currentPage: newCurrentPage }));
-
-    //   return newAddedOptions;
-    // });
-
-    // // Loại bỏ sản phẩm khỏi danh sách có thể thêm
-    // setListProduct((prev) =>
-    //   prev.filter((p) => Number(p.ID) !== Number(data.id))
-    // );
   };
-
   const handleDeleteImportProduct = async (id: number | string) => {
     return new Promise<void>((resolve) => {
       setTimeout(() => {
@@ -355,7 +343,7 @@ const Add = () => {
                   ...group.items,
                   {
                     ID: importProductFind.ctsp_id,
-                    ten: importProductFind.ctsp_ten,
+                    ten: importProductFind.ctsp_ten ?? "",
                     upc: importProductFind.upc,
                     don_vi_tinh: importProductFind.don_vi_tinh,
                   },
@@ -372,14 +360,17 @@ const Add = () => {
       }, 500);
     });
   };
-  const onSubmit = async (data: DistributorFormValues) => {
-    const convertData = await convertDistributorData(data);
+  const onSubmit = async (data: ImportWarehouseFormValues) => {
+    // console.log(data);
+    // console.log(listDataImportProduct);
+    const convertData = await convertImportWarehouse(data);
     console.log(convertData);
     try {
-      await distributorApi.add(convertData);
+      await importWarehouseApi.add(convertData);
       showSuccessAlert("Thêm dữ liệu thành công!");
-      navigate("/nha-phan-phoi");
+      navigate("/nhap-kho");
     } catch (error: any) {
+      showErrorAlert(error.message);
       // form.setError("ten", { type: "manual", message: error.message });
     }
   };
@@ -388,9 +379,19 @@ const Add = () => {
       <Form {...form}>
         <form
           noValidate={true}
-          onSubmit={form.handleSubmit(onSubmit, (errors) =>
-            console.log(errors)
-          )}
+          onSubmit={form.handleSubmit(onSubmit, (errors) => {
+            console.log(errors);
+            if (errors.kho_id) {
+              showErrorAlert(String(errors.kho_id.message));
+            } else if (errors.ds_san_pham_nhap) {
+              const isValued = form.getValues("ds_san_pham_nhap").length > 0;
+              if (isValued) {
+                onSubmit(form.getValues());
+              } else {
+                showErrorAlert(String(errors.ds_san_pham_nhap.message));
+              }
+            }
+          })}
         >
           <Card>
             <CardContent
@@ -430,9 +431,6 @@ const Add = () => {
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
-                            disabled={(date) =>
-                              date > new Date() || date < new Date("1900-01-01")
-                            }
                             initialFocus
                           />
                         </PopoverContent>
@@ -459,6 +457,8 @@ const Add = () => {
                 </CardHeader>
                 <CardContent className={clsx("p-4 overflow-x-auto")}>
                   <ImportProductTable
+                    toggleSubmitted={toggleSubmitted}
+                    setListDataImportProduct={setListDataImportProduct}
                     onTotalMoneyChange={handleTotalMoneyChange}
                     listImportProduct={listImportProduct}
                     onDeleted={handleDeleteImportProduct}
@@ -491,8 +491,8 @@ const Add = () => {
                       <FormLabel>Trả trước</FormLabel>
                       <FormControl>
                         <NumericInput
-                          max={Number(totalMoney)}
                           min={0}
+                          max={Number(totalMoney)}
                           value={formatVND(field.value ?? "0")}
                           onChange={field.onChange}
                         />
@@ -541,7 +541,12 @@ const Add = () => {
               </Button>
             </Link>
 
-            <Button type="submit">Lưu</Button>
+            <Button
+              type="submit"
+              onClick={() => setToggleSubmitted(!toggleSubmitted)}
+            >
+              Lưu
+            </Button>
           </div>
         </form>
       </Form>

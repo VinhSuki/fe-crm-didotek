@@ -1,6 +1,6 @@
 import NavbarProvider from "@/context/NavbarContext";
 import SidebarProvider from "@/context/SidebarContext";
-import WarehouseProvider from "@/context/Warehouse";
+import WarehouseProvider from "@/context/WarehouseContext";
 import "./App.css";
 import AuthProvider from "./context/AuthContext";
 import AppRouter from "./routes/routes";

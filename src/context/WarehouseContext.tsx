@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import warehouseApi from "@/apis/modules/warehouse.api";
+import { useAuthContext } from "@/context/AuthContext";
 import { IWarehouse } from "@/models/interfaces";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -13,7 +14,9 @@ interface WarehouseProviderProps {
 interface WarehouseContextType {
   list: IWarehouse[] | null; // Thông tin người dùng hoặc null nếu chưa đăng nhập
   selectedId: number | string | undefined;
-  setSelectedId:React.Dispatch<React.SetStateAction<string | number | undefined>>
+  setSelectedId: React.Dispatch<
+    React.SetStateAction<string | number | undefined>
+  >;
 }
 
 // Tạo context với giá trị mặc định là undefined (nếu chưa có context provider)
@@ -26,7 +29,10 @@ export const useWarehouseContext = () => {
 
 function WarehouseProvider({ children }: WarehouseProviderProps) {
   const [list, setList] = useState<IWarehouse[]>([]);
-  const [selectedId, setSelectedId] = useState<number | string | undefined>();
+  const [selectedId, setSelectedId] = useState<number | string | undefined>(
+    undefined
+  );
+  const authMethod = useAuthContext();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,14 +40,13 @@ function WarehouseProvider({ children }: WarehouseProviderProps) {
       const res = await warehouseApi.list({});
       if (res.data?.data) {
         setList(res.data.data);
-        setSelectedId(res.data.data[0].ID)
       }
     };
-    fetchApi();
-  }, [navigate]);
+    if (authMethod?.isAuthenticated) fetchApi();
+  }, [navigate, authMethod?.isAuthenticated]);
 
   return (
-    <WarehouseContext.Provider value={{ list,selectedId,setSelectedId }}>
+    <WarehouseContext.Provider value={{ list, selectedId, setSelectedId }}>
       {children}
     </WarehouseContext.Provider>
   );
