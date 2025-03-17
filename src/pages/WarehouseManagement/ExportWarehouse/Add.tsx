@@ -1,7 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-empty */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import customerApi from "@/apis/modules/customer.api";
 import distributorApi from "@/apis/modules/distributor.api";
+import employeeApi from "@/apis/modules/employee.api";
 import importWarehouseApi from "@/apis/modules/importWarehouse.api";
 import productApi from "@/apis/modules/product.api";
 import NumericInput from "@/components/common/NumericInput";
@@ -26,9 +28,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { useSidebarContext } from "@/context/SidebarContext";
 import { useWarehouseContext } from "@/context/WarehouseContext";
 import {
+  FilterSearch,
+  IApiResponse,
+  ICustomer,
   IDistributor,
+  IEmployee,
+  IExportProduct,
   IGroupProduct,
   IImportProduct,
+  IOption,
   IProduct,
 } from "@/models/interfaces";
 import ImportProductTable from "@/pages/WarehouseManagement/ImportWarehouse/ImportProduct/Table";
@@ -47,22 +55,33 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { z } from "zod";
-import AddImportProduct from "./ImportProduct/Add";
+import AddExportProduct from "./ExportProduct/Add";
 // import AddImportProduct from "./Product/Add";
 
-const importWarehouseSchema = z.object({
-  ngay_nhap: z.date({
-    required_error: "Vui lòng chọn ngày nhập",
+const exportWarehouseSchema = z.object({
+  ngay_xuat: z.date({
+    required_error: "Vui lòng chọn ngày xuất",
   }),
-  nha_phan_phoi_id: z.string({
-    required_error: "Vui lòng chọn nhà phân phối",
-  }),
+  da_giao_hang: z.boolean(),
   ghi_chu: z.string(),
-  kho_id: z.string().min(1, "Vui lòng chọn kho ở trên thanh công cụ"),
+  gia_tri_chiet_khau: z.union([z.string(), z.number()]),
+  khach_hang_id: z.string({
+    required_error: "Vui lòng chọn khách hàng",
+  }),
+  loai_chiet_Khau: z.union([z.string(), z.number()]),
+  loi_nhuan: z.union([z.string(), z.number()]),
+  nhan_vien_giao_hang_id: z.string({
+    required_error: "Vui lòng chọn nhân viên giao hàng",
+  }),
+  nhan_vien_sale_id: z.string({
+    required_error: "Vui lòng chọn nhân viên sale",
+  }),
+  thanh_tien: z.union([z.string(), z.number()]),
   tong_tien: z.union([z.string(), z.number()]),
   tra_truoc: z.union([z.string(), z.number()]),
   con_lai: z.union([z.string(), z.number()]),
-  ds_san_pham_nhap: z
+  vat: z.union([z.string(), z.number()]),
+  ds_san_pham_xuat: z
     .array(
       z.object({
         chiet_khau: z.union([z.string(), z.number()]),
@@ -70,51 +89,63 @@ const importWarehouseSchema = z.object({
         don_vi_tinh: z.string(),
         gia_ban: z.union([z.string(), z.number()]),
         gia_nhap: z.union([z.string(), z.number()]),
-        ke: z.string(),
         la_qua_tang: z.boolean(),
         san_pham_id: z.union([z.string(), z.number()]),
-        so_luong: z.union([z.string(), z.number()]),
-        upc: z.string(),
-        han_su_dung: z.coerce.date(),
+        so_luong_ban: z.union([z.string(), z.number()]),
         thanh_tien: z.union([z.string(), z.number()]),
+        ds_sku: z.array(
+          z.object({
+            sku: z.string(),
+            so_luong_ban: z.union([z.string(), z.number()]),
+          })
+        ),
       })
     )
     .min(1, "Vui lòng thêm ít nhất 1 sản phẩm"),
 });
-type ImportWarehouseFormValues = z.infer<typeof importWarehouseSchema>;
+type ExportWarehouseFormValues = z.infer<typeof exportWarehouseSchema>;
 
 const Add = () => {
-  const warehouse = useWarehouseContext();
   const [listImportProduct, setListImportProduct] = useState<IImportProduct[]>(
     []
   );
   const form = useForm({
-    resolver: zodResolver(importWarehouseSchema), // Sử dụng zodResolver với schema của bạn
+    resolver: zodResolver(exportWarehouseSchema),
     defaultValues: {
-      tong_tien: "0",
-      tra_truoc: "0",
-      con_lai: "0",
-      ghi_chu: "",
-      kho_id: String(warehouse?.selectedId ?? ""),
-      ds_san_pham_nhap: [],
+      ngay_xuat: new Date(), // Ngày xuất mặc định là hôm nay
+      da_giao_hang: false, // Mặc định là chưa giao hàng
+      ghi_chu: "", // Ghi chú trống
+      gia_tri_chiet_khau: "0", // Giảm giá mặc định là 0
+      loai_chiet_Khau: "0", // Loại chiết khấu mặc định là 0
+      loi_nhuan: "0", // Lợi nhuận mặc định là 0
+      thanh_tien: "0", // Thành tiền mặc định là 0
+      tong_tien: "0", // Tổng tiền mặc định là 0
+      tra_truoc: "0", // Trả trước mặc định là 0
+      con_lai: "0", // Còn lại mặc định là 0
+      vat: "0", // VAT mặc định là 0
+      ds_san_pham_xuat: [], // Danh sách sản phẩm xuất trống ban đầu
     },
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const sidebar = useSidebarContext();
-  const [listDistributors, setListDistributors] = useState<IDistributor[]>([]);
 
-  const distributorId = form.watch("nha_phan_phoi_id");
   const [toggleSubmitted, setToggleSubmitted] = useState<boolean>(false);
-  const [listProduct, setListProduct] = useState<IProduct[]>([]);
+  const [listProducts, setListProducts] = useState<IProduct[]>([]);
+  const [listOptionCustomers, setListOptionCustomers] = useState<IOption[]>([]);
+  const [listOptionDeliveryEmployees, setListOptionDeliveryEmployees] = useState<
+  IOption[]
+  >([]);
+  const [listOptionSaleEmployees, setListOptionSalemployees] = useState<IOption[]>([]);
+
   const [listGroupProduct, setListGroupProduct] = useState<IGroupProduct[]>([]);
   const totalMoney = form.watch("tong_tien") ?? "0";
   const [listTotalMoney, setListTotalMoney] = useState<
     { id: string | number; total: number }[]
   >([]);
-  const setListDataImportProduct = (data: IImportProduct[]) => {
+  const setListDataImportProduct = (data: IExportProduct[]) => {
     if (data.length > 0) {
-      form.setValue("ds_san_pham_nhap", data);
+      form.setValue("ds_san_pham_xuat", data);
     }
   };
   const handleTotalMoneyChange = (totalData: {
@@ -138,10 +169,10 @@ const Add = () => {
       setListTotalMoney((prev) => [...prev, totalData]);
     }
   };
-  const convertImportWarehouse = async (data: ImportWarehouseFormValues) => {
+  const convertExportWarehouse = async (data: ExportWarehouseFormValues) => {
     // Chuyển ảnh và id của ds_san_pham sang số
     const dsSanPham = await Promise.all(
-      data.ds_san_pham_nhap.map(async (item) => ({
+      data.ds_san_pham_xuat.map(async (item) => ({
         ctsp_id: Number(item.ctsp_id),
         chiet_khau: Number(item.chiet_khau),
         san_pham_id: Number(item.san_pham_id),
@@ -180,62 +211,22 @@ const Add = () => {
   }, [listTotalMoney]);
   useEffect(() => {
     const fetchApi = async () => {
-      const res = await distributorApi.list({
-        filters: [
-          {
-            field: "nha_phan_phoi.id",
-            condition: "=",
-            value: String(distributorId),
-          },
-        ],
-      });
+      const res = await productApi.list({});
       if (res.data?.data) {
-        setListProduct(res.data.data[0].ds_san_pham);
+        setListProducts(res.data.data);
       }
     };
-    const handleChangeDistributor = async () => {
-      if (listImportProduct.length > 0) {
-        const result = await Swal.fire({
-          title: "Bạn có chắc muốn đổi nhà phân phối?",
-          text: "Dữ liệu sản phẩm được thêm vào sẽ bị làm mới",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#d33",
-          cancelButtonColor: "#3085d6",
-          confirmButtonText: "Xác nhận",
-          cancelButtonText: "Hủy",
-        });
-
-        if (result.isConfirmed) {
-          setLoading(true);
-          showLoadingAlert();
-
-          try {
-            await fetchApi();
-            setListImportProduct([]);
-            showSuccessAlert("Đổi nhà phân phối thành công!");
-          } catch (error: any) {
-            console.log(error);
-            showErrorAlert(error.message);
-          } finally {
-            setLoading(false);
-          }
-        }
-      } else {
-        fetchApi();
-      }
-    };
-    if (distributorId) handleChangeDistributor();
-  }, [distributorId]);
+    if (form.getValues("khach_hang_id")) fetchApi();
+  }, [form.watch("khach_hang_id")]);
   useEffect(() => {
     const fetchApi = async () => {
-      if (!listProduct.length) return;
+      if (!listProducts.length) return;
 
       let list: IGroupProduct[] = [];
 
       // Sử dụng map + Promise.all để chờ tất cả các request
       const results = await Promise.all(
-        listProduct.map(async (element) => {
+        listProducts.map(async (element) => {
           const id = element.ID;
           if (id) {
             try {
@@ -248,8 +239,6 @@ const Add = () => {
                   items: classify.map((cl) => ({
                     ID: cl.ID ?? "0",
                     ten: cl.ten_phan_loai,
-                    upc: element.upc,
-                    don_vi_tinh: element.don_vi_tinh,
                   })),
                 };
               }
@@ -267,21 +256,42 @@ const Add = () => {
     };
 
     fetchApi();
-  }, [listProduct]);
+  }, [listProducts]);
+
+  const fetchApiList = async (
+    api: any,
+    setList: any,
+    filters: FilterSearch[]
+  ) => {
+    const res: IApiResponse<any[]> = await api.list({ filters });
+    const data = res.data?.data
+    if (data) {
+      setList(data.map(v => ({
+        ID:v.ID,
+        ten:v.ho_ten
+      })))
+    }
+  };
 
   useEffect(() => {
     const getApiList = async () => {
-      const res = await distributorApi.list({});
-      if (res.data?.data) {
-        setListDistributors(res.data.data);
+      setLoading(true);
+      try {
+        await fetchApiList(customerApi, setListOptionCustomers, []);
+        await fetchApiList(employeeApi, setListOptionDeliveryEmployees, [
+          { field: "chuc_vu.id", condition: "=", value: "12" },
+        ]);
+        await fetchApiList(employeeApi, setListOptionSalemployees, [
+          { field: "chuc_vu.id", condition: "=", value: "13" },
+        ]);
+      } catch (error: any) {
+        console.log(error);
+      } finally {
+        setLoading(false);
       }
     };
     getApiList();
   }, []);
-
-  useEffect(() => {
-    form.setValue("kho_id", String(warehouse?.selectedId ?? ""));
-  }, [warehouse?.selectedId]);
 
   const handleAddedProduct = (data: string) => {
     const [groupId, itemId] = data.split(":");
@@ -360,10 +370,10 @@ const Add = () => {
       }, 500);
     });
   };
-  const onSubmit = async (data: ImportWarehouseFormValues) => {
+  const onSubmit = async (data: ExportWarehouseFormValues) => {
     // console.log(data);
     // console.log(listDataImportProduct);
-    const convertData = await convertImportWarehouse(data);
+    const convertData = await convertExportWarehouse(data);
     console.log(convertData);
     try {
       await importWarehouseApi.add(convertData);
@@ -380,15 +390,12 @@ const Add = () => {
         <form
           noValidate={true}
           onSubmit={form.handleSubmit(onSubmit, (errors) => {
-            console.log(errors);
-            if (errors.kho_id) {
-              showErrorAlert(String(errors.kho_id.message));
-            } else if (errors.ds_san_pham_nhap) {
-              const isValued = form.getValues("ds_san_pham_nhap").length > 0;
+            if (errors.ds_san_pham_xuat) {
+              const isValued = form.getValues("ds_san_pham_xuat").length > 0;
               if (isValued) {
                 onSubmit(form.getValues());
               } else {
-                showErrorAlert(String(errors.ds_san_pham_nhap.message));
+                showErrorAlert(String(errors.ds_san_pham_xuat.message));
               }
             }
           })}
@@ -400,10 +407,10 @@ const Add = () => {
                 sidebar.isCollapsed ? "max-w-[1380px]" : "max-w-[1200px]"
               )}
             >
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-4 gap-4">
                 <FormField
                   control={form.control}
-                  name="ngay_nhap"
+                  name="ngay_xuat"
                   render={({ field }) => (
                     <FormItem className="space-y-2">
                       <FormLabel>Ngày nhập</FormLabel>
@@ -441,28 +448,43 @@ const Add = () => {
                 />
                 <SelectSearch
                   form={form}
-                  name="nha_phan_phoi_id"
-                  label="Nhà phân phối"
-                  options={listDistributors}
-                  placeholder="Chọn nhà phân phối"
+                  name="khach_hang_id"
+                  label="Khách hàng"
+                  options={listOptionCustomers}
+                  placeholder="Chọn khách hàng"
+                />
+                 <SelectSearch
+                  form={form}
+                  name="nv_giao_hang"
+                  label="Nhân viên giao hàng"
+                  options={listOptionDeliveryEmployees}
+                  placeholder="Chọn nhân viên giao hàng"
+                />
+                       <SelectSearch
+                  form={form}
+                  name="nv_sale"
+                  label="Nhân viên sale"
+                  options={listOptionSaleEmployees}
+                  placeholder="Chọn nhân viên sale"
                 />
               </div>
               <Card>
                 <CardHeader className="flex-row justify-between items-center border-b p-4">
                   <h3 className="text-emphasis font-bold">Sản phẩm</h3>
-                  <AddImportProduct
+                  <AddExportProduct
+                    isDisabled={listProducts.length === 0}
                     onAdded={handleAddedProduct}
                     listGroupProduct={listGroupProduct}
                   />
                 </CardHeader>
                 <CardContent className={clsx("p-4 overflow-x-auto")}>
-                  <ImportProductTable
+                  {/* <ImportProductTable
                     toggleSubmitted={toggleSubmitted}
                     setListDataImportProduct={setListDataImportProduct}
                     onTotalMoneyChange={handleTotalMoneyChange}
                     listImportProduct={listImportProduct}
                     onDeleted={handleDeleteImportProduct}
-                  />
+                  /> */}
                 </CardContent>
               </Card>
               <div className="grid grid-cols-3 gap-4">

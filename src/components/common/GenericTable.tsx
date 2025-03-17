@@ -263,84 +263,89 @@ export default function GenericTable<T>({
           </TableHeader>
           <TableBody>
             {/* Ô tìm kiếm */}
-            <TableRow>
-              {columns.map(({ key, searchCondition }) => (
-                <TableCell key={String(key)} className="relative">
-                  {searchCondition && (
-                    <>
-                      <ConditionDropdown
-                        className="absolute left-4 top-1/2 transform -translate-y-1/2"
-                        onConditionChange={handleConditionChange}
-                        name={String(key)}
-                        type={searchCondition ?? "text"}
-                      />
-                      {fieldBetween.some(
-                        (fieldBetween) => fieldBetween === String(key)
-                      ) ? (
-                        <Popover>
-                          <PopoverTrigger className="w-full">
-                            <Input
-                              readOnly={true}
-                              placeholder="Nhấp để chọn khoảng giá"
-                              className="w-full rounded-md border border-stroke bg-transparent py-3 pl-8 pr-4 text-black outline-none cursor-pointer"
-                            />
-                          </PopoverTrigger>
-                          <PopoverContent>
-                            <div className="p-2 space-y-2">
-                              <Input
-                                type="number"
-                                value={
-                                  searchValues[String(key)]?.minValue || ""
-                                }
-                                placeholder="Từ"
-                                className="w-full rounded-md border border-stroke bg-white py-3 pl-4 text-black outline-none"
-                                onChange={(e) =>
-                                  handleSearchChange(String(key), {
-                                    minValue: e.target.value,
-                                    maxValue:
-                                      searchValues[String(key)].maxValue || "",
-                                    value: "",
-                                  })
-                                }
-                              />
-                              <Input
-                                type="number"
-                                value={
-                                  searchValues[String(key)]?.maxValue || ""
-                                }
-                                placeholder="Đến"
-                                className="w-full rounded-md border border-stroke bg-white py-3 pl-4 text-black outline-none"
-                                onChange={(e) =>
-                                  handleSearchChange(String(key), {
-                                    minValue:
-                                      searchValues[String(key)].minValue || "",
-                                    maxValue: e.target.value,
-                                    value: "",
-                                  })
-                                }
-                              />
-                            </div>
-                          </PopoverContent>
-                        </Popover>
-                      ) : (
-                        <Input
-                          type="search"
-                          value={searchValues[String(key)].value ?? ""}
-                          onChange={(e) =>
-                            handleSearchChange(String(key), {
-                              minValue: "",
-                              maxValue: "",
-                              value: e.target.value,
-                            })
-                          }
-                          className="w-full rounded-md border border-stroke bg-transparent py-3 pl-8 pr-4 text-black outline-none"
+            {columns.some((v) => v.searchCondition) && (
+              <TableRow>
+                {columns.map(({ key, searchCondition }) => (
+                  <TableCell key={String(key)} className="relative">
+                    {searchCondition && (
+                      <>
+                        <ConditionDropdown
+                          className="absolute left-4 top-1/2 transform -translate-y-1/2"
+                          onConditionChange={handleConditionChange}
+                          name={String(key)}
+                          type={searchCondition ?? "text"}
                         />
-                      )}
-                    </>
-                  )}
-                </TableCell>
-              ))}
-            </TableRow>
+                        {fieldBetween.some(
+                          (fieldBetween) => fieldBetween === String(key)
+                        ) ? (
+                          <Popover>
+                            <PopoverTrigger className="w-full">
+                              <Input
+                                readOnly={true}
+                                placeholder="Nhấp để chọn khoảng giá"
+                                className="w-full rounded-md border border-stroke bg-transparent py-3 pl-8 pr-4 text-black outline-none cursor-pointer"
+                              />
+                            </PopoverTrigger>
+                            <PopoverContent>
+                              <div className="p-2 space-y-2">
+                                <Input
+                                  type="number"
+                                  value={
+                                    searchValues[String(key)]?.minValue || ""
+                                  }
+                                  placeholder="Từ"
+                                  className="w-full rounded-md border border-stroke bg-white py-3 pl-4 text-black outline-none"
+                                  onChange={(e) =>
+                                    handleSearchChange(String(key), {
+                                      minValue: e.target.value,
+                                      maxValue:
+                                        searchValues[String(key)].maxValue ||
+                                        "",
+                                      value: "",
+                                    })
+                                  }
+                                />
+                                <Input
+                                  type="number"
+                                  value={
+                                    searchValues[String(key)]?.maxValue || ""
+                                  }
+                                  placeholder="Đến"
+                                  className="w-full rounded-md border border-stroke bg-white py-3 pl-4 text-black outline-none"
+                                  onChange={(e) =>
+                                    handleSearchChange(String(key), {
+                                      minValue:
+                                        searchValues[String(key)].minValue ||
+                                        "",
+                                      maxValue: e.target.value,
+                                      value: "",
+                                    })
+                                  }
+                                />
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        ) : (
+                          <Input
+                            type="search"
+                            value={searchValues[String(key)].value ?? ""}
+                            onChange={(e) =>
+                              handleSearchChange(String(key), {
+                                minValue: "",
+                                maxValue: "",
+                                value: e.target.value,
+                              })
+                            }
+                            className="w-full rounded-md border border-stroke bg-transparent py-3 pl-8 pr-4 text-black outline-none"
+                          />
+                        )}
+                      </>
+                    )}
+                  </TableCell>
+                ))}
+              </TableRow>
+            )}
+
             {/* Dữ liệu */}
             {data.map((row, index) => (
               <TableRow key={index}>
@@ -351,7 +356,13 @@ export default function GenericTable<T>({
                     ) : (
                       <TableCellContent
                         keyName={String(key)}
-                        value={(row as any)[key]}
+                        value={
+                          key === "ctsp_ten"
+                            ? (row as any)[key]
+                              ? (row as any)[key]
+                              : (row as any)["san_pham_ten"]
+                            : (row as any)[key]
+                        }
                       />
                     )}
                   </TableCell>

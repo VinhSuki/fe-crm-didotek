@@ -1,6 +1,8 @@
+import exportWarehouseApi from "@/apis/modules/exportWarehouse.api";
 import importWarehouseApi from "@/apis/modules/importWarehouse.api";
 import Loader from "@/components/common/Loader";
 import PaginationCustom from "@/components/common/PaginationCustom";
+import ExportWarehouseTable from "@/components/common/Table/ExportWarehouseTable";
 import ImportWarehouseTable from "@/components/common/Table/ImportWarehouseTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -20,13 +22,13 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
-const ENTITY_KEY = "importWarehouse"; // Định danh động
+const ENTITY_KEY = "exportWarehouse"; // Định danh động
 
 export default function Index() {
   const dispatch = useDispatch<AppDispatch>();
   const sidebar = useSidebarContext();
   const {
-    data: importWarehouses = [],
+    data: exportWarehouses = [],
     filters = [],
     pagination = { currentPage: 1, totalPage: 0 },
     sortOrder = { sort: "", order: ESortOrderValue.ASC },
@@ -44,7 +46,7 @@ export default function Index() {
   useEffect(() => {
     if (isInitialized) {
       // 🆕 Chỉ gọi API khi đã khởi tạo
-      dispatch(fetchDynamicData({ key: ENTITY_KEY, api: importWarehouseApi }));
+      dispatch(fetchDynamicData({ key: ENTITY_KEY, api: exportWarehouseApi }));
     }
   }, [
     dispatch,
@@ -61,7 +63,7 @@ export default function Index() {
       {/* Product Table */}
       <Card>
         <CardHeader className="flex-row justify-end items-center border-b">
-          <Link to="/nhap-kho/them-moi">
+          <Link to="/xuat-kho/them-moi">
             <Button className="bg-primary hover:bg-secondary text-white">
               <Plus />
               <span>Thêm mới</span>
@@ -74,8 +76,8 @@ export default function Index() {
             sidebar.isCollapsed ? "max-w-[1380px]" : "max-w-[1200px]"
           )}
         >
-          <ImportWarehouseTable
-            importWarehouses={importWarehouses} // Dữ liệu lấy từ Redux
+          <ExportWarehouseTable
+            exportWarehouses={exportWarehouses} // Dữ liệu lấy từ Redux
             filters={filters}
             sortOrder={sortOrder}
             onFilterChange={(newFilters) =>

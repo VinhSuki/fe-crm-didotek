@@ -70,6 +70,7 @@ axiosPrivate.interceptors.response.use(
     //   }
     // }
     if (error.response.status === 401) {
+      console.log("Loi 401");
       Cookies.remove("token");
       window.location.href = "/dang-nhap";
     }

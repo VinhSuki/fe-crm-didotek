@@ -63,7 +63,7 @@ export const fetchDynamicData = createAsyncThunk(
       currentPage = Math.floor(
         (entityState.data.length + 1) / PAGINATION.DEFAULT_LIMIT
       )
-        ? res.data!.total_page
+        ? res.data!.total_page ?? 1
         : currentPage;
       dispatch(setAdded(key)); // Gọi action để cập nhật isAdded
     }
@@ -131,7 +131,7 @@ const genericPage = createSlice({
       state[key].isLoading = false;
       if (data) {
         state[key].data = data.data;
-        state[key].pagination.totalPage = data.total_page;
+        state[key].pagination.totalPage = data.total_page ?? 1;
       }
     });
     builder.addCase(fetchDynamicData.rejected, (state, action) => {

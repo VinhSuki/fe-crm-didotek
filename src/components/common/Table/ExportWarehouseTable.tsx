@@ -2,46 +2,53 @@ import GenericTable from "@/components/common/GenericTable";
 import {
   Column,
   FilterSearch,
-  IImportWarehouse,
+  IExportWarehouse,
   ISortOrder,
 } from "@/models/interfaces";
 import View from "@/pages/WarehouseManagement/ImportWarehouse/View";
 
-interface IImportWarehouseTableProps {
-  importWarehouses: IImportWarehouse[];
+interface IExportWarehouseTableProps {
+  exportWarehouses: IExportWarehouse[];
   filters: FilterSearch[];
-  sortOrder: ISortOrder<IImportWarehouse>;
+  sortOrder: ISortOrder<IExportWarehouse>;
   onFilterChange: (newFilters: FilterSearch[]) => void;
-  onSortOrder: (sortOrder: ISortOrder<IImportWarehouse>) => void;
+  onSortOrder: (sortOrder: ISortOrder<IExportWarehouse>) => void;
   onViewInvoice?: () => void;
 }
 
-const columns: Column<IImportWarehouse>[] = [
+const columns: Column<IExportWarehouse>[] = [
   {
     key: "ma_hoa_don",
     label: "Mã",
     sortName: "ma_hoa_don",
     searchCondition: "text",
-    minW:"min-w-[100px]"
+    minW: "min-w-[100px]",
   },
   {
-    key: "nha_phan_phoi",
-    label: "Nhà phân phối",
-    sortName: "nha_phan_phoi",
-    searchCondition: "text",
-  },
-  {
-    key: "kho",
-    label: "Kho",
-    sortName: "kho",
+    key: "khach_hang",
+    label: "Khách hàng",
+    sortName: "khach_hang",
     searchCondition: "text",
     minW: "min-w-[150px]",
   },
   {
-    key: "ngay_nhap",
-    label: "Ngày nhập",
-    sortName: "ngay_nhap",
-    minW:"min-w-[150px]"
+    key: "nv_giao_hang",
+    label: "Nhân viên giao hàng",
+    sortName: "nv_giao_hang",
+    searchCondition: "text",
+    minW: "min-w-[150px]",
+  },
+  {
+    key: "nv_sale",
+    label: "Nhân viên sale",
+    sortName: "nv_sale",
+    searchCondition: "text",
+    minW: "min-w-[150px]",
+  },
+  {
+    key: "ngay_xuat",
+    label: "Ngày xuất",
+    minW: "min-w-[100px]",
   },
   {
     key: "tong_tien",
@@ -52,7 +59,7 @@ const columns: Column<IImportWarehouse>[] = [
   },
   {
     key: "tra_truoc",
-    label: "Tiền trả trước",
+    label: "Trả trước",
     sortName: "tra_truoc",
     searchCondition: "money",
     minW: "min-w-[150px]",
@@ -71,27 +78,32 @@ const columns: Column<IImportWarehouse>[] = [
     searchCondition: "text",
     minW: "min-w-[150px]",
   },
-  { key: "CreatedAt", sortName: "CreatedAt", label: "Ngày tạo" , minW:"min-w-[150px]"},
+  {
+    key: "CreatedAt",
+    sortName: "CreatedAt",
+    label: "Ngày tạo",
+    minW: "min-w-[150px]",
+  },
 ];
 
-const ImportWarehouseTable = ({
-  importWarehouses,
+const ExportWarehouseTable = ({
+  exportWarehouses,
   filters,
   sortOrder,
   onFilterChange,
   onSortOrder,
-}: IImportWarehouseTableProps) => {
+}: IExportWarehouseTableProps) => {
   return (
-    <GenericTable<IImportWarehouse>
-      data={importWarehouses}
+    <GenericTable<IExportWarehouse>
+      data={exportWarehouses}
       columns={columns}
       filters={filters}
       sortOrder={sortOrder}
       onFilterChange={onFilterChange}
       onSortOrder={onSortOrder}
-      actions={(row) => <View importWarehouse={row} />}
+      // actions={(row) => <View importWarehouse={row} />}
     />
   );
 };
 
-export default ImportWarehouseTable;
+export default ExportWarehouseTable;

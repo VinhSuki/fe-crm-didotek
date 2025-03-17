@@ -24,9 +24,11 @@ const productSchema = z.object({
 type productFormValues = z.infer<typeof productSchema>;
 
 export default function Add({
+  isDisabled,
   onAdded,
   listGroupProduct,
 }: {
+  isDisabled:boolean;
   onAdded: (data: string) => void;
   listGroupProduct: IGroupProduct[]
 }) {
@@ -52,14 +54,14 @@ export default function Add({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-primary hover:bg-secondary text-white">
+        <Button className="bg-primary hover:bg-secondary text-white" disabled={isDisabled}>
           <Plus />
           <span>Thêm mới</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
-          <DialogTitle className="border-b pb-4">Thêm kho</DialogTitle>
+          <DialogTitle className="border-b pb-4">Thêm sản phẩm</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <div className="grid gap-4">

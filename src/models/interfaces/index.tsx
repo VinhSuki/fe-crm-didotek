@@ -124,7 +124,7 @@ export interface Column<T> {
 }
 
 export interface IAccountLogin {
-  ds_quyen:string[]
+  ds_quyen: string[];
   token: string;
 }
 
@@ -187,9 +187,26 @@ export interface IImportProduct {
   san_pham_id: number | string;
   so_luong: string | number;
   upc: string;
-  han_su_dung: Date;
+  han_su_dung: Date | string;
   ctsp_ten?: string;
-  thanh_tien:string | number
+  thanh_tien: string | number;
+  sku?: string;
+}
+
+export interface IExportProduct {
+  chiet_khau: string | number;
+  ctsp_id: number | string;
+  don_vi_tinh: string;
+  gia_ban: string | number;
+  gia_nhap: string | number;
+  la_qua_tang: boolean;
+  san_pham_id: number | string;
+  so_luong_ban: string | number;
+  thanh_tien:string | number;
+  ds_sku:{
+    sku:string;
+    so_luong_ban:string | number
+  }[]
 }
 
 export interface IImportWarehouse {
@@ -199,13 +216,35 @@ export interface IImportWarehouse {
   kho: string;
   kho_id: string | number;
   ma_hoa_don: string;
-  ngay_nhap: Date;
+  ngay_nhap: Date | string;
   nha_phan_phoi: string;
   nha_phan_phoi_id: string | number;
   so_hoa_don: string;
   tong_tien: string | number;
   tra_truoc: string | number;
   ds_san_pham_nhap: IImportProduct[];
+  UpdatedAt: string;
+  DeletedAt: string;
+  CreatedAt: string;
+  created_at: string;
+}
+
+export interface IExportWarehouse {
+  ID: number | string;
+  ma_hoa_don: string;
+  con_lai: string | number;
+  khach_hang_id: string | number;
+  khach_hang: string;
+  nhan_vien_giao_hang_id: string | number;
+  nv_giao_hang: string | number;
+  nv_sale: string;
+  nv_sale_id: string | number;
+  ghi_chu: string;
+  ngay_xuat: Date | string;
+  so_hoa_don: string;
+  tong_tien: string | number;
+  tra_truoc: string | number;
+  ds_san_pham_xuat: IExportProduct[];
   UpdatedAt: string;
   DeletedAt: string;
   CreatedAt: string;

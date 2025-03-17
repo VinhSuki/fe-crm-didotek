@@ -2,6 +2,7 @@
 import { Badge } from "@/components/ui/badge";
 import { convertRFC1123 } from "@/utils/convertRFC1123";
 import formatVND from "@/utils/formatVND";
+import { Check, X } from "lucide-react";
 
 interface TableCellContentProps {
   keyName: string;
@@ -23,11 +24,23 @@ export default function TableCellContent({
     );
   }
 
-  if (keyName === "CreatedAt" || keyName === "ngay_nhap") {
+  if (
+    keyName === "CreatedAt" ||
+    keyName === "ngay_nhap" ||
+    keyName === "han_su_dung" ||
+    keyName === "ngay_xuat"
+  ) {
     return <>{convertRFC1123(value)}</>;
   }
 
-  if (keyName === "con_lai" || keyName === "tong_tien" || keyName === "tra_truoc") {
+  if (
+    keyName === "con_lai" ||
+    keyName === "tong_tien" ||
+    keyName === "tra_truoc" ||
+    keyName === "gia_nhap" ||
+    keyName === "gia_ban" ||
+    keyName === "thanh_tien"
+  ) {
     return <>{formatVND(value)}</>;
   }
 
@@ -42,6 +55,14 @@ export default function TableCellContent({
       >
         {Number(value) === 1 ? "Đang kinh doanh" : "Ngừng kinh doanh"}
       </Badge>
+    );
+  }
+
+  if (keyName === "la_qua_tang") {
+    return value ? (
+      <Check className="text-success" />
+    ) : (
+      <X className="text-danger" />
     );
   }
 

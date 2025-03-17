@@ -2,7 +2,7 @@
 // import { IProductDetailResponse } from "@/models/interfaces/product";
 import axiosPublic from "@/apis/client/public.client";
 import { ESortOrderValue } from "@/models/enums/option";
-import { FilterSearch, IApiResponse, IProductType } from "@/models/interfaces";
+import { FilterSearch, IApiResponse, IEmployee } from "@/models/interfaces";
 
 const rolePermissionEndpoints = {
   common: "nhan-vien",
@@ -13,9 +13,9 @@ const employeeApi = {
     page?: number;
     limit?: number;
     filters?: FilterSearch[];
-    sort?: keyof IProductType | "";
+    sort?: keyof IEmployee | "";
     order?: ESortOrderValue;
-  }): Promise<IApiResponse<IProductType[]>> {
+  }): Promise<IApiResponse<IEmployee[]>> {
     return axiosPublic.get(rolePermissionEndpoints.common, {
       params: { ...params, filters: JSON.stringify(params.filters) },
     });

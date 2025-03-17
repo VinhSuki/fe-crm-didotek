@@ -1,28 +1,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axiosPublic from "@/apis/client/public.client";
 import { ESortOrderValue } from "@/models/enums/option";
-import { FilterSearch, IApiResponse, IImportWarehouse } from "@/models/interfaces";
+import { FilterSearch, IApiResponse, IExportWarehouse } from "@/models/interfaces";
 
-const importWarehouseEndpoints = {
-  common: "hoa-don-nhap-kho",
+const exportWarehouseEndpoints = {
+  common: "hoa-don-xuat-kho",
 };
 
-const importWarehouseApi = {
+const exportWarehouseApi = {
   async list(params: {
     page?: number;
     limit?: number;
     filters?: FilterSearch[];
-    sort?: keyof IImportWarehouse | "";
+    sort?: keyof IExportWarehouse | "";
     order?: ESortOrderValue;
-  }): Promise<IApiResponse<IImportWarehouse[]>> {
-    return axiosPublic.get(importWarehouseEndpoints.common, {
+  }): Promise<IApiResponse<IExportWarehouse[]>> {
+    return axiosPublic.get(exportWarehouseEndpoints.common, {
       params: { ...params, filters: JSON.stringify(params.filters) },
     });
   },
   async add(data: any): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.post(importWarehouseEndpoints.common, data);
+      return await axiosPublic.post(exportWarehouseEndpoints.common, data);
     } catch (error) {
       throw error;
     }
@@ -30,7 +30,9 @@ const importWarehouseApi = {
   async delete(id: number | string): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.delete(importWarehouseEndpoints.common + "/" + id);
+      return await axiosPublic.delete(
+        exportWarehouseEndpoints.common + "/" + id
+      );
     } catch (error) {
       throw error;
     }
@@ -41,11 +43,11 @@ const importWarehouseApi = {
   }): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.put(importWarehouseEndpoints.common, data);
+      return await axiosPublic.put(exportWarehouseEndpoints.common, data);
     } catch (error) {
       throw error;
     }
   },
 };
 
-export default importWarehouseApi;
+export default exportWarehouseApi;

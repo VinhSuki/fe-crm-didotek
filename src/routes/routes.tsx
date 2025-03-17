@@ -64,6 +64,13 @@ const AddImportWarehouse = Loadable(
   lazy(() => import("@/pages/WarehouseManagement/ImportWarehouse/Add"))
 );
 
+const ExportWarehouse = Loadable(
+  lazy(() => import("@/pages/WarehouseManagement/ExportWarehouse"))
+);
+const AddExportWarehouse = Loadable(
+  lazy(() => import("@/pages/WarehouseManagement/ExportWarehouse/Add"))
+);
+
 function AppRouter() {
   const routes = [
     {
@@ -286,6 +293,52 @@ function AppRouter() {
                     title="Nhập kho"
                   >
                     <AddImportWarehouse />
+                  </MainContent>
+                </>
+              ),
+            },
+            {
+              path: "cap-nhat/:productId",
+              element: (
+                <>
+                  <PageTitle title="Cập nhật sản phẩm" />
+                  <MainContent
+                    title="Cập nhật sản phẩm"
+                    breadcrumb={{
+                      parent: { title: "Sản phẩm", url: "/san-pham" },
+                      current: "Cập nhật",
+                    }}
+                  >
+                    <EditProduct />
+                  </MainContent>
+                </>
+              ),
+            },
+          ],
+        },
+        {
+          path: "/xuat-kho",
+          children: [
+            {
+              path: "",
+              element: (
+                <>
+                  <PageTitle title="Danh sách hóa đơn xuất kho" />
+                  <MainContent title="Quản lý hóa đơn xuất kho">
+                    <ExportWarehouse />
+                  </MainContent>
+                </>
+              ),
+            },
+            {
+              path: "them-moi",
+              element: (
+                <>
+                  <PageTitle title="Xuất kho" />
+                  <MainContent
+                    title="Xuất kho"
+                  >
+                    <AddExportWarehouse />
                   </MainContent>
                 </>
               ),
