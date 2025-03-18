@@ -88,7 +88,6 @@ const exportWarehouseSchema = z.object({
         ctsp_id: z.union([z.string(), z.number()]),
         don_vi_tinh: z.string(),
         gia_ban: z.union([z.string(), z.number()]),
-        gia_nhap: z.union([z.string(), z.number()]),
         la_qua_tang: z.boolean(),
         san_pham_id: z.union([z.string(), z.number()]),
         so_luong_ban: z.union([z.string(), z.number()]),
@@ -97,6 +96,7 @@ const exportWarehouseSchema = z.object({
           z.object({
             sku: z.string(),
             so_luong_ban: z.union([z.string(), z.number()]),
+            gia_nhap: z.union([z.string(), z.number()]),
           })
         ),
       })
@@ -131,44 +131,15 @@ const Add = () => {
   const sidebar = useSidebarContext();
 
   const [toggleSubmitted, setToggleSubmitted] = useState<boolean>(false);
-  const [listProducts, setListProducts] = useState<IProduct[]>([]);
-  const [listOptionCustomers, setListOptionCustomers] = useState<IOption[]>([]);
-  const [listOptionDeliveryEmployees, setListOptionDeliveryEmployees] = useState<
-  IOption[]
-  >([]);
-  const [listOptionSaleEmployees, setListOptionSalemployees] = useState<IOption[]>([]);
 
-  const [listGroupProduct, setListGroupProduct] = useState<IGroupProduct[]>([]);
-  const totalMoney = form.watch("tong_tien") ?? "0";
-  const [listTotalMoney, setListTotalMoney] = useState<
-    { id: string | number; total: number }[]
+  const [listOptionCustomers, setListOptionCustomers] = useState<IOption[]>([]);
+  const [listOptionDeliveryEmployees, setListOptionDeliveryEmployees] =
+    useState<IOption[]>([]);
+  const [listOptionSaleEmployees, setListOptionSalEmployees] = useState<
+    IOption[]
   >([]);
-  const setListDataImportProduct = (data: IExportProduct[]) => {
-    if (data.length > 0) {
-      form.setValue("ds_san_pham_xuat", data);
-    }
-  };
-  const handleTotalMoneyChange = (totalData: {
-    id: string | number;
-    total: number;
-  }) => {
-    const totalMoneyFind = listTotalMoney.find((v) => v.id === totalData.id);
-    if (totalMoneyFind) {
-      if (totalMoneyFind.total !== totalData.total)
-        setListTotalMoney(
-          listTotalMoney.map((v) => {
-            return v.id === totalData.id
-              ? {
-                  ...v,
-                  total: totalData.total,
-                }
-              : v;
-          })
-        );
-    } else {
-      setListTotalMoney((prev) => [...prev, totalData]);
-    }
-  };
+
+  const totalMoney = form.watch("tong_tien") ?? "0";
   const convertExportWarehouse = async (data: ExportWarehouseFormValues) => {
     // Chuyển ảnh và id của ds_san_pham sang số
     const dsSanPham = await Promise.all(
@@ -199,64 +170,6 @@ const Add = () => {
       ds_san_pham_nhap: dsSanPham,
     };
   };
-  const prepayment = form.watch("tra_truoc");
-  useEffect(() => {
-    form.setValue("con_lai", Number(totalMoney) - Number(prepayment));
-  }, [prepayment]);
-  useEffect(() => {
-    const total = listTotalMoney.reduce((acc, cur) => {
-      return acc + cur.total;
-    }, 0);
-    form.setValue("tong_tien", String(total));
-  }, [listTotalMoney]);
-  useEffect(() => {
-    const fetchApi = async () => {
-      const res = await productApi.list({});
-      if (res.data?.data) {
-        setListProducts(res.data.data);
-      }
-    };
-    if (form.getValues("khach_hang_id")) fetchApi();
-  }, [form.watch("khach_hang_id")]);
-  useEffect(() => {
-    const fetchApi = async () => {
-      if (!listProducts.length) return;
-
-      let list: IGroupProduct[] = [];
-
-      // Sử dụng map + Promise.all để chờ tất cả các request
-      const results = await Promise.all(
-        listProducts.map(async (element) => {
-          const id = element.ID;
-          if (id) {
-            try {
-              const res = await productApi.classify(id);
-              if (res.data?.data) {
-                const classify = res.data?.data;
-                return {
-                  group: element.ten,
-                  groupId: id,
-                  items: classify.map((cl) => ({
-                    ID: cl.ID ?? "0",
-                    ten: cl.ten_phan_loai,
-                  })),
-                };
-              }
-            } catch (error) {
-              console.error(`Lỗi khi lấy dữ liệu cho ID: ${id}`, error);
-            }
-          }
-          return null;
-        })
-      );
-
-      // Loại bỏ các phần tử null và cập nhật state
-      list = results.filter(Boolean) as IGroupProduct[];
-      setListGroupProduct(list);
-    };
-
-    fetchApi();
-  }, [listProducts]);
 
   const fetchApiList = async (
     api: any,
@@ -264,12 +177,14 @@ const Add = () => {
     filters: FilterSearch[]
   ) => {
     const res: IApiResponse<any[]> = await api.list({ filters });
-    const data = res.data?.data
+    const data = res.data?.data;
     if (data) {
-      setList(data.map(v => ({
-        ID:v.ID,
-        ten:v.ho_ten
-      })))
+      setList(
+        data.map((v) => ({
+          ID: v.ID,
+          ten: v.ho_ten,
+        }))
+      );
     }
   };
 
@@ -281,7 +196,7 @@ const Add = () => {
         await fetchApiList(employeeApi, setListOptionDeliveryEmployees, [
           { field: "chuc_vu.id", condition: "=", value: "12" },
         ]);
-        await fetchApiList(employeeApi, setListOptionSalemployees, [
+        await fetchApiList(employeeApi, setListOptionSalEmployees, [
           { field: "chuc_vu.id", condition: "=", value: "13" },
         ]);
       } catch (error: any) {
@@ -293,83 +208,6 @@ const Add = () => {
     getApiList();
   }, []);
 
-  const handleAddedProduct = (data: string) => {
-    const [groupId, itemId] = data.split(":");
-    const group = listGroupProduct.find((p) => String(p.groupId) === groupId);
-    const productDetail = group!.items.find((i) => String(i.ID) === itemId);
-    setListImportProduct((prev) => [
-      ...prev,
-      {
-        san_pham_id: groupId,
-        ctsp_id: itemId,
-        ctsp_ten: productDetail?.ten ?? "",
-        upc: productDetail!.upc,
-        don_vi_tinh: productDetail!.don_vi_tinh,
-        han_su_dung: new Date(),
-        gia_ban: "0",
-        gia_nhap: "0",
-        thanh_tien: "0",
-        chiet_khau: "0",
-        la_qua_tang: false,
-        so_luong: "0",
-        ke: "",
-      },
-    ]);
-
-    const updatedListGroupProduct = listGroupProduct.map((group) => {
-      if (String(group.groupId) === groupId) {
-        return {
-          ...group,
-          items: group.items.filter((i) => String(i.ID) !== itemId),
-        };
-      }
-      return group;
-    });
-
-    setListGroupProduct(updatedListGroupProduct);
-  };
-  const handleDeleteImportProduct = async (id: number | string) => {
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        const [groupId, itemId] = String(id).split(":");
-        const importProductFind = listImportProduct.find(
-          (p) => Number(p.ctsp_id) === Number(itemId)
-        );
-        const newImportProductList = listImportProduct.filter(
-          (p) => Number(p.ctsp_id) !== Number(itemId)
-        );
-        const newListTotalMoney = listTotalMoney.filter(
-          (v) => String(v.id) !== itemId
-        );
-        setListImportProduct(newImportProductList);
-        setListTotalMoney(newListTotalMoney);
-
-        if (importProductFind) {
-          const updatedListGroupProduct = listGroupProduct.map((group) => {
-            if (String(group.groupId) === groupId) {
-              return {
-                ...group,
-                items: [
-                  ...group.items,
-                  {
-                    ID: importProductFind.ctsp_id,
-                    ten: importProductFind.ctsp_ten ?? "",
-                    upc: importProductFind.upc,
-                    don_vi_tinh: importProductFind.don_vi_tinh,
-                  },
-                ].sort((a, b) => Number(a.ID) - Number(b.ID)),
-              };
-            }
-            return group;
-          });
-
-          setListGroupProduct(updatedListGroupProduct);
-        }
-
-        resolve();
-      }, 500);
-    });
-  };
   const onSubmit = async (data: ExportWarehouseFormValues) => {
     // console.log(data);
     // console.log(listDataImportProduct);
@@ -453,14 +291,14 @@ const Add = () => {
                   options={listOptionCustomers}
                   placeholder="Chọn khách hàng"
                 />
-                 <SelectSearch
+                <SelectSearch
                   form={form}
                   name="nv_giao_hang"
                   label="Nhân viên giao hàng"
                   options={listOptionDeliveryEmployees}
                   placeholder="Chọn nhân viên giao hàng"
                 />
-                       <SelectSearch
+                <SelectSearch
                   form={form}
                   name="nv_sale"
                   label="Nhân viên sale"
@@ -472,9 +310,8 @@ const Add = () => {
                 <CardHeader className="flex-row justify-between items-center border-b p-4">
                   <h3 className="text-emphasis font-bold">Sản phẩm</h3>
                   <AddExportProduct
-                    isDisabled={listProducts.length === 0}
-                    onAdded={handleAddedProduct}
-                    listGroupProduct={listGroupProduct}
+                    isDisabled={form.getValues("khach_hang_id") === undefined}
+                    onAdded={() => console.log("balbla")}
                   />
                 </CardHeader>
                 <CardContent className={clsx("p-4 overflow-x-auto")}>

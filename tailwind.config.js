@@ -72,6 +72,6 @@ export default {
       },
     },
   },
-  safelist: ["border-primary","text-danger","text-success"],
+  safelist: ["border-primary","text-danger","text-success","z-[9999]"],
   plugins: [require("tailwindcss-animate")],
 };

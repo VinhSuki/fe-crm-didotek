@@ -206,7 +206,17 @@ export interface IExportProduct {
   ds_sku:{
     sku:string;
     so_luong_ban:string | number
+    gia_nhap:string | number
   }[]
+}
+
+export interface ISku {
+  sku:string;
+  han_su_dung:Date | string;
+  don_vi_tinh: string;
+  so_luong_ton:string | number;
+  so_luong_ban: string | number;
+  gia_nhap: string | number;
 }
 
 export interface IImportWarehouse {

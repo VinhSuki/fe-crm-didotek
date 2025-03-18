@@ -29,5 +29,7 @@ export const showErrorAlert = async (message: string) => {
     text: message,
     icon: "error",
     confirmButtonText: "OK",
+    allowOutsideClick: false, // Không cho phép click bên ngoài
+  allowEscapeKey: false, // Không cho phép nhấn ESC thoát
   });
 };

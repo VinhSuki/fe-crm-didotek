@@ -37,6 +37,15 @@ export default function ConfirmDeleteButton({
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Xóa",
       cancelButtonText: "Hủy",
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      backdrop: true, 
+      didOpen: () => {
+        // Không thay đổi aria-hidden, để shadcn tự xử lý
+      },
+      willClose: () => {
+        // Không thay đổi aria-hidden
+      },
     });
 
     if (result.isConfirmed) {
