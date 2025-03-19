@@ -5,7 +5,7 @@ import {
   IExportWarehouse,
   ISortOrder,
 } from "@/models/interfaces";
-import View from "@/pages/WarehouseManagement/ImportWarehouse/View";
+import View from "@/pages/WarehouseManagement/ExportWarehouse/View";
 
 interface IExportWarehouseTableProps {
   exportWarehouses: IExportWarehouse[];
@@ -101,7 +101,7 @@ const ExportWarehouseTable = ({
       sortOrder={sortOrder}
       onFilterChange={onFilterChange}
       onSortOrder={onSortOrder}
-      // actions={(row) => <View importWarehouse={row} />}
+      actions={(row) => <View exportWarehouse={row} />}
     />
   );
 };

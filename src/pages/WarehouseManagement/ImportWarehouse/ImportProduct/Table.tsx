@@ -455,7 +455,7 @@ export default function ImportProductTable({
                             <NumericInput
                               min={0}
                               max={99}
-                              value={formatVND(field.value ?? "0")}
+                              value={field.value}
                               onChange={field.onChange}
                             />
                           </FormControl>

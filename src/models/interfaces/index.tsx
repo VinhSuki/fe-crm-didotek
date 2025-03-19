@@ -195,28 +195,30 @@ export interface IImportProduct {
 
 export interface IExportProduct {
   chiet_khau: string | number;
+  upc: string;
+  ctsp_ten: string;
   ctsp_id: number | string;
   don_vi_tinh: string;
   gia_ban: string | number;
-  gia_nhap: string | number;
   la_qua_tang: boolean;
   san_pham_id: number | string;
   so_luong_ban: string | number;
-  thanh_tien:string | number;
-  ds_sku:{
-    sku:string;
-    so_luong_ban:string | number
-    gia_nhap:string | number
-  }[]
+  thanh_tien: string | number;
+  thanh_tien_truoc_chiet_khau: string | number;
+  ds_sku: {
+    sku: string;
+    so_luong_ban: string | number;
+    gia_ban_truoc: string | number;
+  }[];
 }
 
 export interface ISku {
-  sku:string;
-  han_su_dung:Date | string;
+  sku: string;
+  han_su_dung: Date | string;
   don_vi_tinh: string;
-  so_luong_ton:string | number;
+  so_luong_ton: string | number;
   so_luong_ban: string | number;
-  gia_nhap: string | number;
+  gia_ban_truoc: string | number;
 }
 
 export interface IImportWarehouse {

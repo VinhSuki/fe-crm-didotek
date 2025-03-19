@@ -68,7 +68,6 @@ export function Navbar() {
           onChange={(id) => warehouse?.setSelectedId(id)}
           options={warehouse?.list ?? []}
         />
-        ;{/* Icons */}
         <div className="flex items-center gap-2">
           <Button variant="ghost" className="relative">
             <Mail className="h-5 w-5 text-gray-600" />

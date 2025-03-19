@@ -40,7 +40,7 @@ interface GenericTableProps<T> {
   columns: Column<T>[];
   onFilterChange?: (newFilters: FilterSearch[]) => void;
   onSortOrder?: (sortOrder: ISortOrder<T>) => void;
-  actions?: (row: T) => React.ReactNode;
+  actions?: (row: T,index:number) => React.ReactNode;
 }
 
 export default function GenericTable<T>({
@@ -369,7 +369,7 @@ export default function GenericTable<T>({
                 ))}
                 {actions && (
                   <TableCell>
-                    <div className="flex space-x-2">{actions(row)}</div>
+                    <div className="flex space-x-2">{actions(row,index)}</div>
                   </TableCell>
                 )}
               </TableRow>

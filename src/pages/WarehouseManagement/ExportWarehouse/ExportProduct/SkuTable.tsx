@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/table";
 import { ISku } from "@/models/interfaces";
 import { convertRFC1123 } from "@/utils/convertRFC1123";
+import formatVND from "@/utils/formatVND";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
 import { Trash2 } from "lucide-react";
@@ -36,7 +37,7 @@ const SkuSchema = z.object({
       don_vi_tinh: z.string(),
       so_luong_ton: z.union([z.string(), z.number()]),
       so_luong_ban: z.union([z.string(), z.number()]),
-      gia_nhap: z.union([z.string(), z.number()]),
+      gia_ban_truoc: z.union([z.string(), z.number()]),
     })
   ),
 });
@@ -47,6 +48,7 @@ interface TableProps {
   toggleSubmitted: boolean;
   setListDataSku: (data: ISku[]) => void;
   onDeleted: (id: string | number) => void;
+  onTotalQuantity:(total:number)=>void
 }
 
 export default function SkuTable({
@@ -54,6 +56,7 @@ export default function SkuTable({
   onDeleted,
   toggleSubmitted,
   setListDataSku,
+  onTotalQuantity
 }: TableProps) {
   const form = useForm<SkuFormValues>({
     resolver: zodResolver(SkuSchema), // Truyền warehouses vào schema
@@ -61,10 +64,10 @@ export default function SkuTable({
       ds_sku: listSku.map((p) => ({
         sku: p.sku || "",
         han_su_dung: p.han_su_dung ?? "",
-        so_luong_ton: p.so_luong_ton || "0",
-        so_luong_ban: p.so_luong_ban || "0",
+        so_luong_ton: p.so_luong_ton || "1",
+        so_luong_ban: p.so_luong_ban || "1",
         don_vi_tinh: p.don_vi_tinh || "",
-        gia_nhap: p.gia_nhap || "0",
+        gia_ban_truoc: p.gia_ban_truoc || "0",
       })),
     },
   });
@@ -79,9 +82,9 @@ export default function SkuTable({
             (p) => Object.values(p).some((value) => value !== undefined) // Chỉ giữ lại object có ít nhất một giá trị khác undefined
           ),
           {
-            so_luong_ban: lastSku.so_luong_ban || "0",
-            so_luong_ton: lastSku.so_luong_ton || "0",
-            gia_nhap: lastSku.gia_nhap,
+            so_luong_ban: lastSku.so_luong_ban || "1",
+            so_luong_ton: lastSku.so_luong_ton || "1",
+            gia_ban_truoc: lastSku.gia_ban_truoc || "0",
             don_vi_tinh: lastSku.don_vi_tinh || "",
             han_su_dung: lastSku.han_su_dung
               ? new Date(lastSku.han_su_dung)
@@ -101,63 +104,14 @@ export default function SkuTable({
     }
   }, [listSku]);
 
+    useEffect(() => {
+      const total = listFormSku.reduce((acc,cur) => Number(acc) + Number(cur.so_luong_ban),0)
+      onTotalQuantity(total)
+    }, [JSON.stringify(listFormSku)]);
+
   useEffect(() => {
     setListDataSku(listFormSku);
   }, [toggleSubmitted]);
-  const [listValueCheckbox, setListValueCheckbox] = useState<
-    {
-      gia_nhap: string | number;
-      gia_ban: string | number;
-      chiet_khau: string | number;
-    }[]
-  >([]);
-  const handleToggleCheckbox = (index: number, value: boolean) => {
-    if (value) {
-      const importProduct = form.getValues("ds_sku")[index];
-      setListValueCheckbox(
-        listValueCheckbox.map((v, i) => {
-          if (i === index) {
-            return {
-              gia_nhap: importProduct.gia_nhap,
-              gia_ban: importProduct.gia_ban,
-              chiet_khau: importProduct.chiet_khau,
-            };
-          } else {
-            return v;
-          }
-        })
-      );
-      form.setValue(`ds_sku.${index}.gia_nhap`, "0");
-      form.setValue(`ds_sku.${index}.gia_ban`, "0");
-      form.setValue(`ds_sku.${index}.chiet_khau`, "0");
-    } else {
-      setListValueCheckbox(
-        listValueCheckbox.map((v, i) => {
-          if (i === index) {
-            return {
-              gia_nhap: "0",
-              gia_ban: "0",
-              chiet_khau: "0",
-            };
-          } else {
-            return v;
-          }
-        })
-      );
-      form.setValue(
-        `ds_sku.${index}.gia_nhap`,
-        listValueCheckbox[index].gia_nhap
-      );
-      form.setValue(
-        `ds_sku.${index}.gia_ban`,
-        listValueCheckbox[index].gia_ban
-      );
-      form.setValue(
-        `ds_sku.${index}.chiet_khau`,
-        listValueCheckbox[index].chiet_khau
-      );
-    }
-  };
 
   // useEffect(() => {
   //   if (listFormSku.length > 0) {
@@ -171,13 +125,6 @@ export default function SkuTable({
   //     ]);
   //   }
   // }, [listSku]);
-
-  const onConfirmDelete = useCallback(
-    async (id: string | number) => {
-      await onDeleted(id);
-    },
-    [onDeleted]
-  ); // Chỉ re-create khi `onDeleted` thay đổi
 
   return (
     <>
@@ -213,6 +160,11 @@ export default function SkuTable({
                     <span>Số lượng bán</span>
                   </div>
                 </TableHead>
+                <TableHead className={clsx("whitespace-nowrap ]")}>
+                  <div className={`flex items-center space-x-2`}>
+                    <span>Giá bán trước đó</span>
+                  </div>
+                </TableHead>
                 <TableHead className={clsx("whitespace-nowrap")}></TableHead>
               </TableRow>
             </TableHeader>
@@ -236,7 +188,7 @@ export default function SkuTable({
                         <FormItem>
                           <FormControl>
                             <NumericInput
-                              min={0}
+                              min={1}
                               max={
                                 listFormSku[index]?.so_luong_ton
                                   ? Number(listFormSku[index]?.so_luong_ton)
@@ -251,6 +203,7 @@ export default function SkuTable({
                       )}
                     />
                   </TableCell>
+                  <TableCell>{formatVND(String(row.gia_ban_truoc))}</TableCell>
                   <TableCell>
                     <Button
                       type="button"
