@@ -97,6 +97,7 @@ const Add = () => {
       ghi_chu: "",
       kho_id: String(warehouse?.selectedId ?? ""),
       ds_san_pham_nhap: [],
+      ngay_nhap: new Date(),
     },
   });
   const [loading, setLoading] = useState(false);
@@ -301,7 +302,7 @@ const Add = () => {
         thanh_tien: "0",
         chiet_khau: "0",
         la_qua_tang: false,
-        so_luong: "0",
+        so_luong: "1",
         ke: "",
       },
     ]);
@@ -535,7 +536,7 @@ const Add = () => {
             </CardContent>
           </Card>
           <div className="fixed bottom-5 right-5 space-x-2 z-50">
-            <Link to={"/nha-phan-phoi"}>
+            <Link to={"/nhap-kho"}>
               <Button type="button" className="bg-black/80 hover:bg-black">
                 Đóng
               </Button>

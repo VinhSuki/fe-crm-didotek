@@ -1,6 +1,7 @@
 import discountTypeApi from "@/apis/modules/discountType.api";
 import ConfirmDeleteButton from "@/components/common/ConfirmDeleteButton";
 import GenericTable from "@/components/common/GenericTable";
+import { useAuthContext } from "@/context/AuthContext";
 import {
   Column,
   FilterSearch,
@@ -46,6 +47,7 @@ const DiscountTypeTable = ({
   onDeleted,
   onEdited,
 }: IDiscountTypeTableProps) => {
+  const authMethod = useAuthContext();
   const onConfirmDelete = useCallback(
     async (id: string | number) => {
       // eslint-disable-next-line no-useless-catch
@@ -69,12 +71,16 @@ const DiscountTypeTable = ({
       onSortOrder={onSortOrder}
       actions={(row) => (
         <>
-          <Edit onEdited={onEdited} discountType={row} />
-          <ConfirmDeleteButton
-            id={row.ID}
-            onConfirm={onConfirmDelete}
-            title={`Bạn có chắc chắn muốn xóa sản phẩm ${row.ten}?`}
-          />
+          {authMethod?.checkPermission("update-loai-giam-gia") && (
+            <Edit onEdited={onEdited} discountType={row} />
+          )}
+          {authMethod?.checkPermission("delete-loai-giam-gia") && (
+            <ConfirmDeleteButton
+              id={row.ID}
+              onConfirm={onConfirmDelete}
+              title={`Bạn có chắc chắn muốn xóa sản phẩm ${row.ten}?`}
+            />
+          )}
         </>
       )}
     />

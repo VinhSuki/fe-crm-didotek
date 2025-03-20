@@ -1,6 +1,5 @@
 import NavbarProvider from "@/context/NavbarContext";
 import SidebarProvider from "@/context/SidebarContext";
-import WarehouseProvider from "@/context/WarehouseContext";
 import "./App.css";
 import AuthProvider from "./context/AuthContext";
 import AppRouter from "./routes/routes";
@@ -10,9 +9,7 @@ function App() {
     <AuthProvider>
       <SidebarProvider>
         <NavbarProvider>
-          <WarehouseProvider>
-            <AppRouter />
-          </WarehouseProvider>
+        <AppRouter />
         </NavbarProvider>
       </SidebarProvider>
     </AuthProvider>

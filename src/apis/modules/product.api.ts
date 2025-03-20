@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axiosPublic from "@/apis/client/public.client";
+import axiosPrivate from "@/apis/client/private.client";
 import { ESortOrderValue } from "@/models/enums/option";
 import {
   FilterSearch,
@@ -21,14 +21,14 @@ const productApi = {
     sort?: keyof IProduct | "";
     order?: ESortOrderValue;
   }): Promise<IApiResponse<IProduct[]>> {
-    return axiosPublic.get(productEndpoints.common, {
+    return axiosPrivate.get(productEndpoints.common, {
       params: { ...params, filters: JSON.stringify(params.filters) },
     });
   },
   async add(data: any): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.post(productEndpoints.common, data);
+      return await axiosPrivate.post(productEndpoints.common, data);
     } catch (error) {
       throw error;
     }
@@ -36,7 +36,7 @@ const productApi = {
   async edit(data: any): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.put(productEndpoints.common, data);
+      return await axiosPrivate.put(productEndpoints.common, data);
     } catch (error) {
       throw error;
     }
@@ -44,7 +44,7 @@ const productApi = {
   async delete(id: number | string): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.delete(productEndpoints.common + "/" + id);
+      return await axiosPrivate.delete(productEndpoints.common + "/" + id);
     } catch (error) {
       throw error;
     }
@@ -52,7 +52,7 @@ const productApi = {
   async classify(id: string | number): Promise<IApiResponse<IClassify[]>> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.get(productEndpoints.classify + "/" + id);
+      return await axiosPrivate.get(productEndpoints.classify + "/" + id);
     } catch (error) {
       throw error;
     }

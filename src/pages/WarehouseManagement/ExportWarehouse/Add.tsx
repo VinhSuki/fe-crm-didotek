@@ -185,6 +185,7 @@ const Add = () => {
         gia_ban:Number(item.gia_ban),
         chiet_khau:Number(item.chiet_khau),
         la_qua_tang:item.la_qua_tang,
+        upc:item.upc,
         ds_sku:item.ds_sku
       }))
     );
@@ -230,10 +231,10 @@ const Add = () => {
       try {
         await fetchApiList(customerApi, setListOptionCustomers, []);
         await fetchApiList(employeeApi, setListOptionDeliveryEmployees, [
-          { field: "chuc_vu.id", condition: "=", value: "12" },
+          { field: "chuc_vu.ten", condition: "=", value: "Giao hàng" },
         ]);
         await fetchApiList(employeeApi, setListOptionSalEmployees, [
-          { field: "chuc_vu.id", condition: "=", value: "13" },
+          { field: "chuc_vu.ten", condition: "=", value: "Sale" },
         ]);
       } catch (error: any) {
         console.log(error);
@@ -510,7 +511,7 @@ const Add = () => {
             </CardContent>
           </Card>
           <div className="fixed bottom-5 right-5 space-x-2 z-50">
-            <Link to={"/nha-xuat-kho"}>
+            <Link to={"/xuat-kho"}>
               <Button type="button" className="bg-black/80 hover:bg-black">
                 Đóng
               </Button>

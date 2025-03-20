@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Column, IImportProduct, IExportWarehouse, IExportProduct } from "@/models/interfaces";
+import { Column, IExportProduct, IExportWarehouse } from "@/models/interfaces";
 import { convertRFC1123 } from "@/utils/convertRFC1123";
 import formatVND from "@/utils/formatVND";
 import { Eye } from "lucide-react";
@@ -21,8 +21,12 @@ interface ViewProps {
 
 const columns: Column<IExportProduct>[] = [
   {
+    key: "sku_xuat",
+    label: "Lô xuất",
+  },
+  {
     key: "sku",
-    label: "Lô",
+    label: "Lô nhập",
   },
   {
     key: "ctsp_ten",
@@ -33,7 +37,7 @@ const columns: Column<IExportProduct>[] = [
     label: "Đơn vị tính",
   },
   {
-    key: "so_luong",
+    key: "so_luong_ban",
     label: "Số lượng",
   },
   {
@@ -85,11 +89,11 @@ export default function View({ exportWarehouse }: ViewProps) {
                 </p>
                 <p>
                   <span className="text-zinc-500">Nhân viên giao hàng: </span>
-                  <span>{exportWarehouse.nv_giao_hang ?? ""}</span>
+                  <span>{exportWarehouse.nhan_vien_giao_hang ?? ""}</span>
                 </p>
                 <p>
                   <span className="text-zinc-500">Nhân viên sale: </span>
-                  <span>{exportWarehouse.nv_sale ?? ""}</span>
+                  <span>{exportWarehouse.nhan_vien_sale ?? ""}</span>
                 </p>
                 <p>
                   <span className="text-zinc-500">Ngày xuất: </span>

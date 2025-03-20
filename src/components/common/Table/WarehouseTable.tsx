@@ -1,7 +1,13 @@
 import warehouseApi from "@/apis/modules/warehouse.api";
 import ConfirmDeleteButton from "@/components/common/ConfirmDeleteButton";
 import GenericTable from "@/components/common/GenericTable";
-import { Column, FilterSearch, ISortOrder, IWarehouse } from "@/models/interfaces";
+import { useAuthContext } from "@/context/AuthContext";
+import {
+  Column,
+  FilterSearch,
+  ISortOrder,
+  IWarehouse,
+} from "@/models/interfaces";
 import Edit from "@/pages/WarehouseManagement/Warehouse/Edit";
 import { useCallback } from "react";
 
@@ -16,20 +22,20 @@ interface IWarehouseTableProps {
 }
 
 const columns: Column<IWarehouse>[] = [
-  { key: "ID", sortName: "ID", label: "ID"},
+  { key: "ID", sortName: "ID", label: "ID" },
   {
     key: "ten",
     label: "Tên kho",
-    sortName:"ten",
+    sortName: "ten",
     searchCondition: "text",
   },
   {
     key: "dia_chi",
     label: "Địa chỉ",
-    sortName:"dia_chi",
+    sortName: "dia_chi",
     searchCondition: "text",
   },
-  { key: "CreatedAt",sortName:"created_at", label: "Ngày tạo" },
+  { key: "CreatedAt", sortName: "created_at", label: "Ngày tạo" },
 ];
 
 const WarehouseTable = ({
@@ -41,6 +47,7 @@ const WarehouseTable = ({
   onDeleted,
   onEdited,
 }: IWarehouseTableProps) => {
+  const authMethod = useAuthContext();
   const onConfirmDelete = useCallback(
     async (id: string | number) => {
       // eslint-disable-next-line no-useless-catch
@@ -64,15 +71,16 @@ const WarehouseTable = ({
       onSortOrder={onSortOrder}
       actions={(row) => (
         <>
-          <Edit
-            onEdited={onEdited}
-            warehouse={row}
-          />
-          <ConfirmDeleteButton
-            id={row.ID}
-            onConfirm={onConfirmDelete}
-            title={`Bạn có chắc chắn muốn xóa kho ${row.ten}?`}
-          />
+          {authMethod?.checkPermission("update-kho") && (
+            <Edit onEdited={onEdited} warehouse={row} />
+          )}
+          {authMethod?.checkPermission("delete-kho") && (
+            <ConfirmDeleteButton
+              id={row.ID}
+              onConfirm={onConfirmDelete}
+              title={`Bạn có chắc chắn muốn xóa kho ${row.ten}?`}
+            />
+          )}
         </>
       )}
     />

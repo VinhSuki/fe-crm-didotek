@@ -1,11 +1,10 @@
 import exportWarehouseApi from "@/apis/modules/exportWarehouse.api";
-import importWarehouseApi from "@/apis/modules/importWarehouse.api";
 import Loader from "@/components/common/Loader";
 import PaginationCustom from "@/components/common/PaginationCustom";
 import ExportWarehouseTable from "@/components/common/Table/ExportWarehouseTable";
-import ImportWarehouseTable from "@/components/common/Table/ImportWarehouseTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useAuthContext } from "@/context/AuthContext";
 import { useSidebarContext } from "@/context/SidebarContext";
 import { ESortOrderValue } from "@/models/enums/option";
 import {
@@ -13,7 +12,7 @@ import {
   initState,
   setFilters,
   setPagination,
-  setSortOrder
+  setSortOrder,
 } from "@/redux/slices/genericPage.slice";
 import { AppDispatch, RootState } from "@/redux/store";
 import clsx from "clsx";
@@ -27,6 +26,7 @@ const ENTITY_KEY = "exportWarehouse"; // Định danh động
 export default function Index() {
   const dispatch = useDispatch<AppDispatch>();
   const sidebar = useSidebarContext();
+  const authMethod = useAuthContext();
   const {
     data: exportWarehouses = [],
     filters = [],
@@ -63,12 +63,14 @@ export default function Index() {
       {/* Product Table */}
       <Card>
         <CardHeader className="flex-row justify-end items-center border-b">
-          <Link to="/xuat-kho/them-moi">
-            <Button className="bg-primary hover:bg-secondary text-white">
-              <Plus />
-              <span>Thêm mới</span>
-            </Button>
-          </Link>
+          {authMethod?.checkPermission("create-hoa-don-xuat-kho") && (
+            <Link to="/xuat-kho/them-moi">
+              <Button className="bg-primary hover:bg-secondary text-white">
+                <Plus />
+                <span>Thêm mới</span>
+              </Button>
+            </Link>
+          )}
         </CardHeader>
         <CardContent
           className={clsx(

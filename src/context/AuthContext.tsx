@@ -17,6 +17,7 @@ interface AuthContextType {
   login: (accountLogin: IAccountLogin) => void; // Hàm login
   logout: () => void; // Hàm logout
   isAuthenticated: boolean;
+  checkPermission: (permission: string) => boolean;
 }
 
 // Tạo context với giá trị mặc định là undefined (nếu chưa có context provider)
@@ -29,6 +30,7 @@ export const useAuthContext = () => {
 
 function AuthProvider({ children }: AuthProviderProps) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [permissions, setPermissions] = useState<string[]>([]);
   const [account, setAccount] = useState<IEmployee | null>(null); // Khởi tạo user với giá trị null
   const [loading, setLoading] = useState<boolean>(true); // Trạng thái loading khi gọi API
   const navigate = useNavigate();
@@ -44,13 +46,18 @@ function AuthProvider({ children }: AuthProviderProps) {
     // Cookies.set('refreshToken', jwt.refreshToken, { expires: expireRefreshToken })
     // Cookies.set('expireAccessToken', jwt.accessToken)
     // Cookies.set('expireRefreshToken', jwt.refreshToken)
-    console.log(accountLogin.token);
+    console.log(accountLogin);
     const { token } = accountLogin;
     Cookies.set("token", token);
     try {
-      const dataAccount = await authApi.getMe();
-      setAccount(dataAccount.data?.data ?? null);
-      setIsAuthenticated(true);
+      const res = await authApi.getMe();
+      const data = res.data?.data;
+      console.log(data);
+      if (data) {
+        setAccount(data ?? null);
+        setIsAuthenticated(true);
+        setPermissions(data.quyen ?? []);
+      }
       navigate("/"); // Điều hướng về trang chính sau khi đăng nhập thành công
     } catch (error: any) {
       showErrorAlert(error.message);
@@ -65,6 +72,10 @@ function AuthProvider({ children }: AuthProviderProps) {
     navigate("/dang-nhap"); // Điều hướng về trang đăng nhập
   };
 
+  const checkPermission = (permission: string) => {
+    return permissions.includes(permission);
+  };
+
   useEffect(() => {
     const fetchApi = async () => {
       try {
@@ -72,9 +83,14 @@ function AuthProvider({ children }: AuthProviderProps) {
         // const accessToken = Cookies.get('accessToken')
         // const refreshToken = Cookies.get('refreshToken')
         if (token) {
-          const dataAccount = await authApi.getMe();
-          setAccount(dataAccount.data?.data ?? null);
-          setIsAuthenticated(true);
+          const res = await authApi.getMe();
+          const data = res.data?.data;
+          if (data) {
+            console.log(data?.quyen);
+            setAccount(data ?? null);
+            setIsAuthenticated(true);
+            setPermissions(data.quyen ?? []);
+          }
           return;
         }
         // if (refreshToken) {
@@ -106,7 +122,9 @@ function AuthProvider({ children }: AuthProviderProps) {
   }
 
   return (
-    <AuthContext.Provider value={{ account, login, logout, isAuthenticated }}>
+    <AuthContext.Provider
+      value={{ account, login, logout, isAuthenticated, checkPermission }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -1,4 +1,4 @@
-import axiosPublic from "@/apis/client/public.client";
+import axiosPrivate from "@/apis/client/private.client";
 import { ESortOrderValue } from "@/models/enums/option";
 import { FilterSearch, IApiResponse, IRole } from "@/models/interfaces";
 
@@ -14,14 +14,14 @@ const rolePermissionApi = {
     sort?: keyof IRole | "";
     order?: ESortOrderValue;
   }): Promise<IApiResponse<IRole[]>> {
-    return axiosPublic.get(rolePermissionEndpoints.common, {
+    return axiosPrivate.get(rolePermissionEndpoints.common, {
       params: { ...params, filters: JSON.stringify(params.filters) },
     });
   },
   async add(data: { ten: string }): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.post(rolePermissionEndpoints.common, data);
+      return await axiosPrivate.post(rolePermissionEndpoints.common, data);
     } catch (error) {
       throw error;
     }
@@ -29,7 +29,7 @@ const rolePermissionApi = {
   async delete(id: number | string): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.delete(rolePermissionEndpoints.common + "/" + id);
+      return await axiosPrivate.delete(rolePermissionEndpoints.common + "/" + id);
     } catch (error) {
       throw error;
     }
@@ -40,7 +40,7 @@ const rolePermissionApi = {
   }): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.put(rolePermissionEndpoints.common, data);
+      return await axiosPrivate.put(rolePermissionEndpoints.common, data);
     } catch (error) {
       throw error;
     }

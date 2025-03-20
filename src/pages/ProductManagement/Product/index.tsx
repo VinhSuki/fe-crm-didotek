@@ -4,6 +4,7 @@ import PaginationCustom from "@/components/common/PaginationCustom";
 import ProductTable from "@/components/common/Table/ProductTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useAuthContext } from "@/context/AuthContext";
 import { useSidebarContext } from "@/context/SidebarContext";
 import { ESortOrderValue } from "@/models/enums/option";
 import {
@@ -12,7 +13,7 @@ import {
   setDeleted,
   setFilters,
   setPagination,
-  setSortOrder
+  setSortOrder,
 } from "@/redux/slices/genericPage.slice";
 import { AppDispatch, RootState } from "@/redux/store";
 import clsx from "clsx";
@@ -25,7 +26,7 @@ const ENTITY_KEY = "product"; // Định danh động
 
 export default function Index() {
   const dispatch = useDispatch<AppDispatch>();
-
+  const authMethod = useAuthContext();
   const {
     data: products = [],
     filters = [],
@@ -63,12 +64,14 @@ export default function Index() {
       {/* Product Table */}
       <Card className="w-full">
         <CardHeader className="flex-row justify-end items-center border-b">
-          <Link to="/san-pham/them-moi">
-            <Button className="bg-primary hover:bg-secondary text-white">
-              <Plus />
-              <span>Thêm mới</span>
-            </Button>
-          </Link>
+          {authMethod?.checkPermission("create-san-pham") && (
+            <Link to="/san-pham/them-moi">
+              <Button className="bg-primary hover:bg-secondary text-white">
+                <Plus />
+                <span>Thêm mới</span>
+              </Button>
+            </Link>
+          )}
         </CardHeader>
         <CardContent
           className={clsx(
@@ -77,7 +80,7 @@ export default function Index() {
           )}
         >
           <ProductTable
-            onEdited={()=>console.log()}
+            onEdited={() => console.log()}
             onDeleted={() => dispatch(setDeleted(ENTITY_KEY))}
             products={products} // Dữ liệu lấy từ Redux
             filters={filters}

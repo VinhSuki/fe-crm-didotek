@@ -2,6 +2,7 @@ import productApi from "@/apis/modules/product.api";
 import ConfirmDeleteButton from "@/components/common/ConfirmDeleteButton";
 import GenericTable from "@/components/common/GenericTable";
 import { Button } from "@/components/ui/button";
+import { useAuthContext } from "@/context/AuthContext";
 import {
   Column,
   FilterSearch,
@@ -100,6 +101,7 @@ const ProductTable = ({
   onSortOrder,
   onDeleted,
 }: IProductsTableProps) => {
+  const authMethod = useAuthContext();
   const onConfirmDelete = useCallback(
     async (id: string | number) => {
       // eslint-disable-next-line no-useless-catch
@@ -123,16 +125,20 @@ const ProductTable = ({
       onSortOrder={onSortOrder}
       actions={(row) => (
         <>
-          <Link to={`cap-nhat/${row.ID}`}>
-            <Button className="bg-zinc-700 hover:bg-zinc-800">
-              <SquarePen />
-            </Button>
-          </Link>
-          <ConfirmDeleteButton
-            id={row.ID}
-            onConfirm={onConfirmDelete}
-            title={`Bạn có chắc chắn muốn xóa sản phẩm ${row.ten}?`}
-          />
+          {authMethod?.checkPermission("update-san-pham") && (
+            <Link to={`cap-nhat/${row.ID}`}>
+              <Button className="bg-zinc-700 hover:bg-zinc-800">
+                <SquarePen />
+              </Button>
+            </Link>
+          )}
+          {authMethod?.checkPermission("delete-san-pham") && (
+            <ConfirmDeleteButton
+              id={row.ID}
+              onConfirm={onConfirmDelete}
+              title={`Bạn có chắc chắn muốn xóa sản phẩm ${row.ten}?`}
+            />
+          )}
         </>
       )}
     />

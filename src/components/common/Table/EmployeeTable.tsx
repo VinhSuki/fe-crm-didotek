@@ -1,6 +1,7 @@
 import employeeApi from "@/apis/modules/employee.api";
 import ConfirmDeleteButton from "@/components/common/ConfirmDeleteButton";
 import GenericTable from "@/components/common/GenericTable";
+import { useAuthContext } from "@/context/AuthContext";
 import {
   Column,
   FilterSearch,
@@ -73,6 +74,7 @@ const EmployeeTable = ({
   onDeleted,
   onEdited,
 }: IEmployeesTableProps) => {
+  const authMethod = useAuthContext();
   const onConfirmDelete = useCallback(
     async (id: string | number) => {
       // eslint-disable-next-line no-useless-catch
@@ -96,15 +98,16 @@ const EmployeeTable = ({
       onSortOrder={onSortOrder}
       actions={(row) => (
         <>
-          <Edit
-            onEdited={onEdited}
-            employee={row}
-          />
-          <ConfirmDeleteButton
-            id={row.ID}
-            onConfirm={onConfirmDelete}
-            title={`Bạn có chắc chắn muốn xóa sản phẩm ${row.ten_dang_nhap}?`}
-          />
+          {authMethod?.checkPermission("update-nhan-vien") && (
+            <Edit onEdited={onEdited} employee={row} />
+          )}
+          {authMethod?.checkPermission("delete-nhan-vien") && (
+            <ConfirmDeleteButton
+              id={row.ID}
+              onConfirm={onConfirmDelete}
+              title={`Bạn có chắc chắn muốn xóa sản phẩm ${row.ten_dang_nhap}?`}
+            />
+          )}
         </>
       )}
     />

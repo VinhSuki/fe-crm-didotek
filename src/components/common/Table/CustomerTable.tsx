@@ -1,6 +1,7 @@
 import customerApi from "@/apis/modules/customer.api";
 import ConfirmDeleteButton from "@/components/common/ConfirmDeleteButton";
 import GenericTable from "@/components/common/GenericTable";
+import { useAuthContext } from "@/context/AuthContext";
 import {
   Column,
   FilterSearch,
@@ -51,6 +52,7 @@ const CustomerTable = ({
   onDeleted,
   onEdited,
 }: ICustomersTableProps) => {
+  const authMethod = useAuthContext();
   const onConfirmDelete = useCallback(
     async (id: string | number) => {
       // eslint-disable-next-line no-useless-catch
@@ -74,12 +76,16 @@ const CustomerTable = ({
       onSortOrder={onSortOrder}
       actions={(row) => (
         <>
-          <Edit onEdited={onEdited} customer={row} />
-          <ConfirmDeleteButton
-            id={row.ID}
-            onConfirm={onConfirmDelete}
-            title={`Bạn có chắc chắn muốn xóa sản phẩm ${row.ho_ten}?`}
-          />
+          {authMethod?.checkPermission("update-khach-hang") && (
+            <Edit onEdited={onEdited} customer={row} />
+          )}
+          {authMethod?.checkPermission("delete-khach-hang") && (
+            <ConfirmDeleteButton
+              id={row.ID}
+              onConfirm={onConfirmDelete}
+              title={`Bạn có chắc chắn muốn xóa sản phẩm ${row.ho_ten}?`}
+            />
+          )}
         </>
       )}
     />

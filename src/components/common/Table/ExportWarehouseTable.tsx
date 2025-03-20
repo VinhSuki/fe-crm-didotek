@@ -13,7 +13,7 @@ interface IExportWarehouseTableProps {
   sortOrder: ISortOrder<IExportWarehouse>;
   onFilterChange: (newFilters: FilterSearch[]) => void;
   onSortOrder: (sortOrder: ISortOrder<IExportWarehouse>) => void;
-  onViewInvoice?: () => void;
+  onhan_vieniewInhan_vienoice?: () => void;
 }
 
 const columns: Column<IExportWarehouse>[] = [
@@ -32,16 +32,16 @@ const columns: Column<IExportWarehouse>[] = [
     minW: "min-w-[150px]",
   },
   {
-    key: "nv_giao_hang",
+    key: "nhan_vien_giao_hang",
     label: "Nhân viên giao hàng",
-    sortName: "nv_giao_hang",
+    sortName: "nhan_vien_giao_hang",
     searchCondition: "text",
     minW: "min-w-[150px]",
   },
   {
-    key: "nv_sale",
+    key: "nhan_vien_sale",
     label: "Nhân viên sale",
-    sortName: "nv_sale",
+    sortName: "nhan_vien_sale",
     searchCondition: "text",
     minW: "min-w-[150px]",
   },

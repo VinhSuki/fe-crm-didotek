@@ -107,7 +107,7 @@ export default function ImportProductTable({
             upc: lastProduct.upc || "",
             san_pham_id: lastProduct.san_pham_id,
             ctsp_id: lastProduct.ctsp_id,
-            so_luong: lastProduct.so_luong || "0",
+            so_luong: lastProduct.so_luong || "1",
             gia_nhap: "0",
             gia_ban: "0",
             thanh_tien: "0",
@@ -209,7 +209,7 @@ export default function ImportProductTable({
     listFormImportProduct.forEach((el, index) => {
       const total =
         Number(el.gia_nhap ?? 0) *
-        Number(el.so_luong ?? 0) *
+        Number(el.so_luong ?? 1) *
         (1 - Number(el.chiet_khau ?? 0) / 100);
 
       // Gửi dữ liệu tổng tiền lên component cha
@@ -371,7 +371,7 @@ export default function ImportProductTable({
                         <FormItem>
                           <FormControl>
                             <NumericInput
-                              min={0}
+                              min={1}
                               value={field.value}
                               onChange={field.onChange}
                             />

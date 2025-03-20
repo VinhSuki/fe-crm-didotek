@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Images } from "@/constant";
+import { useAuthContext } from "@/context/AuthContext";
 import { useSidebarContext } from "@/context/SidebarContext";
 import clsx from "clsx";
 import {
@@ -23,6 +24,7 @@ interface IItem {
   url: string | "";
   icon?: React.ElementType;
   title: string;
+  permission?: string;
   subItems?: IItem[];
 }
 interface ISidebarItem {
@@ -35,20 +37,42 @@ const sidebarItems: ISidebarItem[] = [
     title: "Quản lý sản phẩm",
     items: [
       {
+        permission: "view-san-pham",
         title: "Sản phẩm",
         icon: Package,
         url: "/san-pham",
       },
-      { title: "Loại sản phẩm", icon: List, url: "/loai-san-pham" },
-      { title: "Đơn vị tính", icon: Hash, url: "/don-vi-tinh" },
-      { title: "Loại giảm giá", icon: Percent, url: "/loai-giam-gia" },
-      { title: "Thời gian bảo hành", icon: Clock, url: "/thoi-gian-bao-hanh" },
+      {
+        permission: "view-loai-san-pham",
+        title: "Loại sản phẩm",
+        icon: List,
+        url: "/loai-san-pham",
+      },
+      {
+        permission: "view-don-vi-tinh",
+        title: "Đơn vị tính",
+        icon: Hash,
+        url: "/don-vi-tinh",
+      },
+      {
+        permission: "view-loai-giam-gia",
+        title: "Loại giảm giá",
+        icon: Percent,
+        url: "/loai-giam-gia",
+      },
+      {
+        permission: "view-thoi-gian-bao-hanh",
+        title: "Thời gian bảo hành",
+        icon: Clock,
+        url: "/thoi-gian-bao-hanh",
+      },
     ],
   },
   {
     title: "Quản lý nhân viên",
     items: [
       {
+        permission: "view-nhan-vien",
         title: "Nhân viên",
         icon: UserCheck,
         url: "/nhan-vien",
@@ -59,16 +83,19 @@ const sidebarItems: ISidebarItem[] = [
     title: "Quản lý kho",
     items: [
       {
+        permission: "view-kho",
         title: "Kho",
         icon: Warehouse,
         url: "/kho",
       },
       {
+        permission: "view-hoa-don-nhap-kho",
         title: "Nhập kho",
         icon: Box,
         url: "/nhap-kho",
       },
       {
+        permission: "view-hoa-don-xuat-kho",
         title: "Xuất kho",
         icon: Box,
         url: "/xuat-kho",
@@ -79,11 +106,13 @@ const sidebarItems: ISidebarItem[] = [
     title: "Quản lý đối tác",
     items: [
       {
+        permission: "view-nha-phan-phoi",
         title: "Nhà phân phối",
         icon: Truck,
         url: "/nha-phan-phoi",
       },
       {
+        permission: "view-khach-hang",
         title: "Khách hàng",
         icon: User,
         url: "/khach-hang",
@@ -97,6 +126,7 @@ export function Sidebar() {
   const { isCollapsed, setIsCollapsed } = useSidebarContext();
   const [isHovered, setIsHovered] = useState(false);
   const showContent = !isCollapsed || isHovered;
+  const authMethod = useAuthContext()
 
   const toggleSection = (title: string) => {
     setOpenSections((prev) =>
@@ -148,13 +178,13 @@ export function Sidebar() {
       {/* Menu */}
       <nav className="overflow-y-auto p-5 max-h-screen">
         {sidebarItems.map((items) => (
-          <ul className="overflow-hidden" key={items.title}>
+          <ul className="overflow-hidden mb-5" key={items.title}>
             {!isCollapsed && (
               <h3 className="text-emphasis text-sm mb-[14px] font-bold">
                 {items.title}
               </h3>
             )}
-            {items.items.map((subItems) => (
+            {items.items.map((subItems,i) => authMethod?.checkPermission(subItems.permission ?? "") && (
               <li
                 key={subItems.title}
                 className=" text-sm transition hover:text-primary"
@@ -169,7 +199,8 @@ export function Sidebar() {
                         : "hover:text-primary",
                       isCollapsed && !isHovered
                         ? "justify-center p-[10px]"
-                        : "py-[10px] px-[18px]"
+                        : "py-[10px] px-[18px]",
+                        items.items.length - 1 === i && "pb-5 border-b"
                     )
                   }
                   onClick={() =>
@@ -216,7 +247,6 @@ export function Sidebar() {
                     )} */}
               </li>
             ))}
-            <div className="w-full h-[1px] bg-zinc-200 my-5"></div>
           </ul>
         ))}
       </nav>

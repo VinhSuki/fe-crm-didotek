@@ -3,6 +3,7 @@ import Loader from "@/components/common/Loader";
 import PaginationCustom from "@/components/common/PaginationCustom";
 import UnitTable from "@/components/common/Table/UnitTable";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useAuthContext } from "@/context/AuthContext";
 import { ESortOrderValue } from "@/models/enums/option";
 import Add from "@/pages/ProductManagement/Unit/Add";
 import {
@@ -23,7 +24,7 @@ const ENTITY_KEY = "unit"; // Định danh động
 
 export default function Index() {
   const dispatch = useDispatch<AppDispatch>();
-
+  const authMethod = useAuthContext();
   const {
     data: units = [],
     filters = [],
@@ -61,7 +62,9 @@ export default function Index() {
       {/* Product Table */}
       <Card>
         <CardHeader className="flex-row justify-end items-center border-b">
-          <Add onAdded={() => dispatch(setAdded(ENTITY_KEY))} />
+          {authMethod?.checkPermission("create-don-vi-tinh") && (
+            <Add onAdded={() => dispatch(setAdded(ENTITY_KEY))} />
+          )}
         </CardHeader>
         <CardContent className="p-4">
           <UnitTable

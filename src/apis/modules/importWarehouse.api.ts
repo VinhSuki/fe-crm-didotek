@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axiosPublic from "@/apis/client/public.client";
+import axiosPrivate from "@/apis/client/private.client";
 import { ESortOrderValue } from "@/models/enums/option";
 import { FilterSearch, IApiResponse, IImportWarehouse } from "@/models/interfaces";
 
@@ -15,14 +15,14 @@ const importWarehouseApi = {
     sort?: keyof IImportWarehouse | "";
     order?: ESortOrderValue;
   }): Promise<IApiResponse<IImportWarehouse[]>> {
-    return axiosPublic.get(importWarehouseEndpoints.common, {
+    return axiosPrivate.get(importWarehouseEndpoints.common, {
       params: { ...params, filters: JSON.stringify(params.filters) },
     });
   },
   async add(data: any): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.post(importWarehouseEndpoints.common, data);
+      return await axiosPrivate.post(importWarehouseEndpoints.common, data);
     } catch (error) {
       throw error;
     }
@@ -30,7 +30,7 @@ const importWarehouseApi = {
   async delete(id: number | string): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.delete(importWarehouseEndpoints.common + "/" + id);
+      return await axiosPrivate.delete(importWarehouseEndpoints.common + "/" + id);
     } catch (error) {
       throw error;
     }
@@ -41,7 +41,7 @@ const importWarehouseApi = {
   }): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.put(importWarehouseEndpoints.common, data);
+      return await axiosPrivate.put(importWarehouseEndpoints.common, data);
     } catch (error) {
       throw error;
     }

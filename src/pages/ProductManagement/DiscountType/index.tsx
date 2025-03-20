@@ -3,6 +3,7 @@ import Loader from "@/components/common/Loader";
 import PaginationCustom from "@/components/common/PaginationCustom";
 import DiscountTypeTable from "@/components/common/Table/DiscountTypeTable";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useAuthContext } from "@/context/AuthContext";
 import { ESortOrderValue } from "@/models/enums/option";
 import Add from "@/pages/ProductManagement/DiscountType/Add";
 import {
@@ -23,7 +24,7 @@ const ENTITY_KEY = "discountType"; // Định danh động
 
 export default function Index() {
   const dispatch = useDispatch<AppDispatch>();
-
+  const authMethod = useAuthContext();
   const {
     data: discountTypes = [],
     filters = [],
@@ -43,7 +44,6 @@ export default function Index() {
   useEffect(() => {
     if (isInitialized) {
       // 🆕 Chỉ gọi API khi đã khởi tạo
-      console.log("Da vao");
       dispatch(fetchDynamicData({ key: ENTITY_KEY, api: discountTypeApi }));
     }
   }, [
@@ -62,7 +62,9 @@ export default function Index() {
       {/* Product Table */}
       <Card>
         <CardHeader className="flex-row justify-end items-center border-b">
-          <Add onAdded={() => dispatch(setAdded(ENTITY_KEY))} />
+          {authMethod?.checkPermission("view-loai-giam-gia") && (
+            <Add onAdded={() => dispatch(setAdded(ENTITY_KEY))} />
+          )}
         </CardHeader>
         <CardContent className="p-4">
           <DiscountTypeTable

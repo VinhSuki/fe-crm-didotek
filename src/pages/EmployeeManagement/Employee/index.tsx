@@ -3,6 +3,7 @@ import Loader from "@/components/common/Loader";
 import PaginationCustom from "@/components/common/PaginationCustom";
 import EmployeeTable from "@/components/common/Table/EmployeeTable";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useAuthContext } from "@/context/AuthContext";
 import { ESortOrderValue } from "@/models/enums/option";
 import Add from "@/pages/EmployeeManagement/Employee/Add";
 import {
@@ -55,12 +56,15 @@ export default function Index() {
     isInitialized,
     isEdited,
   ]);
+  const authMethod = useAuthContext();
   return (
     <div className="space-y-6 relative">
       {/* Product Table */}
       <Card>
         <CardHeader className="flex-row justify-end items-center border-b">
-          <Add onAdded={() => dispatch(setAdded(ENTITY_KEY))} />
+          {authMethod?.checkPermission("view-nhan-vien") && (
+            <Add onAdded={() => dispatch(setAdded(ENTITY_KEY))} />
+          )}
         </CardHeader>
         <CardContent className="p-4">
           <EmployeeTable

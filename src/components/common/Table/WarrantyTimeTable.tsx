@@ -1,7 +1,13 @@
 import warrantyTimeApi from "@/apis/modules/warrantyTime.api";
 import ConfirmDeleteButton from "@/components/common/ConfirmDeleteButton";
 import GenericTable from "@/components/common/GenericTable";
-import { Column, FilterSearch, ISortOrder, IWarrantyTime } from "@/models/interfaces";
+import { useAuthContext } from "@/context/AuthContext";
+import {
+  Column,
+  FilterSearch,
+  ISortOrder,
+  IWarrantyTime,
+} from "@/models/interfaces";
 import Edit from "@/pages/ProductManagement/WarrantyTime/Edit";
 import { useCallback } from "react";
 
@@ -16,14 +22,14 @@ interface IWarrantyTimeTableProps {
 }
 
 const columns: Column<IWarrantyTime>[] = [
-  { key: "ID", sortName: "ID", label: "ID"},
+  { key: "ID", sortName: "ID", label: "ID" },
   {
     key: "ten",
     label: "Thời gian bảo hành",
-    sortName:"ten",
+    sortName: "ten",
     searchCondition: "text",
   },
-  { key: "CreatedAt",sortName:"created_at", label: "Ngày tạo" },
+  { key: "CreatedAt", sortName: "created_at", label: "Ngày tạo" },
 ];
 
 const WarrantyTimeTable = ({
@@ -35,6 +41,7 @@ const WarrantyTimeTable = ({
   onDeleted,
   onEdited,
 }: IWarrantyTimeTableProps) => {
+  const authMethod = useAuthContext();
   const onConfirmDelete = useCallback(
     async (id: string | number) => {
       // eslint-disable-next-line no-useless-catch
@@ -58,15 +65,16 @@ const WarrantyTimeTable = ({
       onSortOrder={onSortOrder}
       actions={(row) => (
         <>
-          <Edit
-            onEdited={onEdited}
-            warrantyTime={row}
-          />
-          <ConfirmDeleteButton
-            id={row.ID}
-            onConfirm={onConfirmDelete}
-            title={`Bạn có chắc chắn muốn xóa sản phẩm ${row.ten}?`}
-          />
+          {authMethod?.checkPermission("update-thoi-gian-bao-hanh") && (
+            <Edit onEdited={onEdited} warrantyTime={row} />
+          )}
+          {authMethod?.checkPermission("delete-thoi-gian-bao-hanh") && (
+            <ConfirmDeleteButton
+              id={row.ID}
+              onConfirm={onConfirmDelete}
+              title={`Bạn có chắc chắn muốn xóa sản phẩm ${row.ten}?`}
+            />
+          )}
         </>
       )}
     />

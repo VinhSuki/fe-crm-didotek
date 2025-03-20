@@ -60,7 +60,6 @@ const Login: React.FC = () => {
       const userInfo = await authApi.login(data.ten_dang_nhap, data.mat_khau);
 
       if (userInfo.data?.data) {
-        console.log(userInfo);
         authMethod?.login(userInfo.data?.data);
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any

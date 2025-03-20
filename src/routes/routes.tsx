@@ -8,6 +8,9 @@ import PublicRoute from "@/components/common/PublicRoute";
 import PrivateRoute from "@/components/common/PrivateRoute";
 import Home from "@/pages/Home";
 import { MainContent } from "@/components/layout/Partials/MainContent";
+import { useAuthContext } from "@/context/AuthContext";
+import Page403 from "@/pages/403";
+import WarehouseProvider from "@/context/WarehouseContext";
 
 const Loadable = <P extends object>(
   Component: ComponentType<P>
@@ -72,12 +75,15 @@ const AddExportWarehouse = Loadable(
 );
 
 function AppRouter() {
+  const authMethod = useAuthContext();
   const routes = [
     {
       path: "/",
       element: (
         <PrivateRoute>
-          <DefaultLayout />
+          <WarehouseProvider>
+            <DefaultLayout />
+          </WarehouseProvider>
         </PrivateRoute>
       ),
       children: [
@@ -149,7 +155,11 @@ function AppRouter() {
             <>
               <PageTitle title="Danh sách loại sản phẩm" />
               <MainContent title="Quản lý loại sản phẩm">
-                <ProductType />
+                {authMethod?.checkPermission("view-loai-san-pham") ? (
+                  <ProductType />
+                ) : (
+                  <Page403 />
+                )}
               </MainContent>
             </>
           ),
@@ -160,7 +170,11 @@ function AppRouter() {
             <>
               <PageTitle title="Danh sách đơn vị tính" />
               <MainContent title="Quản lý đơn vị tính">
-                <Unit />
+                {authMethod?.checkPermission("view-don-vi-tinh") ? (
+                  <Unit />
+                ) : (
+                  <Page403 />
+                )}
               </MainContent>
             </>
           ),
@@ -171,7 +185,11 @@ function AppRouter() {
             <>
               <PageTitle title="Danh sách loại giảm giá" />
               <MainContent title="Quản lý Loại giảm giá">
-                <DiscountType />
+                {authMethod?.checkPermission("view-loai-giam-gia") ? (
+                  <DiscountType />
+                ) : (
+                  <Page403 />
+                )}
               </MainContent>
             </>
           ),
@@ -182,7 +200,11 @@ function AppRouter() {
             <>
               <PageTitle title="Danh sách thời gian bảo hành" />
               <MainContent title="Quản lý thời gian bảo hành">
-                <WarrantyTime />
+                {authMethod?.checkPermission("view-thoi-gian-bao-hanh") ? (
+                  <WarrantyTime />
+                ) : (
+                  <Page403 />
+                )}
               </MainContent>
             </>
           ),
@@ -193,7 +215,11 @@ function AppRouter() {
             <>
               <PageTitle title="Danh sách nhân viên" />
               <MainContent title="Quản lý nhân viên">
-                <Employee />
+                {authMethod?.checkPermission("view-nhan-vien") ? (
+                  <Employee />
+                ) : (
+                  <Page403 />
+                )}
               </MainContent>
             </>
           ),
@@ -204,7 +230,11 @@ function AppRouter() {
             <>
               <PageTitle title="Danh sách kho" />
               <MainContent title="Quản lý kho">
-                <Warehouse />
+                {authMethod?.checkPermission("view-kho") ? (
+                  <Warehouse />
+                ) : (
+                  <Page403 />
+                )}
               </MainContent>
             </>
           ),
@@ -215,7 +245,11 @@ function AppRouter() {
             <>
               <PageTitle title="Danh sách khách hàng" />
               <MainContent title="Quản lý khách hàng">
-                <Customer />
+                {authMethod?.checkPermission("view-khach-hang") ? (
+                  <Customer />
+                ) : (
+                  <Page403 />
+                )}
               </MainContent>
             </>
           ),
@@ -229,7 +263,11 @@ function AppRouter() {
                 <>
                   <PageTitle title="Danh sách nhà phân phối" />
                   <MainContent title="Quản lý nhà phân phối">
-                    <Distributor />
+                    {authMethod?.checkPermission("view-nha-phan-phoi") ? (
+                      <Distributor />
+                    ) : (
+                      <Page403 />
+                    )}
                   </MainContent>
                 </>
               ),
@@ -246,7 +284,11 @@ function AppRouter() {
                       current: "Thêm mới",
                     }}
                   >
-                    <AddDistributor />
+                    {authMethod?.checkPermission("create-nha-phan-phoi") ? (
+                      <AddDistributor />
+                    ) : (
+                      <Page403 />
+                    )}
                   </MainContent>
                 </>
               ),
@@ -263,7 +305,11 @@ function AppRouter() {
                       current: "Cập nhật",
                     }}
                   >
-                    <EditDistributor />
+                    {authMethod?.checkPermission("update-nha-phan-phoi") ? (
+                      <EditDistributor />
+                    ) : (
+                      <Page403 />
+                    )}
                   </MainContent>
                 </>
               ),
@@ -279,7 +325,11 @@ function AppRouter() {
                 <>
                   <PageTitle title="Danh sách hóa đơn nhập kho" />
                   <MainContent title="Quản lý hóa đơn nhập kho">
-                    <ImportWarehouse />
+                    {authMethod?.checkPermission("view-hoa-don-nhap-kho") ? (
+                      <ImportWarehouse />
+                    ) : (
+                      <Page403 />
+                    )}
                   </MainContent>
                 </>
               ),
@@ -289,31 +339,37 @@ function AppRouter() {
               element: (
                 <>
                   <PageTitle title="Nhập kho" />
-                  <MainContent
-                    title="Nhập kho"
-                  >
-                    <AddImportWarehouse />
+                  <MainContent title="Nhập kho">
+                    {authMethod?.checkPermission("create-hoa-don-nhap-kho") ? (
+                      <AddImportWarehouse />
+                    ) : (
+                      <Page403 />
+                    )}
                   </MainContent>
                 </>
               ),
             },
-            {
-              path: "cap-nhat/:productId",
-              element: (
-                <>
-                  <PageTitle title="Cập nhật sản phẩm" />
-                  <MainContent
-                    title="Cập nhật sản phẩm"
-                    breadcrumb={{
-                      parent: { title: "Sản phẩm", url: "/san-pham" },
-                      current: "Cập nhật",
-                    }}
-                  >
-                    <EditProduct />
-                  </MainContent>
-                </>
-              ),
-            },
+            // {
+            //   path: "cap-nhat/:productId",
+            //   element: (
+            //     <>
+            //       <PageTitle title="Cập nhật sản phẩm" />
+            //       <MainContent
+            //         title="Cập nhật sản phẩm"
+            //         breadcrumb={{
+            //           parent: { title: "Sản phẩm", url: "/san-pham" },
+            //           current: "Cập nhật",
+            //         }}
+            //       >
+            //         {authMethod?.checkPermission("update-") ? (
+            //           <DiscountType />
+            //         ) : (
+            //           <Page403 />
+            //         )}
+            //       </MainContent>
+            //     </>
+            //   ),
+            // },
           ],
         },
         {
@@ -325,7 +381,11 @@ function AppRouter() {
                 <>
                   <PageTitle title="Danh sách hóa đơn xuất kho" />
                   <MainContent title="Quản lý hóa đơn xuất kho">
-                    <ExportWarehouse />
+                    {authMethod?.checkPermission("view-hoa-don-xuat-kho") ? (
+                      <ExportWarehouse />
+                    ) : (
+                      <Page403 />
+                    )}
                   </MainContent>
                 </>
               ),
@@ -335,31 +395,33 @@ function AppRouter() {
               element: (
                 <>
                   <PageTitle title="Xuất kho" />
-                  <MainContent
-                    title="Xuất kho"
-                  >
-                    <AddExportWarehouse />
+                  <MainContent title="Xuất kho">
+                    {authMethod?.checkPermission("create-hoa-don-xuat-kho") ? (
+                      <AddExportWarehouse />
+                    ) : (
+                      <Page403 />
+                    )}
                   </MainContent>
                 </>
               ),
             },
-            {
-              path: "cap-nhat/:productId",
-              element: (
-                <>
-                  <PageTitle title="Cập nhật sản phẩm" />
-                  <MainContent
-                    title="Cập nhật sản phẩm"
-                    breadcrumb={{
-                      parent: { title: "Sản phẩm", url: "/san-pham" },
-                      current: "Cập nhật",
-                    }}
-                  >
-                    <EditProduct />
-                  </MainContent>
-                </>
-              ),
-            },
+            // {
+            //   path: "cap-nhat/:productId",
+            //   element: (
+            //     <>
+            //       <PageTitle title="Cập nhật sản phẩm" />
+            //       <MainContent
+            //         title="Cập nhật sản phẩm"
+            //         breadcrumb={{
+            //           parent: { title: "Sản phẩm", url: "/san-pham" },
+            //           current: "Cập nhật",
+            //         }}
+            //       >
+            //         <EditProduct />
+            //       </MainContent>
+            //     </>
+            //   ),
+            // },
           ],
         },
       ],

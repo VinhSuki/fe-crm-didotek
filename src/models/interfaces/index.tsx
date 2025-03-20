@@ -142,6 +142,7 @@ export interface IEmployee {
   DeletedAt: string;
   CreatedAt: string;
   created_at: string;
+  quyen?:string[]
 }
 
 export interface IDistributor {
@@ -205,6 +206,8 @@ export interface IExportProduct {
   so_luong_ban: string | number;
   thanh_tien: string | number;
   thanh_tien_truoc_chiet_khau: string | number;
+  sku?:string;
+  sku_xuat?:string;
   ds_sku: {
     sku: string;
     so_luong_ban: string | number;
@@ -248,9 +251,9 @@ export interface IExportWarehouse {
   khach_hang_id: string | number;
   khach_hang: string;
   nhan_vien_giao_hang_id: string | number;
-  nv_giao_hang: string | number;
-  nv_sale: string;
-  nv_sale_id: string | number;
+  nhan_vien_giao_hang: string | number;
+  nhan_vien_sale: string;
+  nhan_vien_sale_id: string | number;
   ghi_chu: string;
   ngay_xuat: Date | string;
   so_hoa_don: string;

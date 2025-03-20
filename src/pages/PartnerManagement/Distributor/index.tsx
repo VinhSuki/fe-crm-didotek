@@ -4,6 +4,7 @@ import PaginationCustom from "@/components/common/PaginationCustom";
 import DistributorTable from "@/components/common/Table/DistributorTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useAuthContext } from "@/context/AuthContext";
 import { ESortOrderValue } from "@/models/enums/option";
 import {
   fetchDynamicData,
@@ -12,7 +13,7 @@ import {
   setEdited,
   setFilters,
   setPagination,
-  setSortOrder
+  setSortOrder,
 } from "@/redux/slices/genericPage.slice";
 import { AppDispatch, RootState } from "@/redux/store";
 import { Plus } from "lucide-react";
@@ -24,7 +25,7 @@ const ENTITY_KEY = "distributor"; // Định danh động
 
 export default function Index() {
   const dispatch = useDispatch<AppDispatch>();
-
+  const authMethod = useAuthContext();
   const {
     data: distributors = [],
     filters = [],
@@ -61,12 +62,14 @@ export default function Index() {
       {/* Product Table */}
       <Card>
         <CardHeader className="flex-row justify-end items-center border-b">
-          <Link to="/nha-phan-phoi/them-moi">
-            <Button className="bg-primary hover:bg-secondary text-white">
-              <Plus />
-              <span>Thêm mới</span>
-            </Button>
-          </Link>
+          {authMethod?.checkPermission("create-nha-phan-phoi") && (
+            <Link to="/nha-phan-phoi/them-moi">
+              <Button className="bg-primary hover:bg-secondary text-white">
+                <Plus />
+                <span>Thêm mới</span>
+              </Button>
+            </Link>
+          )}
         </CardHeader>
         <CardContent className="p-4">
           <DistributorTable

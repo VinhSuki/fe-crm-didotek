@@ -1,6 +1,6 @@
 /* eslint-disable no-useless-catch */
 // import { IProductDetailResponse } from "@/models/interfaces/product";
-import axiosPublic from "@/apis/client/public.client";
+import axiosPrivate from "@/apis/client/private.client";
 import { ESortOrderValue } from "@/models/enums/option";
 import { FilterSearch, IApiResponse, IDiscountType } from "@/models/interfaces";
 
@@ -16,14 +16,14 @@ const discountTypeApi = {
     sort?: keyof IDiscountType | "";
     order?: ESortOrderValue;
   }): Promise<IApiResponse<IDiscountType[]>> {
-    return axiosPublic.get(discountTypeEndpoints.common, {
+    return axiosPrivate.get(discountTypeEndpoints.common, {
       params: { ...params, filters: JSON.stringify(params.filters) },
     });
   },
   async add(data: { ten: string; gia_tri: number }): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.post(discountTypeEndpoints.common, data);
+      return await axiosPrivate.post(discountTypeEndpoints.common, data);
     } catch (error) {
       throw error;
     }
@@ -31,7 +31,7 @@ const discountTypeApi = {
   async delete(id: number | string): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPublic.delete(discountTypeEndpoints.common + "/" + id);
+      return await axiosPrivate.delete(discountTypeEndpoints.common + "/" + id);
     } catch (error) {
       throw error;
     }
@@ -48,7 +48,7 @@ const discountTypeApi = {
       id: Number(data.id),
     };
     try {
-      return await axiosPublic.put(discountTypeEndpoints.common, {
+      return await axiosPrivate.put(discountTypeEndpoints.common, {
         ...convertData,
       });
     } catch (error) {

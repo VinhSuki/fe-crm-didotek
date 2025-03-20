@@ -1,8 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import warehouseApi from "@/apis/modules/warehouse.api";
 import { useAuthContext } from "@/context/AuthContext";
 import { IWarehouse } from "@/models/interfaces";
+import Cookies from "js-cookie";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -36,14 +38,18 @@ function WarehouseProvider({ children }: WarehouseProviderProps) {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const token = Cookies.get("token")
+    console.log(token);
     const fetchApi = async () => {
+      console.log("call api");
       const res = await warehouseApi.list({});
       if (res.data?.data) {
         setList(res.data.data);
       }
     };
-    if (authMethod?.isAuthenticated) fetchApi();
-  }, [navigate, authMethod?.isAuthenticated]);
+    if (authMethod?.isAuthenticated && authMethod.checkPermission("view-kho") && token)
+      fetchApi();
+  }, [navigate]);
 
   return (
     <WarehouseContext.Provider value={{ list, selectedId, setSelectedId }}>

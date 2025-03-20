@@ -1,7 +1,13 @@
 import productTypeApi from "@/apis/modules/productType.api";
 import ConfirmDeleteButton from "@/components/common/ConfirmDeleteButton";
 import GenericTable from "@/components/common/GenericTable";
-import { Column, FilterSearch, IProductType, ISortOrder } from "@/models/interfaces";
+import { useAuthContext } from "@/context/AuthContext";
+import {
+  Column,
+  FilterSearch,
+  IProductType,
+  ISortOrder,
+} from "@/models/interfaces";
 import Edit from "@/pages/ProductManagement/ProductType/Edit";
 import { useCallback } from "react";
 
@@ -16,18 +22,18 @@ interface IProductTypesTableProps {
 }
 
 const columns: Column<IProductType>[] = [
-  { key: "ID", sortName: "ID", label: "ID"},
+  { key: "ID", sortName: "ID", label: "ID" },
   {
     key: "ten",
     label: "Tên loại sản phẩm",
-    sortName:"ten",
+    sortName: "ten",
     searchCondition: "text",
   },
   {
-    key:"hinh_anh",
-    label:"Hình ảnh",
+    key: "hinh_anh",
+    label: "Hình ảnh",
   },
-  { key: "CreatedAt",sortName:"created_at", label: "Ngày tạo" },
+  { key: "CreatedAt", sortName: "created_at", label: "Ngày tạo" },
 ];
 
 const ProductTypeTable = ({
@@ -39,6 +45,7 @@ const ProductTypeTable = ({
   onDeleted,
   onEdited,
 }: IProductTypesTableProps) => {
+  const authMethod = useAuthContext();
   const onConfirmDelete = useCallback(
     async (id: string | number) => {
       // eslint-disable-next-line no-useless-catch
@@ -62,15 +69,16 @@ const ProductTypeTable = ({
       onSortOrder={onSortOrder}
       actions={(row) => (
         <>
-          <Edit
-            onEdited={onEdited}
-            productType={row}
-          />
-          <ConfirmDeleteButton
-            id={row.ID}
-            onConfirm={onConfirmDelete}
-            title={`Bạn có chắc chắn muốn xóa sản phẩm ${row.ten}?`}
-          />
+          {authMethod?.checkPermission("update-loai-san-pham") && (
+            <Edit onEdited={onEdited} productType={row} />
+          )}
+          {authMethod?.checkPermission("delete-loai-san-pham") && (
+            <ConfirmDeleteButton
+              id={row.ID}
+              onConfirm={onConfirmDelete}
+              title={`Bạn có chắc chắn muốn xóa sản phẩm ${row.ten}?`}
+            />
+          )}
         </>
       )}
     />

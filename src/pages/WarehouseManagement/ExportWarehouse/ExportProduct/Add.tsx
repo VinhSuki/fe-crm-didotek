@@ -296,6 +296,7 @@ export default function Add({
     }
     setToggleSubmitted(!toggleSubmitted);
   };
+  console.log(product);
 
   const handleSubmit = async () => {
     const data = form.getValues();
