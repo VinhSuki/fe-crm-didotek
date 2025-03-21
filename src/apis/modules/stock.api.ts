@@ -2,19 +2,17 @@
 import axiosPrivate from "@/apis/client/private.client";
 import {
   IApiResponse,
-  ISku
+  IStock
 } from "@/models/interfaces";
 
-const productEndpoints = {
+const stockEndpoints = {
   common: "ton-kho",
 };
 
-const productApi = {
-  async detail(ctsp_id:string|number): Promise<IApiResponse<ISku[]>> {
-    return axiosPrivate.get(productEndpoints.common, {
-      params: { ctsp_id },
-    });
+const stockApi = {
+  async detail(ctsp_id:string|number): Promise<IApiResponse<IStock[]>> {
+    return axiosPrivate.get(stockEndpoints.common + "/" + ctsp_id);
   }
 };
 
-export default productApi;
+export default stockApi;

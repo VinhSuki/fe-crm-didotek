@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import importWarehouseApi from "@/apis/modules/importWarehouse.api";
 import productApi from "@/apis/modules/product.api";
+import stockApi from "@/apis/modules/stock.api";
 import NumericInput from "@/components/common/NumericInput";
 import SelectGroupSearch from "@/components/common/SelectGroupSearch";
 import SelectSearch from "@/components/common/SelectSearch";
@@ -26,13 +26,13 @@ import {
 import {
   IExportProduct,
   IGroupProduct,
-  IImportProduct,
-  IImportWarehouse,
   IOption,
   IProduct,
   ISku,
+  IStock
 } from "@/models/interfaces";
 import SkuTable from "@/pages/WarehouseManagement/ExportWarehouse/ExportProduct/SkuTable";
+import { convertRFC1123 } from "@/utils/convertRFC1123";
 import formatVND from "@/utils/formatVND";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
@@ -92,9 +92,7 @@ export default function Add({
   const [listGroupProduct, setListGroupProduct] = useState<IGroupProduct[]>([]);
   const [listOptionSku, setListOptionSku] = useState<IOption[]>([]);
   const [listSku, setListSku] = useState<ISku[]>([]);
-  const [listImportWarehouse, setListImportWarehouse] = useState<
-    IImportWarehouse[]
-  >([]);
+  const [listStock, setListStock] = useState<IStock[]>([]);
   const [valueCheckbox, setValueCheckbox] = useState<{
     gia_ban: string | number;
     chiet_khau: string | number;
@@ -112,19 +110,19 @@ export default function Add({
     }
   };
   const handleDeleteSku = async (sku: number | string) => {
-    const skuDetail: IImportProduct | undefined = listImportWarehouse
-      .flatMap((el) => el.ds_san_pham_nhap) // Trải mảng con thành một mảng duy nhất
-      .find((p) => p.sku === sku);
+    const stockDetail: IStock | undefined = listStock.find(
+      (st) => st.sku === sku
+    );
     const newListSku = listSku.filter((p) => p.sku !== sku);
     setListSku(newListSku);
-    if (skuDetail) {
+    if (stockDetail) {
       setListOptionSku((prev) =>
         [
           ...prev,
           {
-            ID: skuDetail.sku ?? "",
-            ten: `${skuDetail.sku} (SL:${skuDetail.so_luong} - HSD:${
-              skuDetail.han_su_dung ?? "Không có"
+            ID: stockDetail.sku ?? "",
+            ten: `${stockDetail.sku} (SL:${stockDetail.so_luong_ton} - HSD:${
+              convertRFC1123(String(stockDetail.han_su_dung)) ?? "Không có"
             })`,
           },
         ].sort((a, b) => Number(a.ID) - Number(b.ID))
@@ -169,35 +167,27 @@ export default function Add({
       const [groupId, itemId] = product.split(":");
       const group = listGroupProduct.find((p) => String(p.groupId) === groupId);
       const productDetail = group!.items.find((i) => String(i.ID) === itemId);
-      const res = await importWarehouseApi.list({
-        filters: [
-          { field: "ctsp_id", condition: "=", value: itemId },
-          {
-            field: "chi_tiet_hoa_don_nhap_kho.so_luong",
-            condition: ">",
-            value: "0",
-          },
-        ],
-      });
+      const res = await stockApi.detail(itemId);
       const data = res.data?.data;
       if (data) {
         const list: IOption[] = [];
         const exportSkus = new Set(
-          listExportProducts.flatMap((product) => product.ds_sku.map((skuItem) => skuItem.sku))
+          listExportProducts.flatMap((product) =>
+            product.ds_sku.map((skuItem) => skuItem.sku)
+          )
         );
-        data.forEach((el) => {
-          const validProducts = el.ds_san_pham_nhap.filter((sp) => !exportSkus.has(sp.sku ?? ""));
-        
-          list.push(
-            ...validProducts.map((sp) => ({
-              ID: sp.sku ?? "",
-              ten: `${sp.sku} (SL:${sp.so_luong} - HSD:${sp.han_su_dung ?? "Không có"})`,
-            }))
-          );
-        });
+        const validData = data.filter((sp) => !exportSkus.has(sp.sku ?? ""));
+        list.push(
+          ...validData.map((sp) => ({
+            ID: sp.sku ?? "",
+            ten: `${sp.sku} (SL:${sp.so_luong_ton} - HSD:${
+              convertRFC1123(String(sp.han_su_dung)) ?? "Không có"
+            })`,
+          }))
+        );
 
         setListOptionSku(list);
-        setListImportWarehouse(data);
+        setListStock(data);
         setListSku([]);
         form.setValue("sku", "");
         form.setValue("san_pham_id", groupId);
@@ -212,19 +202,38 @@ export default function Add({
     if (product) fetchApi();
   }, [product]);
   useEffect(() => {
+    const list: IOption[] = [];
+    const exportSkus = new Set(
+      listExportProducts.flatMap((product) =>
+        product.ds_sku.map((skuItem) => skuItem.sku)
+      )
+    );
+    const validData = listStock.filter((sp) => !exportSkus.has(sp.sku ?? ""));
+    list.push(
+      ...validData.map((sp) => ({
+        ID: sp.sku ?? "",
+        ten: `${sp.sku} (SL:${sp.so_luong_ton} - HSD:${
+          convertRFC1123(String(sp.han_su_dung)) ?? "Không có"
+        })`,
+      }))
+    );
+
+    setListOptionSku(list);
+  }, [listExportProducts]);
+  useEffect(() => {
     if (sku) {
-      const skuDetail: IImportProduct | undefined = listImportWarehouse
-        .flatMap((el) => el.ds_san_pham_nhap) // Trải mảng con thành một mảng duy nhất
-        .find((p) => p.sku === sku);
+      const stockDetail: IStock | undefined = listStock.find(
+        (st) => st.sku === sku
+      );
       setListSku((prev) => [
         ...prev,
         {
           sku,
-          han_su_dung: skuDetail?.han_su_dung ?? "",
-          don_vi_tinh: skuDetail?.don_vi_tinh ?? "",
-          so_luong_ton: skuDetail?.so_luong ?? "1",
+          han_su_dung: stockDetail?.han_su_dung ?? "",
+          don_vi_tinh: stockDetail?.don_vi_tinh ?? "",
+          so_luong_ton: stockDetail?.so_luong_ton ?? "1",
           so_luong_ban: "1",
-          gia_ban_truoc: skuDetail?.gia_ban ?? "1",
+          gia_ban_truoc: stockDetail?.gia_ban ?? "1",
         },
       ]);
       setListOptionSku(listOptionSku.filter((el) => el.ID !== sku));
@@ -296,7 +305,6 @@ export default function Add({
     }
     setToggleSubmitted(!toggleSubmitted);
   };
-  console.log(product);
 
   const handleSubmit = async () => {
     const data = form.getValues();
@@ -412,6 +420,7 @@ export default function Add({
                     <FormLabel>Chiết khấu (VND)</FormLabel>
                     <FormControl>
                       <NumericInput
+                        readOnly
                         min={0}
                         value={formatVND(field.value ?? "0")}
                         onChange={field.onChange}

@@ -224,6 +224,15 @@ export interface ISku {
   gia_ban_truoc: string | number;
 }
 
+export interface IStock{
+  sku: string;
+  han_su_dung: Date | string;
+  don_vi_tinh: string;
+  so_luong_ton: string | number;
+  so_luong_ban: string | number;
+  gia_ban: string | number;
+}
+
 export interface IImportWarehouse {
   ID: number | string;
   con_lai: string | number;
@@ -291,4 +300,20 @@ export interface IGroupProduct {
     upc: string;
     don_vi_tinh: string;
   }[];
+}
+export interface IPermission{
+  ID:string | number;
+  ten:string;
+  code:string;
+  trang_thai:boolean
+}
+
+export interface IActive{
+  ID:string | number;
+  active:boolean
+}
+export interface IRolePermission{
+  hien_thi_menu:string;
+  loai_quyen:string;
+  quyen:IPermission[]
 }

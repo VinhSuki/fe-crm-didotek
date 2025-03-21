@@ -74,6 +74,14 @@ const AddExportWarehouse = Loadable(
   lazy(() => import("@/pages/WarehouseManagement/ExportWarehouse/Add"))
 );
 
+const Role = Loadable(
+  lazy(() => import("@/pages/EmployeeManagement/RolePermission"))
+);
+
+const Permission = Loadable(
+  lazy(() => import("@/pages/EmployeeManagement/RolePermission/Permission"))
+);
+
 function AppRouter() {
   const authMethod = useAuthContext();
   const routes = [
@@ -422,6 +430,40 @@ function AppRouter() {
             //     </>
             //   ),
             // },
+          ],
+        },
+        {
+          path: "/chuc-vu",
+          children: [
+            {
+              path: "",
+              element: (
+                <>
+                  <PageTitle title="Danh sách chức vụ" />
+                  <MainContent title="Danh sách chức vụ" subTitle="Quản lý chức vụ">
+                    {authMethod?.checkPermission("view-chuc-vu") ? (
+                      <Role />
+                    ) : (
+                      <Page403 />
+                    )}
+                  </MainContent>
+                </>
+              ),
+            },
+            {
+              path: ":roleId/quyen-han",
+              element: (
+                <>
+                  <PageTitle title="Quản lý quyền hạn"/>
+                  <MainContent
+                    title="Chức vụ và quyền hạn"
+                    subTitle="Quản lý quyền hạn"
+                  >
+                    <Permission />
+                  </MainContent>
+                </>
+              ),
+            },
           ],
         },
       ],

@@ -52,7 +52,6 @@ function AuthProvider({ children }: AuthProviderProps) {
     try {
       const res = await authApi.getMe();
       const data = res.data?.data;
-      console.log(data);
       if (data) {
         setAccount(data ?? null);
         setIsAuthenticated(true);
@@ -86,7 +85,7 @@ function AuthProvider({ children }: AuthProviderProps) {
           const res = await authApi.getMe();
           const data = res.data?.data;
           if (data) {
-            console.log(data?.quyen);
+            console.log(data);
             setAccount(data ?? null);
             setIsAuthenticated(true);
             setPermissions(data.quyen ?? []);

@@ -13,6 +13,7 @@ import { ChevronUp } from "lucide-react";
 interface MainContentProps {
   children: React.ReactElement;
   title?: string;
+  subTitle?: string;
   breadcrumb?: {
     parent: {
       title: string;
@@ -22,7 +23,12 @@ interface MainContentProps {
   };
 }
 
-export function MainContent({ children, title, breadcrumb }: MainContentProps) {
+export function MainContent({
+  children,
+  title,
+  breadcrumb,
+  subTitle,
+}: MainContentProps) {
   const navbar = useNavbarContext();
   return (
     <main className="flex-1 p-6 bg-background-overlay/5 space-y-5">
@@ -48,6 +54,8 @@ export function MainContent({ children, title, breadcrumb }: MainContentProps) {
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
+          ) : subTitle ? (
+            <p className="text-sm">{subTitle}</p>
           ) : (
             <p className="text-sm">{title}</p>
           )}

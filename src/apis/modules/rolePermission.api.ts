@@ -1,9 +1,10 @@
 import axiosPrivate from "@/apis/client/private.client";
 import { ESortOrderValue } from "@/models/enums/option";
-import { FilterSearch, IApiResponse, IRole } from "@/models/interfaces";
+import { FilterSearch, IActive, IApiResponse, IRole, IRolePermission } from "@/models/interfaces";
 
 const rolePermissionEndpoints = {
   common: "chuc-vu",
+  permission: "quyen",
 };
 
 const rolePermissionApi = {
@@ -29,7 +30,9 @@ const rolePermissionApi = {
   async delete(id: number | string): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
-      return await axiosPrivate.delete(rolePermissionEndpoints.common + "/" + id);
+      return await axiosPrivate.delete(
+        rolePermissionEndpoints.common + "/" + id
+      );
     } catch (error) {
       throw error;
     }
@@ -41,6 +44,25 @@ const rolePermissionApi = {
     // eslint-disable-next-line no-useless-catch
     try {
       return await axiosPrivate.put(rolePermissionEndpoints.common, data);
+    } catch (error) {
+      throw error;
+    }
+  },
+  async listPermission(chuc_vu_id: string | number): Promise<IApiResponse<IRolePermission[]>> {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      return await axiosPrivate.get(rolePermissionEndpoints.permission + "/" + chuc_vu_id);
+    } catch (error) {
+      throw error;
+    }
+  },
+  async modifyPermission(data: {
+    chuc_vu_id: number;
+    quyen: IActive[];
+  }): Promise<IApiResponse> {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      return await axiosPrivate.patch(rolePermissionEndpoints.permission + '/modify' , data);
     } catch (error) {
       throw error;
     }

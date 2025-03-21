@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import customerApi from "@/apis/modules/customer.api";
 import employeeApi from "@/apis/modules/employee.api";
+import exportWarehouseApi from "@/apis/modules/exportWarehouse.api";
 import NumericInput from "@/components/common/NumericInput";
 import SelectSearch from "@/components/common/SelectSearch";
 import { Button } from "@/components/ui/button";
@@ -42,7 +43,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import AddExportProduct from "./ExportProduct/Add";
 import ExportProductTable from "./ExportProduct/Table";
-import exportWarehouseApi from "@/apis/modules/exportWarehouse.api";
 // import AddImportProduct from "./Product/Add";
 
 const listOptionTypeDiscount: IOption[] = [
@@ -218,7 +218,7 @@ const Add = () => {
     if (data) {
       setList(
         data.map((v) => ({
-          ID: v.ID,
+          ID: v.ID ?? v.chuc_vu_id,
           ten: v.ho_ten,
         }))
       );
@@ -245,12 +245,14 @@ const Add = () => {
     getApiList();
   }, []);
 
+  console.log(listOptionDeliveryEmployees);
+
   const onSubmit = async (data: ExportWarehouseFormValues) => {
     const convertData = await convertExportWarehouse(data);
     try {
       await exportWarehouseApi.add(convertData);
       showSuccessAlert("Thêm dữ liệu thành công!");
-      // navigate("/xuat-kho");
+      navigate("/xuat-kho");
     } catch (error: any) {
       showErrorAlert(error.message);
       // form.setError("ten", { type: "manual", message: error.message });
