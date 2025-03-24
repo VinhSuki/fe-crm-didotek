@@ -62,7 +62,7 @@ const Permission = () => {
         chuc_vu_id: Number(roleId),
         quyen: listActive.map((v) => ({
           ...v,
-          active: Boolean(v.active),
+          active: v.active ? 1 : 0,
         })),
       });
       showSuccessAlert("Thêm dữ liệu thành công!");

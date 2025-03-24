@@ -51,7 +51,7 @@ import AddImportProduct from "./ImportProduct/Add";
 // import AddImportProduct from "./Product/Add";
 
 const importWarehouseSchema = z.object({
-  ngay_nhap: z.date({
+  ngay_nhap: z.coerce.date({
     required_error: "Vui lòng chọn ngày nhập",
   }),
   nha_phan_phoi_id: z.string({

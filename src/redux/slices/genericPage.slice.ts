@@ -2,7 +2,7 @@
 import { PAGINATION } from "@/constant";
 import { ESortOrderValue } from "@/models/enums/option";
 import { FilterSearch, IApiResponse, ISortOrder } from "@/models/interfaces";
-import { IPagination } from "@/models/interfaces/pagination";
+import { IPagination } from "@/models/interfaces";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
@@ -16,6 +16,8 @@ interface DynamicState<T> {
   isDeleted: boolean;
   isEdited: boolean;
   isAdded: boolean;
+  isLocked: boolean;
+  isReturned: boolean;
   isInitialized: boolean; // 🆕 Thêm trạng thái khởi tạo
 }
 
@@ -29,6 +31,8 @@ const createDynamicInitialState = <T>(): DynamicState<T> => ({
   isDeleted: false,
   isAdded: false,
   isEdited: false,
+  isLocked:false,
+  isReturned:false,
   isInitialized: false, // 🆕 Ban đầu chưa khởi tạo
 });
 
@@ -69,6 +73,12 @@ export const fetchDynamicData = createAsyncThunk(
     }
     if (entityState.isEdited) {
       dispatch(setEdited(key));
+    }
+    if (entityState.isLocked) {
+      dispatch(setLocked(key));
+    }
+    if (entityState.isReturned) {
+      dispatch(setReturned(key));
     }
     dispatch(
       setPagination({
@@ -114,6 +124,12 @@ const genericPage = createSlice({
     setEdited: (state, action: PayloadAction<string>) => {
       state[action.payload].isEdited = !state[action.payload].isEdited;
     },
+    setLocked: (state, action: PayloadAction<string>) => {
+      state[action.payload].isLocked = !state[action.payload].isLocked;
+    },
+    setReturned: (state, action: PayloadAction<string>) => {
+      state[action.payload].isReturned = !state[action.payload].isReturned;
+    },
     initState: (state, action: PayloadAction<string>) => {
       if (!state[action.payload]) {
         state[action.payload] = createDynamicInitialState();
@@ -148,6 +164,8 @@ export const {
   setAdded,
   setDeleted,
   setEdited,
+  setLocked,
+  setReturned,
   initState,
 } = genericPage.actions;
 export default genericPage.reducer;

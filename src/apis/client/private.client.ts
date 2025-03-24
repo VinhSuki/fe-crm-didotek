@@ -69,11 +69,11 @@ axiosPrivate.interceptors.response.use(
     //     return Promise.reject(refreshError)
     //   }
     // }
-    if (error.response.status === 401) {
-      console.log("Loi 401");
-      Cookies.remove("token");
-      window.location.href = "/dang-nhap";
-    }
+    // if (error.response.status === 401) {
+    //   console.log("Loi 401");
+    //   Cookies.remove("token");
+    //   window.location.href = "/dang-nhap";
+    // }
 
     // Xử lý lỗi Authorization (403 Forbidden)
     if (error.response?.status === 403) {

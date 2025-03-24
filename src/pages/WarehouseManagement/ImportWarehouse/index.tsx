@@ -11,7 +11,9 @@ import {
   fetchDynamicData,
   initState,
   setFilters,
+  setLocked,
   setPagination,
+  setReturned,
   setSortOrder,
 } from "@/redux/slices/genericPage.slice";
 import { AppDispatch, RootState } from "@/redux/store";
@@ -37,6 +39,8 @@ export default function Index() {
     isAdded,
     isDeleted,
     isInitialized,
+    isLocked,
+    isReturned,
   } = useSelector((state: RootState) => state.genericPage[ENTITY_KEY] || {});
 
   useEffect(() => {
@@ -57,6 +61,8 @@ export default function Index() {
     isDeleted,
     isInitialized,
     isEdited,
+    isLocked,
+    isReturned,
   ]);
   return (
     <div className="space-y-6 relative">
@@ -79,6 +85,8 @@ export default function Index() {
           )}
         >
           <ImportWarehouseTable
+            onReturned={() => dispatch(setReturned(ENTITY_KEY))}
+            onLocked={() => dispatch(setLocked(ENTITY_KEY))}
             importWarehouses={importWarehouses} // Dữ liệu lấy từ Redux
             filters={filters}
             sortOrder={sortOrder}

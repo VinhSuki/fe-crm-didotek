@@ -1,7 +1,7 @@
 import { ESortOrderValue } from "@/models/enums/option";
 import { JSX } from "react";
 
-export interface Pagination {
+export interface IPagination {
   currentPage: number;
   totalPage: number;
 }
@@ -142,7 +142,7 @@ export interface IEmployee {
   DeletedAt: string;
   CreatedAt: string;
   created_at: string;
-  quyen?:string[]
+  quyen?: string[];
 }
 
 export interface IDistributor {
@@ -178,6 +178,7 @@ export interface IWarehouse {
 }
 
 export interface IImportProduct {
+  ID?:string | number
   chiet_khau: string | number;
   ctsp_id: number | string;
   don_vi_tinh: string;
@@ -188,7 +189,7 @@ export interface IImportProduct {
   san_pham_id: number | string;
   so_luong: string | number;
   upc: string;
-  han_su_dung: Date | string;
+  han_su_dung: Date;
   ctsp_ten?: string;
   thanh_tien: string | number;
   sku?: string;
@@ -206,8 +207,8 @@ export interface IExportProduct {
   so_luong_ban: string | number;
   thanh_tien: string | number;
   thanh_tien_truoc_chiet_khau: string | number;
-  sku?:string;
-  sku_xuat?:string;
+  sku?: string;
+  sku_xuat?: string;
   ds_sku: {
     sku: string;
     so_luong_ban: string | number;
@@ -224,7 +225,7 @@ export interface ISku {
   gia_ban_truoc: string | number;
 }
 
-export interface IStock{
+export interface IStock {
   sku: string;
   han_su_dung: Date | string;
   don_vi_tinh: string;
@@ -246,6 +247,7 @@ export interface IImportWarehouse {
   so_hoa_don: string;
   tong_tien: string | number;
   tra_truoc: string | number;
+  khoa_don?: boolean;
   ds_san_pham_nhap: IImportProduct[];
   UpdatedAt: string;
   DeletedAt: string;
@@ -301,19 +303,19 @@ export interface IGroupProduct {
     don_vi_tinh: string;
   }[];
 }
-export interface IPermission{
-  ID:string | number;
-  ten:string;
-  code:string;
-  trang_thai:boolean
+export interface IPermission {
+  ID: string | number;
+  ten: string;
+  code: string;
+  trang_thai: boolean;
 }
 
-export interface IActive{
-  ID:string | number;
-  active:boolean
+export interface IActive {
+  ID: string | number;
+  active: boolean | number;
 }
-export interface IRolePermission{
-  hien_thi_menu:string;
-  loai_quyen:string;
-  quyen:IPermission[]
+export interface IRolePermission {
+  hien_thi_menu: string;
+  loai_quyen: string;
+  quyen: IPermission[];
 }
