@@ -71,15 +71,6 @@ export const fetchDynamicData = createAsyncThunk(
         : currentPage;
       dispatch(setAdded(key)); // Gọi action để cập nhật isAdded
     }
-    if (entityState.isEdited) {
-      dispatch(setEdited(key));
-    }
-    if (entityState.isLocked) {
-      dispatch(setLocked(key));
-    }
-    if (entityState.isReturned) {
-      dispatch(setReturned(key));
-    }
     dispatch(
       setPagination({
         key,

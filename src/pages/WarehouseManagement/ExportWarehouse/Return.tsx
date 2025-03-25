@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import importWarehouseApi from "@/apis/modules/importWarehouse.api";
+import exportWarehouseApi from "@/apis/modules/exportWarehouse.api";
 import NumericInput from "@/components/common/NumericInput";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,7 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { IImportWarehouse } from "@/models/interfaces";
+import { IExportWarehouse } from "@/models/interfaces";
 import { showErrorAlert, showSuccessAlert } from "@/utils/alert";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
@@ -41,7 +41,7 @@ const productSchema = z.object({
   ds_san_pham_tra: z.array(
     z.object({
       so_luong_tra: z.union([z.string(), z.number()]),
-      cthd_nhap_kho_id: z.union([z.string(), z.number()]),
+      cthd_xuat_kho_id: z.union([z.string(), z.number()]),
       sku: z.string(),
     })
   ),
@@ -49,42 +49,42 @@ const productSchema = z.object({
 
 type productFormValues = z.infer<typeof productSchema>;
 interface TableProps {
-  importWarehouse: IImportWarehouse;
+  exportWarehouse: IExportWarehouse;
   onReturned:()=>void
 }
 
-export default function Return({ importWarehouse,onReturned }: TableProps) {
+export default function Return({ exportWarehouse,onReturned }: TableProps) {
   const form = useForm<productFormValues>({
     resolver: zodResolver(productSchema), // Truyền warehouses vào schema
   });
   const [open, setOpen] = useState(false);
-  const listImportProduct = importWarehouse.ds_san_pham_nhap;
+  const listImportProduct = exportWarehouse.ds_san_pham_xuat;
   const handleResetForm = () => {
     form.reset();
     setOpen(false);
   };
   useEffect(() => {
     form.reset({
-      hoa_don_id: importWarehouse.ID,
-      ds_san_pham_tra: importWarehouse.ds_san_pham_nhap.map((p) => ({
+      hoa_don_id: exportWarehouse.ID,
+      ds_san_pham_tra: exportWarehouse.ds_san_pham_xuat.map((p) => ({
         so_luong_tra: "0",
-        cthd_nhap_kho_id: p.ID,
+        cthd_xuat_kho_id: p.ID,
         sku: p.sku,
       })),
     });
-  }, [importWarehouse]);
+  }, [exportWarehouse]);
   const handleSubmit = async () => {
     const data = form.getValues();
     const convertData = {
       hoa_don_id: Number(data.hoa_don_id),
       ds_san_pham_tra: data.ds_san_pham_tra.map((p) => ({
         ...p,
-        cthd_nhap_kho_id: Number(p.cthd_nhap_kho_id),
+        cthd_xuat_kho_id: Number(p.cthd_xuat_kho_id),
         so_luong_tra: Number(p.so_luong_tra),
       })),
     };
     try {
-      await importWarehouseApi.return(convertData);
+      await exportWarehouseApi.return(convertData);
       handleResetForm();
       onReturned();
       showSuccessAlert("Thêm dữ liệu thành công!");
@@ -102,7 +102,7 @@ export default function Return({ importWarehouse,onReturned }: TableProps) {
       <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle className="border-b pb-4 text-base">
-            Trả hàng cho hóa đơn #{importWarehouse.ma_hoa_don ?? ""}
+            Trả hàng cho hóa đơn #{exportWarehouse.ma_hoa_don ?? ""}
           </DialogTitle>
         </DialogHeader>
         <>
@@ -148,7 +148,7 @@ export default function Return({ importWarehouse,onReturned }: TableProps) {
                       <TableRow key={index}>
                         <TableCell>{row.sku}</TableCell>
                         <TableCell>{row.ctsp_ten}</TableCell>
-                        <TableCell>{row.so_luong}</TableCell>
+                        <TableCell>{row.so_luong_ban}</TableCell>
                         <TableCell>
                           <FormField
                             control={form.control}
@@ -158,7 +158,7 @@ export default function Return({ importWarehouse,onReturned }: TableProps) {
                                 <FormControl>
                                   <NumericInput
                                     min={0}
-                                    max={Number(row.so_luong)}
+                                    max={Number(row.so_luong_ban)}
                                     value={field.value}
                                     onChange={field.onChange}
                                   />

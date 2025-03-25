@@ -49,6 +49,7 @@ export default function Index() {
 
   useEffect(() => {
     if (isInitialized) {
+      console.log("call");
       // 🆕 Chỉ gọi API khi đã khởi tạo
       dispatch(fetchDynamicData({ key: ENTITY_KEY, api: importWarehouseApi }));
     }

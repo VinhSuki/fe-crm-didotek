@@ -11,7 +11,9 @@ import {
   fetchDynamicData,
   initState,
   setFilters,
+  setLocked,
   setPagination,
+  setReturned,
   setSortOrder,
 } from "@/redux/slices/genericPage.slice";
 import { AppDispatch, RootState } from "@/redux/store";
@@ -36,6 +38,8 @@ export default function Index() {
     isEdited,
     isAdded,
     isDeleted,
+    isLocked,
+    isReturned,
     isInitialized,
   } = useSelector((state: RootState) => state.genericPage[ENTITY_KEY] || {});
 
@@ -45,6 +49,7 @@ export default function Index() {
 
   useEffect(() => {
     if (isInitialized) {
+      console.log("call");
       // 🆕 Chỉ gọi API khi đã khởi tạo
       dispatch(fetchDynamicData({ key: ENTITY_KEY, api: exportWarehouseApi }));
     }
@@ -57,6 +62,8 @@ export default function Index() {
     isDeleted,
     isInitialized,
     isEdited,
+    isLocked,
+    isReturned,
   ]);
   return (
     <div className="space-y-6 relative">
@@ -79,6 +86,8 @@ export default function Index() {
           )}
         >
           <ExportWarehouseTable
+            onReturned={() => dispatch(setReturned(ENTITY_KEY))}
+            onLocked={() => dispatch(setLocked(ENTITY_KEY))}
             exportWarehouses={exportWarehouses} // Dữ liệu lấy từ Redux
             filters={filters}
             sortOrder={sortOrder}

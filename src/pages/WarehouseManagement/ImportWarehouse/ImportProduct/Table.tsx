@@ -59,13 +59,14 @@ const productSchema = z.object({
 type productFormValues = z.infer<typeof productSchema>;
 interface TableProps {
   listImportProduct: IImportProduct[];
-  toggleSubmitted: boolean;
-  setListDataImportProduct: (data: IImportProduct[]) => void;
-  onDeleted: (id: string | number) => void;
-  onTotalMoneyChange: (totalData: {
+  toggleSubmitted?: boolean;
+  setListDataImportProduct?: (data: IImportProduct[]) => void;
+  onDeleted?: (id: string | number) => void;
+  onTotalMoneyChange?: (totalData: {
     id: string | number;
     total: number;
   }) => void;
+  type?: "edit" | "add";
 }
 
 export default function ImportProductTable({
@@ -74,7 +75,9 @@ export default function ImportProductTable({
   onTotalMoneyChange,
   toggleSubmitted,
   setListDataImportProduct,
+  type = "add",
 }: TableProps) {
+  const isDisabled = type === "edit";
   const form = useForm<productFormValues>({
     resolver: zodResolver(productSchema), // Truyền warehouses vào schema
     defaultValues: {
@@ -90,6 +93,7 @@ export default function ImportProductTable({
         la_qua_tang: p.la_qua_tang || false,
         chiet_khau: p.chiet_khau || "0",
         thanh_tien: "0",
+        han_su_dung: p.han_su_dung || new Date(),
       })),
     },
   });
@@ -133,7 +137,8 @@ export default function ImportProductTable({
   }, [listImportProduct]);
 
   useEffect(() => {
-    setListDataImportProduct(listFormImportProduct);
+    if (setListDataImportProduct)
+      setListDataImportProduct(listFormImportProduct);
   }, [toggleSubmitted]);
   const [listValueCheckbox, setListValueCheckbox] = useState<
     {
@@ -191,7 +196,7 @@ export default function ImportProductTable({
   };
 
   useEffect(() => {
-    if (listFormImportProduct.length > 0) {
+    if (listImportProduct.length > 0) {
       setListValueCheckbox((prev) => [
         ...prev,
         {
@@ -205,7 +210,6 @@ export default function ImportProductTable({
   }, [listImportProduct]);
 
   useEffect(() => {
-    console.log("chay vao tong tien");
     listFormImportProduct.forEach((el, index) => {
       const total =
         Number(el.gia_nhap ?? 0) *
@@ -213,8 +217,7 @@ export default function ImportProductTable({
         (1 - Number(el.chiet_khau ?? 0) / 100);
 
       // Gửi dữ liệu tổng tiền lên component cha
-      onTotalMoneyChange({ id: el.ctsp_id, total });
-      console.log(el);
+      if (onTotalMoneyChange) onTotalMoneyChange({ id: el.ctsp_id, total });
       // Cập nhật giá trị `thanh_tien` trong form
       form.setValue(`ds_san_pham_nhap.${index}.thanh_tien`, total, {
         shouldValidate: true, // Gọi validate lại nếu có
@@ -225,7 +228,7 @@ export default function ImportProductTable({
 
   const onConfirmDelete = useCallback(
     async (id: string | number) => {
-      await onDeleted(id);
+      if (onDeleted) await onDeleted(id);
     },
     [onDeleted]
   ); // Chỉ re-create khi `onDeleted` thay đổi
@@ -313,6 +316,7 @@ export default function ImportProductTable({
                             <PopoverTrigger asChild>
                               <FormControl>
                                 <Button
+                                  disabled={isDisabled}
                                   variant={"outline"}
                                   className={clsx(
                                     "w-full pl-3 text-left font-normal",
@@ -333,6 +337,7 @@ export default function ImportProductTable({
                               align="start"
                             >
                               <Calendar
+                                disabled={isDisabled}
                                 mode="single"
                                 selected={field.value}
                                 onSelect={field.onChange}
@@ -371,6 +376,7 @@ export default function ImportProductTable({
                         <FormItem>
                           <FormControl>
                             <NumericInput
+                              disabled={isDisabled}
                               min={1}
                               value={field.value}
                               onChange={field.onChange}
@@ -388,7 +394,7 @@ export default function ImportProductTable({
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <Input {...field} />
+                            <Input {...field} disabled={isDisabled} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -412,6 +418,7 @@ export default function ImportProductTable({
                                   : undefined
                               }
                               min={0}
+                              disabled={isDisabled}
                               value={formatVND(field.value ?? "0")}
                               onChange={field.onChange}
                             />
@@ -429,6 +436,7 @@ export default function ImportProductTable({
                         <FormItem>
                           <FormControl>
                             <NumericInput
+                              disabled={isDisabled}
                               min={
                                 listFormImportProduct[index]?.gia_nhap
                                   ? Number(
@@ -453,6 +461,7 @@ export default function ImportProductTable({
                         <FormItem>
                           <FormControl>
                             <NumericInput
+                              disabled={isDisabled}
                               min={0}
                               max={99}
                               value={field.value}
@@ -490,10 +499,11 @@ export default function ImportProductTable({
                         <FormItem>
                           <FormControl>
                             <Checkbox
+                              disabled={isDisabled}
                               onClick={() =>
                                 handleToggleCheckbox(index, !field.value)
                               }
-                              checked={field.value}
+                              checked={!!field.value}
                               onCheckedChange={field.onChange}
                             />
                           </FormControl>
@@ -502,11 +512,13 @@ export default function ImportProductTable({
                     />
                   </TableCell>
                   <TableCell>
-                    <ConfirmDeleteButton
-                      id={row.san_pham_id + ":" + row.ctsp_id}
-                      onConfirm={onConfirmDelete}
-                      title={`Bạn có chắc chắn muốn xóa sản phẩm ${row.ctsp_ten}?`}
-                    />
+                    {!isDisabled && (
+                      <ConfirmDeleteButton
+                        id={row.san_pham_id + ":" + row.ctsp_id}
+                        onConfirm={onConfirmDelete}
+                        title={`Bạn có chắc chắn muốn xóa sản phẩm ${row.ctsp_ten}?`}
+                      />
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

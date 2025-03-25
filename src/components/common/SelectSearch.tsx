@@ -9,7 +9,13 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 interface SelectSearchProps {
   form: UseFormReturn<any>;
@@ -17,6 +23,7 @@ interface SelectSearchProps {
   label: string;
   placeholder?: string;
   options: { ID: number | string; ten: string }[];
+  disabled?: boolean;
 }
 
 const SelectSearch = ({
@@ -25,6 +32,7 @@ const SelectSearch = ({
   label,
   placeholder,
   options,
+  disabled,
 }: SelectSearchProps) => {
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -40,6 +48,7 @@ const SelectSearch = ({
         <FormItem>
           {label && <FormLabel>{label}</FormLabel>}
           <Select
+            disabled={disabled}
             onValueChange={field.onChange}
             value={String(field.value || "")}
           >

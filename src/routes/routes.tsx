@@ -66,12 +66,18 @@ const ImportWarehouse = Loadable(
 const AddImportWarehouse = Loadable(
   lazy(() => import("@/pages/WarehouseManagement/ImportWarehouse/Add"))
 );
+const EditImportWarehouse = Loadable(
+  lazy(() => import("@/pages/WarehouseManagement/ImportWarehouse/Edit"))
+);
 
 const ExportWarehouse = Loadable(
   lazy(() => import("@/pages/WarehouseManagement/ExportWarehouse"))
 );
 const AddExportWarehouse = Loadable(
   lazy(() => import("@/pages/WarehouseManagement/ExportWarehouse/Add"))
+);
+const EditExportWarehouse = Loadable(
+  lazy(() => import("@/pages/WarehouseManagement/ExportWarehouse/Edit"))
 );
 
 const Role = Loadable(
@@ -81,6 +87,8 @@ const Role = Loadable(
 const Permission = Loadable(
   lazy(() => import("@/pages/EmployeeManagement/RolePermission/Permission"))
 );
+
+const Chat = Loadable(lazy(() => import("@/pages/Chat")));
 
 function AppRouter() {
   const authMethod = useAuthContext();
@@ -347,9 +355,36 @@ function AppRouter() {
               element: (
                 <>
                   <PageTitle title="Nhập kho" />
-                  <MainContent title="Nhập kho">
+                  <MainContent
+                    title="Thêm nhập kho"
+                    breadcrumb={{
+                      parent: { title: "Nhập kho", url: "/nhap-kho" },
+                      current: "Thêm mới",
+                    }}
+                  >
                     {authMethod?.checkPermission("create-hoa-don-nhap-kho") ? (
                       <AddImportWarehouse />
+                    ) : (
+                      <Page403 />
+                    )}
+                  </MainContent>
+                </>
+              ),
+            },
+            {
+              path: "cap-nhat/:importWarehouseId",
+              element: (
+                <>
+                  <PageTitle title="Cập nhật nhập kho" />
+                  <MainContent
+                    title="Cập nhật nhập kho"
+                    breadcrumb={{
+                      parent: { title: "Nhập kho", url: "/nhap-kho" },
+                      current: "Cập nhật",
+                    }}
+                  >
+                    {authMethod?.checkPermission("update-hoa-don-nhap-kho") ? (
+                      <EditImportWarehouse />
                     ) : (
                       <Page403 />
                     )}
@@ -413,6 +448,27 @@ function AppRouter() {
                 </>
               ),
             },
+            {
+              path: "cap-nhat/:exportWarehouseId",
+              element: (
+                <>
+                  <PageTitle title="Cập nhật xuất kho" />
+                  <MainContent
+                    title="Cập nhật xuất kho"
+                    breadcrumb={{
+                      parent: { title: "Xuất kho", url: "/xuat-kho" },
+                      current: "Cập nhật",
+                    }}
+                  >
+                    {authMethod?.checkPermission("update-hoa-don-xuat-kho") ? (
+                      <EditExportWarehouse />
+                    ) : (
+                      <Page403 />
+                    )}
+                  </MainContent>
+                </>
+              ),
+            },
             // {
             //   path: "cap-nhat/:productId",
             //   element: (
@@ -440,7 +496,10 @@ function AppRouter() {
               element: (
                 <>
                   <PageTitle title="Danh sách chức vụ" />
-                  <MainContent title="Danh sách chức vụ" subTitle="Quản lý chức vụ">
+                  <MainContent
+                    title="Danh sách chức vụ"
+                    subTitle="Quản lý chức vụ"
+                  >
                     {authMethod?.checkPermission("view-chuc-vu") ? (
                       <Role />
                     ) : (
@@ -454,7 +513,39 @@ function AppRouter() {
               path: ":roleId/quyen-han",
               element: (
                 <>
-                  <PageTitle title="Quản lý quyền hạn"/>
+                  <PageTitle title="Quản lý quyền hạn" />
+                  <MainContent
+                    title="Chức vụ và quyền hạn"
+                    subTitle="Quản lý quyền hạn"
+                  >
+                    <Permission />
+                  </MainContent>
+                </>
+              ),
+            },
+          ],
+        },
+        {
+          path: "/chat",
+          children: [
+            {
+              path: "",
+              element: (
+                <>
+                  <PageTitle title="Danh sách chat" />
+                  <MainContent
+                    title="Chat"
+                  >
+                    <Chat />
+                  </MainContent>
+                </>
+              ),
+            },
+            {
+              path: ":roleId/quyen-han",
+              element: (
+                <>
+                  <PageTitle title="Quản lý quyền hạn" />
                   <MainContent
                     title="Chức vụ và quyền hạn"
                     subTitle="Quản lý quyền hạn"

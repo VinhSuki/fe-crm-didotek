@@ -69,10 +69,7 @@ const importWarehouseApi = {
       throw error;
     }
   },
-  async edit(data: {
-    id: string | number;
-    ten: string;
-  }): Promise<IApiResponse> {
+  async edit(data: any): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
       return await axiosPrivate.put(importWarehouseEndpoints.common, data);

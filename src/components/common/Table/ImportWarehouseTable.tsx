@@ -1,16 +1,20 @@
 import importWarehouseApi from "@/apis/modules/importWarehouse.api";
-import GenericTable from "@/components/common/GenericTable";
 import ConfirmLockButton from "@/components/common/ConfirmLockButton";
+import GenericTable from "@/components/common/GenericTable";
+import { Button } from "@/components/ui/button";
+import { useAuthContext } from "@/context/AuthContext";
 import {
   Column,
   FilterSearch,
   IImportWarehouse,
   ISortOrder,
 } from "@/models/interfaces";
-import View from "@/pages/WarehouseManagement/ImportWarehouse/View";
-import { useCallback } from "react";
 import Return from "@/pages/WarehouseManagement/ImportWarehouse/Return";
-import { useAuthContext } from "@/context/AuthContext";
+import View from "@/pages/WarehouseManagement/ImportWarehouse/View";
+import clsx from "clsx";
+import { SquarePen } from "lucide-react";
+import { useCallback } from "react";
+import { Link } from "react-router-dom";
 
 interface IImportWarehouseTableProps {
   importWarehouses: IImportWarehouse[];
@@ -18,7 +22,6 @@ interface IImportWarehouseTableProps {
   sortOrder: ISortOrder<IImportWarehouse>;
   onFilterChange: (newFilters: FilterSearch[]) => void;
   onSortOrder: (sortOrder: ISortOrder<IImportWarehouse>) => void;
-  onViewInvoice?: () => void;
   onLocked: () => void;
   onReturned: () => void;
 }
@@ -122,13 +125,34 @@ const ImportWarehouseTable = ({
       onSortOrder={onSortOrder}
       actions={(row) => (
         <>
-          <View importWarehouse={row} />{" "}
-          <ConfirmLockButton
-            isLocked={row?.khoa_don ?? false}
-            id={row.ID}
-            onConfirm={onConfirmLock}
-          />
-          <Return importWarehouse={row} onReturned={onReturned} />
+          <View importWarehouse={row} />
+          {authMethod?.checkPermission("update-hoa-don-nhap-kho") && (
+            <Link to={row.khoa_don ? "#" : `cap-nhat/${row.ID}`}>
+              <Button
+                disabled={row.khoa_don}
+                className={clsx(
+                  "bg-zinc-700 hover:bg-zinc-800",
+                  row.khoa_don ? "bg-zinc-100 cursor-default" : ""
+                )}
+              >
+                <SquarePen
+                  className={clsx(
+                    row.khoa_don ? "text-black cursor-default" : "text-white"
+                  )}
+                />
+              </Button>
+            </Link>
+          )}
+          {authMethod?.checkPermission("lock-hoa-don-nhap-kho") && (
+            <ConfirmLockButton
+              isLocked={row?.khoa_don ?? false}
+              id={row.ID}
+              onConfirm={onConfirmLock}
+            />
+          )}
+          {authMethod?.checkPermission("tra-hang-hoa-don-nhap-kho") && (
+            <Return importWarehouse={row} onReturned={onReturned} />
+          )}
         </>
       )}
     />

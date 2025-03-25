@@ -5,6 +5,9 @@ import { FilterSearch, IApiResponse, IExportWarehouse } from "@/models/interface
 
 const exportWarehouseEndpoints = {
   common: "hoa-don-xuat-kho",
+  lock: "hoa-don-xuat-kho/lock",
+  return: "hoa-don-xuat-kho/tra-hang",
+
 };
 
 const exportWarehouseApi = {
@@ -37,13 +40,36 @@ const exportWarehouseApi = {
       throw error;
     }
   },
-  async edit(data: {
-    id: string | number;
-    ten: string;
-  }): Promise<IApiResponse> {
+  async edit(data: any): Promise<IApiResponse> {
     // eslint-disable-next-line no-useless-catch
     try {
       return await axiosPrivate.put(exportWarehouseEndpoints.common, data);
+    } catch (error) {
+      throw error;
+    }
+  },
+  async lock(data: {
+    hoa_don_id: number;
+    lock_or_open: string;
+  }): Promise<IApiResponse> {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      return await axiosPrivate.patch(exportWarehouseEndpoints.lock, data);
+    } catch (error) {
+      throw error;
+    }
+  },
+  async return(data: {
+    hoa_don_id: number;
+    ds_san_pham_tra: {
+      cthd_xuat_kho_id: number;
+      sku: string;
+      so_luong_tra: number;
+    }[];
+  }): Promise<IApiResponse> {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      return await axiosPrivate.patch(exportWarehouseEndpoints.return, data);
     } catch (error) {
       throw error;
     }

@@ -92,7 +92,7 @@ const Permission = () => {
                       p.quyen.map((v) => (
                         <div key={v.ID} className="space-x-2 flex items-center">
                           <Checkbox
-                            defaultChecked={v.trang_thai}
+                            defaultChecked={!!v.trang_thai}
                             onCheckedChange={(checked) =>
                               handleCheckboxChange({
                                 ID: v.ID,
@@ -109,7 +109,7 @@ const Permission = () => {
             ))}
         </div>
         <div className="fixed bottom-5 right-5 space-x-2 z-50">
-          <Link to={"/san-pham"}>
+          <Link to={"/chuc-vu"}>
             <Button type="button" className="bg-black/80 hover:bg-black">
               Đóng
             </Button>

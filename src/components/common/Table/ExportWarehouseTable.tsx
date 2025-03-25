@@ -1,11 +1,20 @@
+import exportWarehouseApi from "@/apis/modules/exportWarehouse.api";
+import ConfirmLockButton from "@/components/common/ConfirmLockButton";
 import GenericTable from "@/components/common/GenericTable";
+import { Button } from "@/components/ui/button";
+import { useAuthContext } from "@/context/AuthContext";
 import {
   Column,
   FilterSearch,
   IExportWarehouse,
   ISortOrder,
 } from "@/models/interfaces";
+import Return from "@/pages/WarehouseManagement/ExportWarehouse/Return";
 import View from "@/pages/WarehouseManagement/ExportWarehouse/View";
+import clsx from "clsx";
+import { SquarePen } from "lucide-react";
+import { useCallback } from "react";
+import { Link } from "react-router-dom";
 
 interface IExportWarehouseTableProps {
   exportWarehouses: IExportWarehouse[];
@@ -13,7 +22,9 @@ interface IExportWarehouseTableProps {
   sortOrder: ISortOrder<IExportWarehouse>;
   onFilterChange: (newFilters: FilterSearch[]) => void;
   onSortOrder: (sortOrder: ISortOrder<IExportWarehouse>) => void;
-  onhan_vieniewInhan_vienoice?: () => void;
+  onViewInvoice?: () => void;
+  onLocked: () => void;
+  onReturned: () => void;
 }
 
 const columns: Column<IExportWarehouse>[] = [
@@ -92,7 +103,26 @@ const ExportWarehouseTable = ({
   sortOrder,
   onFilterChange,
   onSortOrder,
+  onLocked,
+  onReturned,
 }: IExportWarehouseTableProps) => {
+  const authMethod = useAuthContext();
+  const onConfirmLock = useCallback(
+    async (id: string | number, isLocked: boolean) => {
+      // eslint-disable-next-line no-useless-catch
+      try {
+        const data = {
+          hoa_don_id: Number(id),
+          lock_or_open: isLocked ? "lock" : "open",
+        };
+        await exportWarehouseApi.lock(data);
+        onLocked();
+      } catch (error) {
+        throw error;
+      }
+    },
+    [onLocked]
+  ); // Chỉ re-create khi `onDeleted` thay đổi
   return (
     <GenericTable<IExportWarehouse>
       data={exportWarehouses}
@@ -101,7 +131,34 @@ const ExportWarehouseTable = ({
       sortOrder={sortOrder}
       onFilterChange={onFilterChange}
       onSortOrder={onSortOrder}
-      actions={(row) => <View exportWarehouse={row} />}
+      actions={(row) => (
+        <>
+          <View exportWarehouse={row} />
+          {authMethod?.checkPermission("update-hoa-don-xuat-kho") && (
+            <Link to={row.khoa_don ? "#" : `cap-nhat/${row.ID}`}>
+              <Button
+                disabled={row.khoa_don}
+                className={clsx(
+                  "bg-zinc-700 hover:bg-zinc-800",
+                  row.khoa_don ? "bg-zinc-100 cursor-default" : ""
+                )}
+              >
+                <SquarePen />
+              </Button>
+            </Link>
+          )}
+          {authMethod?.checkPermission("lock-hoa-don-xuat-kho") && (
+            <ConfirmLockButton
+              isLocked={row?.khoa_don ?? false}
+              id={row.ID}
+              onConfirm={onConfirmLock}
+            />
+          )}
+          {authMethod?.checkPermission("tra-hang-hoa-don-xuat-kho") && (
+            <Return exportWarehouse={row} onReturned={onReturned} />
+          )}
+        </>
+      )}
     />
   );
 };

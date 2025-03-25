@@ -178,7 +178,7 @@ export interface IWarehouse {
 }
 
 export interface IImportProduct {
-  ID?:string | number
+  ID?: string | number;
   chiet_khau: string | number;
   ctsp_id: number | string;
   don_vi_tinh: string;
@@ -196,6 +196,7 @@ export interface IImportProduct {
 }
 
 export interface IExportProduct {
+  ID?: string | number;
   chiet_khau: string | number;
   upc: string;
   ctsp_ten: string;
@@ -266,10 +267,16 @@ export interface IExportWarehouse {
   nhan_vien_sale: string;
   nhan_vien_sale_id: string | number;
   ghi_chu: string;
+  thanh_tien: string | number;
+  vat: string | number;
   ngay_xuat: Date | string;
   so_hoa_don: string;
   tong_tien: string | number;
   tra_truoc: string | number;
+  khoa_don: boolean;
+  da_giao_hang: boolean;
+  gia_tri_chiet_khau: number | string;
+  loai_chiet_khau: number | string;
   ds_san_pham_xuat: IExportProduct[];
   UpdatedAt: string;
   DeletedAt: string;

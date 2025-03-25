@@ -1,14 +1,12 @@
 import ConfirmDeleteButton from "@/components/common/ConfirmDeleteButton";
 import GenericTable from "@/components/common/GenericTable";
-import {
-  Column,
-  IExportProduct
-} from "@/models/interfaces";
+import { Column, IExportProduct } from "@/models/interfaces";
 import { useCallback } from "react";
 
 interface IExportProductsTableProps {
   exportProducts: IExportProduct[];
-  onDeleted: (id: string | number) => void;
+  onDeleted?: (id: string | number) => void;
+  type?: "edit" | "add";
 }
 
 const columns: Column<IExportProduct>[] = [
@@ -49,10 +47,12 @@ const columns: Column<IExportProduct>[] = [
 const CustomerTable = ({
   exportProducts,
   onDeleted,
+  type = "add",
 }: IExportProductsTableProps) => {
+  const isDisabled = type === "edit";
   const onConfirmDelete = useCallback(
     async (id: string | number) => {
-      await onDeleted(id);
+      if (onDeleted) await onDeleted(id);
     },
     [onDeleted]
   ); // Chỉ re-create khi `onDeleted` thay đổi
@@ -61,13 +61,15 @@ const CustomerTable = ({
     <GenericTable<IExportProduct>
       data={exportProducts}
       columns={columns}
-      actions={(_,index) => (
+      actions={(_, index) => (
         <>
-          <ConfirmDeleteButton
-            id={index}
-            onConfirm={onConfirmDelete}
-            title={`Bạn có chắc chắn muốn xóa sản phẩm số ${index+1}?`}
-          />
+          {!isDisabled && (
+            <ConfirmDeleteButton
+              id={index}
+              onConfirm={onConfirmDelete}
+              title={`Bạn có chắc chắn muốn xóa sản phẩm số ${index + 1}?`}
+            />
+          )}
         </>
       )}
     />
