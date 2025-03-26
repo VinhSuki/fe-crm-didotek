@@ -39,9 +39,7 @@ function WarehouseProvider({ children }: WarehouseProviderProps) {
 
   useEffect(() => {
     const token = Cookies.get("token")
-    console.log(token);
     const fetchApi = async () => {
-      console.log("call api");
       const res = await warehouseApi.list({});
       if (res.data?.data) {
         setList(res.data.data);

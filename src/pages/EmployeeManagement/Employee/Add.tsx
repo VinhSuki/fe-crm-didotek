@@ -120,7 +120,6 @@ export default function Add({ onAdded }: { onAdded: () => void }) {
       });
     }
   };
-  console.log(listRoles);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>

@@ -77,11 +77,11 @@ axiosPrivate.interceptors.response.use(
 
     // Xử lý lỗi Authorization (403 Forbidden)
     if (error.response?.status === 403) {
-      console.error(
-        "Access denied. You do not have permission to perform this action."
-      );
-      // Redirect đến trang thông báo hoặc trang lỗi
-      window.location.href = "/403"; // Trang tùy chỉnh cho lỗi 403
+      // console.error(
+      //   "Access denied. You do not have permission to perform this action."
+      // );
+      // // Redirect đến trang thông báo hoặc trang lỗi
+      // window.location.href = "/403"; // Trang tùy chỉnh cho lỗi 403
       return Promise.reject(error);
     }
 

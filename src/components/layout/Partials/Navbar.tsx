@@ -1,3 +1,4 @@
+import DropdownSearchChat from "@/components/common/DropdownSearchChat";
 import SelectSearchNoForm from "@/components/common/SelectSearchNoForm";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,7 @@ import {
   User,
 } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export function Navbar() {
   const [lang, setLang] = useState("EN");
@@ -30,6 +31,10 @@ export function Navbar() {
   const navbar = useNavbarContext();
   const authMethod = useAuthContext();
   const warehouse = useWarehouseContext();
+  const navigate = useNavigate();
+  const handleGetUserIdMessage = (id: number) => {
+    navigate("/chat/" + id);
+  };
   return (
     <nav
       className={clsx(
@@ -67,6 +72,10 @@ export function Navbar() {
           value={warehouse?.selectedId}
           onChange={(id) => warehouse?.setSelectedId(id)}
           options={warehouse?.list ?? []}
+        />
+        <DropdownSearchChat
+          currentId={Number(authMethod?.account?.ID ?? 0)}
+          onGetUserId={handleGetUserIdMessage}
         />
         <div className="flex items-center gap-2">
           <Button variant="ghost" className="relative">

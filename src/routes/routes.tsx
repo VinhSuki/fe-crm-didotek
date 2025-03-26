@@ -526,7 +526,7 @@ function AppRouter() {
           ],
         },
         {
-          path: "/chat",
+          path: "/chat/:userId",
           children: [
             {
               path: "",
@@ -534,7 +534,7 @@ function AppRouter() {
                 <>
                   <PageTitle title="Danh sách chat" />
                   <MainContent
-                    title="Chat"
+                    title="Chat Room"
                   >
                     <Chat />
                   </MainContent>
@@ -566,6 +566,17 @@ function AppRouter() {
           <PageTitle title="Đăng nhập" />
           <PublicRoute>
             <Login />
+          </PublicRoute>
+        </>
+      ),
+    },
+    {
+      path: "/403",
+      element: (
+        <>
+          <PageTitle title="Không thể truy cập" />
+          <PublicRoute>
+            <Page403 />
           </PublicRoute>
         </>
       ),

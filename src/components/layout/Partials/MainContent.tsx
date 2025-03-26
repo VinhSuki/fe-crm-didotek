@@ -56,9 +56,7 @@ export function MainContent({
             </Breadcrumb>
           ) : subTitle ? (
             <p className="text-sm">{subTitle}</p>
-          ) : (
-            <p className="text-sm">{title}</p>
-          )}
+          ) : null}
         </div>
         <button
           className={clsx(
