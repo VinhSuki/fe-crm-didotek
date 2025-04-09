@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import ConfirmDeleteButton from "@/components/common/ConfirmDeleteButton";
 import NumericInput from "@/components/common/NumericInput";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +24,7 @@ import formatVND from "@/utils/formatVND";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
 import { Trash2 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 

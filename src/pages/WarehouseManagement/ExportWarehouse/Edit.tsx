@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-empty */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -32,6 +33,7 @@ import {
   IExportWarehouse,
   IOption,
 } from "@/models/interfaces";
+import { showErrorAlert, showSuccessAlert } from "@/utils/alert";
 import formatVND from "@/utils/formatVND";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
@@ -42,7 +44,6 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { z } from "zod";
 import ExportProductTable from "./ExportProduct/Table";
-import { showErrorAlert, showSuccessAlert } from "@/utils/alert";
 // import AddImportProduct from "./Product/Add";
 
 const listOptionTypeDiscount: IOption[] = [
@@ -91,7 +92,7 @@ const Add = () => {
   const form = useForm({
     resolver: zodResolver(exportWarehouseSchema),
   });
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const navigate = useNavigate();
   const sidebar = useSidebarContext();
   const [listOptionCustomers, setListOptionCustomers] = useState<IOption[]>([]);

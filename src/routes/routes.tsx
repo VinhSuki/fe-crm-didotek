@@ -90,6 +90,14 @@ const Permission = Loadable(
 
 const Chat = Loadable(lazy(() => import("@/pages/Chat")));
 
+const TestTanstackQuery = Loadable(
+  lazy(() => import("@/pages/TestTanstackQuery"))
+);
+
+const TestTanstackQueryScroll = Loadable(
+  lazy(() => import("@/pages/TestTanstackQueryScroll"))
+);
+
 function AppRouter() {
   const authMethod = useAuthContext();
   const routes = [
@@ -533,9 +541,7 @@ function AppRouter() {
               element: (
                 <>
                   <PageTitle title="Danh sách chat" />
-                  <MainContent
-                    title="Chat Room"
-                  >
+                  <MainContent title="Chat Room">
                     <Chat />
                   </MainContent>
                 </>
@@ -578,6 +584,28 @@ function AppRouter() {
           <PublicRoute>
             <Page403 />
           </PublicRoute>
+        </>
+      ),
+    },
+    {
+      path: "/test-tanstack-query",
+      element: (
+        <>
+          <PageTitle title="Không thể truy cập" />
+          <PrivateRoute>
+            <TestTanstackQuery />
+          </PrivateRoute>
+        </>
+      ),
+    },
+     {
+      path: "/test-tanstack-query-scroll",
+      element: (
+        <>
+          <PageTitle title="Không thể truy cập" />
+          <PrivateRoute>
+            <TestTanstackQueryScroll />
+          </PrivateRoute>
         </>
       ),
     },

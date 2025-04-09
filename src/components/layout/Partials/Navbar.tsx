@@ -115,7 +115,7 @@ export function Navbar() {
               </Avatar>
               <div className="text-sm">
                 <p className="font-semibold">{authMethod?.account!.ho_ten}</p>
-                <p className="text-gray-500">Super Admin</p>
+                <p className="text-gray-500">{authMethod?.account?.chuc_vu}</p>
               </div>
               <ChevronDown
                 className={clsx(

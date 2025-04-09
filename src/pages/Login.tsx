@@ -76,13 +76,13 @@ const Login: React.FC = () => {
   return (
     <>
       <div className="h-screen w-screen bg-background-overlay/5 flex justify-center">
-        <div className="h-full flex flex-col justify-center items-center w-[500px] space-y-8">
+        <div className="h-full flex flex-col justify-center items-center min-w-[500px] space-y-8">
           <img
             src={Images.mainLogo.url}
             alt={Images.mainLogo.name}
             className="object-contain max-w-[150px]"
           />
-          <div className="w-full xl:p-10 bg-white space-y-4 shadow-lg">
+          <div className="w-full p-10 bg-white space-y-4 shadow-lg">
             <div>
               <h2 className="text-2xl font-bold text-black mb-2">Đăng nhập</h2>
               <p className="text-sm">

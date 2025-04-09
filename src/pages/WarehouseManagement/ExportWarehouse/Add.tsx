@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-empty */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -124,7 +125,7 @@ const Add = () => {
       ds_san_pham_xuat: [], // Danh sách sản phẩm xuất trống ban đầu
     },
   });
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const navigate = useNavigate();
   const sidebar = useSidebarContext();
   const listExportProducts = form.watch("ds_san_pham_xuat");

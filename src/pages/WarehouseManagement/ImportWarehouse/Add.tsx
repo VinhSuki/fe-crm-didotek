@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-empty */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -100,7 +101,7 @@ const Add = () => {
       ngay_nhap: new Date(),
     },
   });
-  const [loading, setLoading] = useState(false);
+  const [_, setLoading] = useState(false);
   const navigate = useNavigate();
   const sidebar = useSidebarContext();
   const [listDistributors, setListDistributors] = useState<IDistributor[]>([]);

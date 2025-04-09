@@ -1,0 +1,23 @@
+name: Deploy React Vite App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted  # Sử dụng self-hosted runner trên máy local
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and Run Docker Container
+        run: |
+          docker build -t my-react-app .
+          docker stop my-react-app-container || true  # Dừng container cũ nếu tồn tại
+          docker rm my-react-app-container || true    # Xóa container cũ nếu tồn tại
+          docker run -d -p 8080:80 --name my-react-app-container my-react-app
