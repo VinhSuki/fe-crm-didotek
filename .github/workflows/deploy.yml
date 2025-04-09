@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: self-hosted  # Sử dụng self-hosted runner trên máy local
+    runs-on: self-hosted
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -15,9 +15,16 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Build and Run Docker Container
-        run: |
-          docker build -t fe-crm-didotek .
-          docker stop fe-crm-didotek-container 2>$null; if ($?) { Write-Output "Stopped container" } else { Write-Output "No container to stop" }
-          docker rm fe-crm-didotek-container 2>$null; if ($?) { Write-Output "Removed container" } else { Write-Output "No container to remove" }
-          docker run -d -p 8080:80 --name fe-crm-didotek-container fe-crm-didotek
+      - name: Build Docker image
+        run: docker build -t fe-crm-didotek .
+
+      - name: Stop old container
+        run: docker stop fe-crm-didotek-container
+        continue-on-error: true
+
+      - name: Remove old container
+        run: docker rm fe-crm-didotek-container
+        continue-on-error: true
+
+      - name: Run new container
+        run: docker run -d -p 8080:80 --name fe-crm-didotek-container fe-crm-didotek
