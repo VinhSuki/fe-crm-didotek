@@ -22,9 +22,8 @@ FROM nginx:alpine
 # Sao chép các file build từ bước builder vào thư mục nginx
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-
-# Copy file cấu hình nginx nếu cần (tùy chọn)
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy file cấu hình nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Mở cổng 80 để truy cập ứng dụng
 EXPOSE 80
