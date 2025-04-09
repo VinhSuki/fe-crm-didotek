@@ -84,7 +84,7 @@ const Login: React.FC = () => {
           />
           <div className="w-full p-10 bg-white space-y-4 shadow-lg">
             <div>
-              <h2 className="text-2xl font-bold text-black mb-2">Đinh Quang Vinh</h2>
+              <h2 className="text-2xl font-bold text-black mb-2">Đăng nhập</h2>
               <p className="text-sm">
                 Vui lòng đăng nhập bằng tên đăng nhập và mật khẩu của bạn.
               </p>
