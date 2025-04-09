@@ -18,6 +18,6 @@ jobs:
       - name: Build and Run Docker Container
         run: |
           docker build -t fe-crm-didotek .
-          docker stop fe-crm-didotek-container || true  # Dừng container cũ nếu tồn tại
-          docker rm fe-crm-didotek-container || true    # Xóa container cũ nếu tồn tại
+          docker stop fe-crm-didotek-container 2>$null
+          docker rm fe-crm-didotek-container 2>$null
           docker run -d -p 8080:80 --name fe-crm-didotek-container fe-crm-didotek
