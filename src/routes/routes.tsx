@@ -1,16 +1,16 @@
 import Loader from "@/components/common/Loader";
 import PageTitle from "@/components/common/PageTitle";
+import PrivateRoute from "@/components/common/PrivateRoute";
+import PublicRoute from "@/components/common/PublicRoute";
 import DefaultLayout from "@/components/layout/DefaultLayout";
+import { MainContent } from "@/components/layout/Partials/MainContent";
+import { useAuthContext } from "@/context/AuthContext";
+import WarehouseProvider from "@/context/WarehouseContext";
+import Page403 from "@/pages/403";
+import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import { ComponentType, lazy, ReactNode, Suspense } from "react";
 import { useRoutes } from "react-router-dom";
-import PublicRoute from "@/components/common/PublicRoute";
-import PrivateRoute from "@/components/common/PrivateRoute";
-import Home from "@/pages/Home";
-import { MainContent } from "@/components/layout/Partials/MainContent";
-import { useAuthContext } from "@/context/AuthContext";
-import Page403 from "@/pages/403";
-import WarehouseProvider from "@/context/WarehouseContext";
 
 const Loadable = <P extends object>(
   Component: ComponentType<P>
@@ -69,6 +69,9 @@ const AddImportWarehouse = Loadable(
 const EditImportWarehouse = Loadable(
   lazy(() => import("@/pages/WarehouseManagement/ImportWarehouse/Edit"))
 );
+const ApImportWarehouse = Loadable(
+  lazy(() => import("@/pages/WarehouseManagement/ImportWarehouse/Ap"))
+);
 
 const ExportWarehouse = Loadable(
   lazy(() => import("@/pages/WarehouseManagement/ExportWarehouse"))
@@ -79,6 +82,11 @@ const AddExportWarehouse = Loadable(
 const EditExportWarehouse = Loadable(
   lazy(() => import("@/pages/WarehouseManagement/ExportWarehouse/Edit"))
 );
+
+const ArExportWarehouse = Loadable(
+  lazy(() => import("@/pages/WarehouseManagement/ExportWarehouse/Ar"))
+);
+
 
 const Role = Loadable(
   lazy(() => import("@/pages/EmployeeManagement/RolePermission"))
@@ -400,27 +408,21 @@ function AppRouter() {
                 </>
               ),
             },
-            // {
-            //   path: "cap-nhat/:productId",
-            //   element: (
-            //     <>
-            //       <PageTitle title="Cập nhật sản phẩm" />
-            //       <MainContent
-            //         title="Cập nhật sản phẩm"
-            //         breadcrumb={{
-            //           parent: { title: "Sản phẩm", url: "/san-pham" },
-            //           current: "Cập nhật",
-            //         }}
-            //       >
-            //         {authMethod?.checkPermission("update-") ? (
-            //           <DiscountType />
-            //         ) : (
-            //           <Page403 />
-            //         )}
-            //       </MainContent>
-            //     </>
-            //   ),
-            // },
+            {
+              path: "cong-no",
+              element: (
+                <>
+                  <PageTitle title="Danh sách công nợ" />
+                  <MainContent title="Quản lý công nợ">
+                    {authMethod?.checkPermission("view-cong-no-nha-phan-phoi") ? (
+                      <ApImportWarehouse />
+                    ) : (
+                      <Page403 />
+                    )}
+                  </MainContent>
+                </>
+              ),
+            },
           ],
         },
         {
@@ -470,6 +472,21 @@ function AppRouter() {
                   >
                     {authMethod?.checkPermission("update-hoa-don-xuat-kho") ? (
                       <EditExportWarehouse />
+                    ) : (
+                      <Page403 />
+                    )}
+                  </MainContent>
+                </>
+              ),
+            },
+            {
+              path: "cong-no",
+              element: (
+                <>
+                  <PageTitle title="Danh sách công nợ" />
+                  <MainContent title="Quản lý công nợ">
+                    {authMethod?.checkPermission("view-cong-no-khach-hang") ? (
+                      <ArExportWarehouse />
                     ) : (
                       <Page403 />
                     )}

@@ -10,6 +10,7 @@ import { ESortOrderValue } from "@/models/enums/option";
 import {
   fetchDynamicData,
   initState,
+  setDebt,
   setFilters,
   setLocked,
   setPagination,
@@ -41,6 +42,7 @@ export default function Index() {
     isLocked,
     isReturned,
     isInitialized,
+    isDebt,
   } = useSelector((state: RootState) => state.genericPage[ENTITY_KEY] || {});
 
   useEffect(() => {
@@ -64,6 +66,7 @@ export default function Index() {
     isEdited,
     isLocked,
     isReturned,
+    isDebt,
   ]);
   return (
     <div className="space-y-6 relative">
@@ -86,6 +89,7 @@ export default function Index() {
           )}
         >
           <ExportWarehouseTable
+            onDebt={() => dispatch(setDebt(ENTITY_KEY))}
             onReturned={() => dispatch(setReturned(ENTITY_KEY))}
             onLocked={() => dispatch(setLocked(ENTITY_KEY))}
             exportWarehouses={exportWarehouses} // Dữ liệu lấy từ Redux

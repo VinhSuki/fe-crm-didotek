@@ -9,10 +9,11 @@ import {
   IImportWarehouse,
   ISortOrder,
 } from "@/models/interfaces";
+import Debt from "@/pages/WarehouseManagement/ImportWarehouse/Debt";
 import Return from "@/pages/WarehouseManagement/ImportWarehouse/Return";
 import View from "@/pages/WarehouseManagement/ImportWarehouse/View";
 import clsx from "clsx";
-import { SquarePen } from "lucide-react";
+import { PiggyBank, SquarePen } from "lucide-react";
 import { useCallback } from "react";
 import { Link } from "react-router-dom";
 
@@ -24,6 +25,7 @@ interface IImportWarehouseTableProps {
   onSortOrder: (sortOrder: ISortOrder<IImportWarehouse>) => void;
   onLocked: () => void;
   onReturned: () => void;
+  onDebt: () => void;
 }
 
 const columns: Column<IImportWarehouse>[] = [
@@ -97,6 +99,7 @@ const ImportWarehouseTable = ({
   onSortOrder,
   onLocked,
   onReturned,
+  onDebt,
 }: IImportWarehouseTableProps) => {
   const authMethod = useAuthContext();
   const onConfirmLock = useCallback(
@@ -152,6 +155,19 @@ const ImportWarehouseTable = ({
           )}
           {authMethod?.checkPermission("tra-hang-hoa-don-nhap-kho") && (
             <Return importWarehouse={row} onReturned={onReturned} />
+          )}
+            <Debt importWarehouse={row} onDebt={onDebt} />
+            {authMethod?.checkPermission("view-cong-no-nha-phan-phoi") && (
+            <Link to={`cong-no`}>
+              <Button
+                className={clsx(
+                  "bg-purple-700 hover:bg-purple-800",
+                )}
+              >
+                <PiggyBank
+                />
+              </Button>
+            </Link>
           )}
         </>
       )}

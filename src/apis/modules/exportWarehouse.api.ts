@@ -7,7 +7,8 @@ const exportWarehouseEndpoints = {
   common: "hoa-don-xuat-kho",
   lock: "hoa-don-xuat-kho/lock",
   return: "hoa-don-xuat-kho/tra-hang",
-
+  debt: "hoa-don-xuat-kho/tra-no",
+  ar: "hoa-don-xuat-kho/cong-no",
 };
 
 const exportWarehouseApi = {
@@ -70,6 +71,17 @@ const exportWarehouseApi = {
     // eslint-disable-next-line no-useless-catch
     try {
       return await axiosPrivate.patch(exportWarehouseEndpoints.return, data);
+    } catch (error) {
+      throw error;
+    }
+  },
+  async ar(data: {
+    hoa_don_id: number;
+    tien_tra: number;
+  }): Promise<IApiResponse> {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      return await axiosPrivate.patch(exportWarehouseEndpoints.ar, data);
     } catch (error) {
       throw error;
     }

@@ -326,3 +326,21 @@ export interface IRolePermission {
   loai_quyen: string;
   quyen: IPermission[];
 }
+
+export interface IApImportWarehouse {
+  con_lai: number | string;
+  nha_phan_phoi: string;
+  nha_phan_phoi_id: number | string;
+  tong_hoa_don: number | string;
+  tong_tien: number | string;
+  tra_truoc: number | string;
+}
+
+export interface IArExportWarehouse {
+  con_lai: number | string;
+  khach_hang: string;
+  khach_hang_id: number | string;
+  tong_hoa_don: number | string;
+  tong_tien: number | string;
+  tra_truoc: number | string;
+}

@@ -19,6 +19,7 @@ interface DynamicState<T> {
   isLocked: boolean;
   isReturned: boolean;
   isInitialized: boolean; // 🆕 Thêm trạng thái khởi tạo
+  isDebt: boolean;
 }
 
 // Hàm khởi tạo state động
@@ -33,6 +34,7 @@ const createDynamicInitialState = <T>(): DynamicState<T> => ({
   isEdited: false,
   isLocked:false,
   isReturned:false,
+  isDebt: false,
   isInitialized: false, // 🆕 Ban đầu chưa khởi tạo
 });
 
@@ -121,6 +123,9 @@ const genericPage = createSlice({
     setReturned: (state, action: PayloadAction<string>) => {
       state[action.payload].isReturned = !state[action.payload].isReturned;
     },
+    setDebt: (state, action: PayloadAction<string>) => {
+      state[action.payload].isDebt = !state[action.payload].isDebt;
+    },
     initState: (state, action: PayloadAction<string>) => {
       if (!state[action.payload]) {
         state[action.payload] = createDynamicInitialState();
@@ -158,5 +163,6 @@ export const {
   setLocked,
   setReturned,
   initState,
+  setDebt
 } = genericPage.actions;
 export default genericPage.reducer;

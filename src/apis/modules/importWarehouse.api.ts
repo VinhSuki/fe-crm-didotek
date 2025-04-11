@@ -11,6 +11,8 @@ const importWarehouseEndpoints = {
   common: "hoa-don-nhap-kho",
   lock: "hoa-don-nhap-kho/lock",
   return: "hoa-don-nhap-kho/tra-hang",
+  debt: "hoa-don-nhap-kho/tra-no",
+  ap:"hoa-don-nhap-kho/cong-no",
 };
 
 const importWarehouseApi = {
@@ -76,6 +78,28 @@ const importWarehouseApi = {
     } catch (error) {
       throw error;
     }
+  },
+  async debt(data: {
+    hoa_don_id: number;
+    tien_tra: number;
+  }): Promise<IApiResponse> {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      return await axiosPrivate.patch(importWarehouseEndpoints.debt, data);
+    } catch (error) {
+      throw error;
+    }
+  },
+  async ap(params: {
+    page?: number;
+    limit?: number;
+    filters?: FilterSearch[];
+    sort?: keyof IImportWarehouse | "";
+    order?: ESortOrderValue;
+  }): Promise<IApiResponse<IImportWarehouse[]>> {
+    return axiosPrivate.get(importWarehouseEndpoints.ap, {
+      params: { ...params, filters: JSON.stringify(params.filters) },
+    });
   },
 };
 

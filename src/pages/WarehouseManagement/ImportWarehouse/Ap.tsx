@@ -1,37 +1,32 @@
 import importWarehouseApi from "@/apis/modules/importWarehouse.api";
 import Loader from "@/components/common/Loader";
 import PaginationCustom from "@/components/common/PaginationCustom";
-import ImportWarehouseTable from "@/components/common/Table/ImportWarehouseTable";
+import ApImportWareHouseTable from "@/components/common/Table/ArExportWareHouseTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { useAuthContext } from "@/context/AuthContext";
 import { useSidebarContext } from "@/context/SidebarContext";
 import { ESortOrderValue } from "@/models/enums/option";
 import {
   fetchDynamicData,
   initState,
-  setDebt,
   setFilters,
-  setLocked,
   setPagination,
-  setReturned,
   setSortOrder,
 } from "@/redux/slices/genericPage.slice";
 import { AppDispatch, RootState } from "@/redux/store";
 import clsx from "clsx";
-import { Plus } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
-const ENTITY_KEY = "importWarehouse"; // Định danh động
+const ENTITY_KEY = "ap"; // Định danh động
 
-export default function Index() {
+export default function Ap() {
   const dispatch = useDispatch<AppDispatch>();
   const sidebar = useSidebarContext();
-  const authMethod = useAuthContext();
   const {
-    data: importWarehouses = [],
+    data: aps = [],
     filters = [],
     pagination = { currentPage: 1, totalPage: 0 },
     sortOrder = { sort: "", order: ESortOrderValue.ASC },
@@ -42,7 +37,7 @@ export default function Index() {
     isInitialized,
     isLocked,
     isReturned,
-    isDebt
+    isDebt,
   } = useSelector((state: RootState) => state.genericPage[ENTITY_KEY] || {});
 
   useEffect(() => {
@@ -51,9 +46,10 @@ export default function Index() {
 
   useEffect(() => {
     if (isInitialized) {
-      console.log("call");
       // 🆕 Chỉ gọi API khi đã khởi tạo
-      dispatch(fetchDynamicData({ key: ENTITY_KEY, api: importWarehouseApi }));
+      dispatch(
+        fetchDynamicData({ key: ENTITY_KEY, api: importWarehouseApi.ap })
+      );
     }
   }, [
     dispatch,
@@ -66,21 +62,19 @@ export default function Index() {
     isEdited,
     isLocked,
     isReturned,
-    isDebt
+    isDebt,
   ]);
   return (
     <div className="space-y-6 relative">
       {/* Product Table */}
       <Card>
         <CardHeader className="flex-row justify-end items-center border-b">
-          {authMethod?.checkPermission("create-hoa-don-nhap-kho") && (
-            <Link to="/nhap-kho/them-moi">
-              <Button className="bg-primary hover:bg-secondary text-white">
-                <Plus />
-                <span>Thêm mới</span>
-              </Button>
-            </Link>
-          )}
+          <Link to="/nhap-kho">
+            <Button className="bg-primary hover:bg-secondary text-white">
+              <ArrowLeft />
+              <span>Quay lại</span>
+            </Button>
+          </Link>
         </CardHeader>
         <CardContent
           className={clsx(
@@ -88,11 +82,8 @@ export default function Index() {
             sidebar.isCollapsed ? "max-w-[1380px]" : "max-w-[1200px]"
           )}
         >
-          <ImportWarehouseTable
-            onReturned={() => dispatch(setReturned(ENTITY_KEY))}
-            onLocked={() => dispatch(setLocked(ENTITY_KEY))}
-            onDebt={() => dispatch(setDebt(ENTITY_KEY))}
-            importWarehouses={importWarehouses} // Dữ liệu lấy từ Redux
+          <ApImportWareHouseTable
+            aps={aps} // Dữ liệu lấy từ Redux
             filters={filters}
             sortOrder={sortOrder}
             onFilterChange={(newFilters) =>
